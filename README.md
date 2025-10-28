@@ -14,6 +14,8 @@ to build this project you need to run this three commands:
   mkdir build
   cd build
   cmake ..
+  cmake --build .
+  cmake
 ```
  you need to have cmake 3.28 or above installed    
 ## Running program
