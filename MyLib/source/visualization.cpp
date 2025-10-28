@@ -7,19 +7,19 @@ Vis::visualization::visualization()
 
 void Vis::visualization::loadTextures()
 {
-    whiteTex[Chess::pawns].loadFromFile(("resources/white_pawn.png"));
-    whiteTex[Chess::knights].loadFromFile(("resources/white_knight.png"));
-    whiteTex[Chess::bishops].loadFromFile(("resources/white_bishop.png"));
-    whiteTex[Chess::rooks].loadFromFile(("resources/white_rock.png"));
-    whiteTex[Chess::queens].loadFromFile(("resources/white_queen.png"));
-    whiteTex[Chess::kings].loadFromFile(("resources/white_king.png"));
+    whiteTex[Chess::pawns].loadFromFile(("bin/Debug/resources/white_pawn.png"));
+    whiteTex[Chess::knights].loadFromFile(("bin/Debug/resources/white_knight.png"));
+    whiteTex[Chess::bishops].loadFromFile(("bin/Debug/resources/white_bishop.png"));
+    whiteTex[Chess::rooks].loadFromFile(("bin/Debug/resources/white_rock.png"));
+    whiteTex[Chess::queens].loadFromFile(("bin/Debug/resources/white_queen.png"));
+    whiteTex[Chess::kings].loadFromFile(("bin/Debug/resources/white_king.png"));
 
-    blackTex[Chess::pawns].loadFromFile(("resources/black_pawn.png"));
-    blackTex[Chess::knights].loadFromFile(("resources/black_knight.png"));
-    blackTex[Chess::bishops].loadFromFile(("resources/black_bishop.png"));
-    blackTex[Chess::rooks].loadFromFile(("resources/black_rock.png"));
-    blackTex[Chess::queens].loadFromFile(("resources/black_queen.png"));
-    blackTex[Chess::kings].loadFromFile(("resources/black_king.png"));
+    blackTex[Chess::pawns].loadFromFile(("bin/Debug/resources/black_pawn.png"));
+    blackTex[Chess::knights].loadFromFile(("bin/Debug/resources/black_knight.png"));
+    blackTex[Chess::bishops].loadFromFile(("bin/Debug/resources/black_bishop.png"));
+    blackTex[Chess::rooks].loadFromFile(("bin/Debug/resources/black_rock.png"));
+    blackTex[Chess::queens].loadFromFile(("bin/Debug/resources/black_queen.png"));
+    blackTex[Chess::kings].loadFromFile(("bin/Debug/resources/black_king.png"));
 
     chesstex.loadFromFile("resources/chessboard.png");
     chessboard = std::make_unique<sf::Sprite>(chesstex);
