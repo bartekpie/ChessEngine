@@ -9,8 +9,9 @@ class ChessStateTest : public ::testing::Test {
 protected:
 	Chess::ChessState state;
 
-	
+
 };
+
 TEST_F(ChessStateTest, defaultPositionCheck) {
 	//kolory 
 	EXPECT_TRUE(state.isWhiteMove()) << "Na pocz¹tku powinien by ruch bia³ych";
@@ -22,7 +23,7 @@ TEST_F(ChessStateTest, defaultPositionCheck) {
 	EXPECT_EQ(state.getPieces(Chess::Pieces::rooks), (1ULL << 0) | (1ULL << 7) | (1ULL << 63) | (1ULL << 56));
 	EXPECT_EQ(state.getPieces(Chess::Pieces::queens), (1ULL << 3) | (1ULL << 59));
 	EXPECT_EQ(state.getPieces(Chess::Pieces::kings), (1ULL << 4) | (1ULL << 60));
-	EXPECT_EQ(state.getPieces(Chess::Pieces::pawns),  );
-
+	
 }
+
 

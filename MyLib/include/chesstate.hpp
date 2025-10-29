@@ -1,7 +1,6 @@
 #pragma once
 #include"types.hpp"
 #include"bitboard.hpp"
-
 #include "const.hpp"
 #include <stack>
 namespace Chess {
@@ -32,7 +31,7 @@ namespace Chess {
 	};
 	class ChessState {
 	public:
-
+		
 		ChessState();
 		int mobiltyTable[2][sizePieces] = { 0 };
 		int generateLegalMoves(MoveList& moves);
@@ -52,12 +51,13 @@ namespace Chess {
 		static Move code_move(int from, int to);
 		Undo historyTop() { return history.top(); }
 	private:
+		
 		U64 blackPieces;  /// opis szachownicy
 		U64 whitePieces;
 		U64 emptySpaces;
 		U64 pieces[sizePieces];
 		bool white_move;
-
+		
 		/// struktura do szybkiego zapisywania ruchów
 		MoveList moves;
 		MoveList checkhelper;
@@ -103,6 +103,8 @@ namespace Chess {
 		static void generate_rook_tables(U64(&N_)[64], U64(&S_)[64], U64(&E_)[64], U64(&W_)[64]);
 		static void generate_bishop_tables(U64(&NE_)[64], U64(&NW_)[64], U64(&SE_)[64], U64(&SW_)[64]);
 		static void generate_king_table(U64(&Kings)[64]);
+		friend class ChessStateTest;
 	};
+	
 
 }

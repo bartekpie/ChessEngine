@@ -537,21 +537,21 @@ namespace Chess {
 		block = East[square] & myPieces;
 		U64 E_eliminated = ~(block)&East[square];
 		if (block)
-			E_eliminated &= ~(East[std::countr_zero(block)]);
+			E_eliminated &= ~(East[63 - std::countl_zero(block)]);
 
 		block = East[square] & opponentPieces;
 		if (block)
-			E_eliminated &= ~(East[std::countr_zero(block)]);
+			E_eliminated &= ~(East[63 - std::countl_zero(block)]);
 
 		// WEST
 		block = West[square] & myPieces;
 		U64 W_eliminated = ~(block)&West[square];
 		if (block)
-			W_eliminated &= ~(West[63 - std::countl_zero(block)]);
+			W_eliminated &= ~(West[std::countr_zero(block)]);
 
 		block = West[square] & opponentPieces;
 		if (block)
-			W_eliminated &= ~(West[63 - std::countl_zero(block)]);
+			W_eliminated &= ~(West[std::countr_zero(block)]);
 		U64 final = N_eliminated | S_eliminated | E_eliminated | W_eliminated;
 
 		return final;
