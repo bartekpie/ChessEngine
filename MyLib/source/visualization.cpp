@@ -10,7 +10,7 @@ void Vis::visualization::loadTextures()
     whiteTex[Chess::pawns].loadFromFile(("resources/white_pawn.png"));
     whiteTex[Chess::knights].loadFromFile(("resources/white_knight.png"));
     whiteTex[Chess::bishops].loadFromFile(("resources/white_bishop.png"));
-    whiteTex[Chess::rooks].loadFromFile(("resources / white_rock.png"));
+    whiteTex[Chess::rooks].loadFromFile(("resources/white_rock.png"));
     whiteTex[Chess::queens].loadFromFile(("resources/white_queen.png"));
     whiteTex[Chess::kings].loadFromFile(("resources/white_king.png"));
 
