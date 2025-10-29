@@ -4,54 +4,25 @@
 #include <cstdlib>
 #include <ctime>
 #include "chesstate.hpp"
+#include "bitboard.hpp"
+class ChessStateTest : public ::testing::Test {
+protected:
+	Chess::ChessState state;
 
-// Demonstrate some basic assertions.
-TEST(HelloTest, SimualateMove) {
-	Chess::ChessState chessState;
-	U64 begginPawns = chessState.getPieces(Chess::Pieces::pawns);
-	U64 begginBishops = chessState.getPieces(Chess::Pieces::bishops);
-	U64 begginKnights = chessState.getPieces(Chess::Pieces::knights);
-	U64 begginRooks = chessState.getPieces(Chess::Pieces::rooks);
-	U64 begginQueen = chessState.getPieces(Chess::Pieces::queens);
-	U64 begginKing = chessState.getPieces(Chess::Pieces::kings);
-
-	std::srand(std::time(nullptr));
-	int a = 100;
-	for (int z = 0; z < 3; z++) {
-		for (int i = 0; i < a; i++)
-		{
-			if (chessState.generateLegalMoves() == 0)
-			{
-				Chess::MoveList local = chessState.getMoves();
-				int los = std::rand() % (local.count + 1);
-				std::cout << los;
-				chessState.Simulate_Move(local.moves[los]);
-			}
-			else {
-				a = i - 1;
-				std::cout << a;
-				break;
-			}
-
-		}
-		for (int i = 0; i < a; i++)
-		{
-			chessState.undo_Move();
-		}
-
-		U64 endPawns = chessState.getPieces(Chess::Pieces::pawns);
-		U64 endBishops = chessState.getPieces(Chess::Pieces::bishops);
-		U64 endKnights = chessState.getPieces(Chess::Pieces::knights);
-		U64 endRooks = chessState.getPieces(Chess::Pieces::rooks);
-		U64 endQueen = chessState.getPieces(Chess::Pieces::queens);
-		U64 endKing = chessState.getPieces(Chess::Pieces::kings);
-		EXPECT_EQ(begginPawns, endPawns);
-		EXPECT_EQ(begginBishops, endBishops);
-		EXPECT_EQ(begginKnights, endKnights);
-		EXPECT_EQ(begginRooks, endRooks);
-		EXPECT_EQ(begginQueen, endQueen);
-		EXPECT_EQ(begginKing, endKing);
-	}
 	
-  
+};
+TEST_F(ChessStateTest, defaultPositionCheck) {
+	//kolory 
+	EXPECT_TRUE(state.isWhiteMove()) << "Na pocz¹tku powinien by ruch bia³ych";
+	EXPECT_EQ(state.getWhitePieces() & state.getBlackPieces(), 0ULL)
+		<< "nie moze byc czêœci wspólnej ";
+	//ustawienie figur
+	EXPECT_EQ(state.getPieces(Chess::Pieces::bishops), (1ULL << 2) | (1ULL << 5) | (1ULL << 61) | (1ULL << 58));
+	EXPECT_EQ(state.getPieces(Chess::Pieces::knights), (1ULL << 1) | (1ULL << 6) | (1ULL << 62) | (1ULL << 57));
+	EXPECT_EQ(state.getPieces(Chess::Pieces::rooks), (1ULL << 0) | (1ULL << 7) | (1ULL << 63) | (1ULL << 56));
+	EXPECT_EQ(state.getPieces(Chess::Pieces::queens), (1ULL << 3) | (1ULL << 59));
+	EXPECT_EQ(state.getPieces(Chess::Pieces::kings), (1ULL << 4) | (1ULL << 60));
+	EXPECT_EQ(state.getPieces(Chess::Pieces::pawns),  );
+
 }
+
