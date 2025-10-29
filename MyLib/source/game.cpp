@@ -23,6 +23,13 @@ namespace Game {
         std::string count = std::to_string(this->movescount);
         return (count + ". " + moved + from + " " + captured + to);
     }
+    int SaveMove::saveInFile(std::string text)
+    {
+        if (!plik.is_open()) 
+            return 0; 
+        plik << text << std::endl;
+        return 1;
+    }
     Game::Game() : window(sf::VideoMode({ 1600,1600 }), "Chess")
     {  
            visualisation.setBegPos(state);
@@ -41,21 +48,13 @@ namespace Game {
 
             if (state.isWhiteMove())
             {
-
                 this->uploadPosMoves(position);
-
                 visualisation.createPosMoves(currentPossibleMoves, currentCount);
                 this->movePiece(position);
             }
-            
-                
-
-            
+    
         }
-        
-        
-        
-       
+   
     }
     void Game::Game::uploadPosMoves(int clickedPos)
     {
@@ -115,6 +114,7 @@ namespace Game {
     void Game::SimulateMove(int clickedPos)
     {
         state.Simulate_Move(Chess::ChessState::code_move(clickedFrom, clickedPos));
+        saver.saveInFile(saver.createString(state.historyTop()));
         visualisation.simulateMove(clickedFrom, clickedPos);
         clearPotMoves();
         
@@ -122,7 +122,7 @@ namespace Game {
     void Game::SimulateMove(Move move)
     {
         state.Simulate_Move(move);
-        std::cout<<saver.createString(state.historyTop());
+        std::cout<<(saver.saveInFile(saver.createString(state.historyTop())));
         visualisation.simulateMove( (move>>6)&0x3f, move & 0x3f);
         clearPotMoves();
 
@@ -160,7 +160,6 @@ namespace Game {
                     if (statePosition < 64 && statePosition >= 0)
                     {
                         processClick(statePosition);
-                        
                     }
                  
                 }

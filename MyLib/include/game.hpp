@@ -13,12 +13,13 @@ namespace Game {
 	};
 	struct SaveMove {
 		std::ofstream plik{"resources/zapis_parti.txt"};
-		int movescount{ 0 };
+		int movescount{0};
 		std::array<std::string,6> names ={
 			"P", "K", "B", "R", "Q", "K"
 		};
 		std::string fromIndex(int index);
 		std::string createString(Chess::Undo);
+		int saveInFile(std::string text);
 	};
 	class Game {
 	public:

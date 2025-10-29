@@ -1,7 +1,4 @@
 
-
-
-
 #include "game.hpp"
 #include <iostream>
 
