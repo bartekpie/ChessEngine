@@ -6,20 +6,22 @@
 #include"visualization.hpp"
 #include "types.hpp"
 #include<fstream>
+#include <queue>
 namespace Game {
 	enum class mode {
 		multiplayer = 0,
 		againstengine = 1
 	};
 	struct SaveMove {
-		std::ofstream plik{"resources/zapis_parti.txt"};
 		int movescount{0};
+		std::queue<Move> todomoves{};
 		std::array<std::string,6> names ={
 			"P", "K", "B", "R", "Q", "K"
 		};
 		std::string fromIndex(int index);
 		std::string createString(Chess::Undo);
 		int saveInFile(std::string text);
+		void fromFiletoQueue();
 	};
 	class Game {
 	public:

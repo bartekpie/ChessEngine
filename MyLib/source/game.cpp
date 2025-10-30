@@ -9,26 +9,56 @@ namespace Game {
         char rankChar = '1' + rank;
         return std::string{ fileChar, rankChar };
     }
-    std::string SaveMove::createString(Chess::Undo undo)
+    inline std::string SaveMove::createString(Chess::Undo)
     {
         movescount++;
         std::string from = fromIndex(undo.from);
         std::string to = fromIndex(undo.to);
         std::string moved = "";
         std::string captured = "";
-        if(undo.moved!=-1)
+        if (undo.moved != -1)
             moved = names[undo.moved];
-        if(undo.captured!= -1)
+        if (undo.captured != -1)
             captured = names[undo.captured];
         std::string count = std::to_string(this->movescount);
         return (count + ". " + moved + from + " " + captured + to);
     }
     int SaveMove::saveInFile(std::string text)
     {
+        std::ofstream plik{ "resources/zapis_parti.txt" };
         if (!plik.is_open()) 
             return 0; 
         plik << text << std::endl;
         return 1;
+    }
+    void SaveMove::fromFiletoQueue()
+    {
+        std::ifstream plik{ "resources/zapis_parti.txt" };
+        int a{ 1};
+        int offset{ 0 };
+        string move = "";
+        while (std::getline(plik, move))
+        {
+            if (move = "")
+                break;
+            std::string from = move[5 + offset] + move[6 + offset];
+            std::string to = move[8 + offset] + move[9 + offset];
+            for (int i = 0; i < 6; i++)
+            {
+                if (to[1] == names[i]) {
+                    to = move[9+offset] + move[10+offset];
+                    break;
+                }
+            }
+            a++;
+            if (a > 9)
+                offset = 1;
+            if (a > 99)
+                offset =2 ;
+            int from_int = static_cast<int>(from);
+            int to_int = static_cast<int>(to);
+            todomoves.push(code_move(from_int, to_int));
+        }
     }
     Game::Game() : window(sf::VideoMode({ 1600,1600 }), "Chess")
     {  
@@ -37,7 +67,8 @@ namespace Game {
     }  
     void Game::processClick(int position)
     {
-      
+        saver.fromFiletoQueue();
+        std::cout << saver.todomoves.pop();
         if (mode == mode::multiplayer)
         {
             this->uploadPosMoves(position);
