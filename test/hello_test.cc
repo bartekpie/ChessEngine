@@ -33,3 +33,20 @@ TEST_F(ChessStateTest, defaultPositionCheck) {
 	
 }
 
+TEST_F(SaveMoveTest, strTointCheck) {
+	//kolory 
+	std::string a1 = "a1";
+	EXPECT_EQ(saver_t.strToint(a1), 0);
+	std::string h8 = "h8";
+	EXPECT_EQ(saver_t.strToint(h8), 63);
+	std::string c3 = "c3";
+	EXPECT_EQ(saver_t.strToint(c3), 18);
+
+}
+TEST_F(SaveMoveTest, fromIndex) {
+
+	EXPECT_EQ(saver_t.fromIndex(0), "a1");
+	EXPECT_EQ(saver_t.fromIndex(63), "h8");
+	EXPECT_EQ(saver_t.fromIndex(18), "c3");
+
+}
