@@ -7,7 +7,7 @@ int main() {
     game.mainloop(); 
    
     
-   
+    //console version//
     /*Chess::ChessState real;   
     Engine::engine engine(real);
     std::string input;

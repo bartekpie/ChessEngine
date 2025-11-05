@@ -22,7 +22,7 @@ namespace Game {
 		std::string fromIndex(int index);
 		int strToint(std::string& s);
 		std::string createString(Chess::Undo undo);
-		int saveInFile(std::string text);
+		bool saveInFile(std::string text);
 		void fromFiletoQueue();
 	};
 	class Game {
@@ -40,6 +40,7 @@ namespace Game {
 		int currentPossibleMoves[50] = {};
 		int currentCount = 0;
 		int clickedFrom = -1;
+		bool recreateGame();
 		void processClick(int position);
 		void uploadPosMoves(int clickePos);
 		void movePiece(int clickedPos);

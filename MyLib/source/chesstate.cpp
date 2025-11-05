@@ -341,7 +341,7 @@ namespace Chess {
 		U64 myPieces = MyPieces();
 		U64 opponentPieces = OpponentPieces(); 
 		if (move.count >= 256) {
-			std::cout << "MoveList overflow detected!\n";
+			std::cout << "MoveList poza zakresem\n";
 			std::cout << move.count;
 			return;
 		}
@@ -360,7 +360,7 @@ namespace Chess {
 					move.moves[move.count++] = code_move(to - 8, to);
 				}
 				else {
-					std::cout << "MoveList overflow detected!\n";
+					std::cout << "MoveList poza zakresem\n";
 					return;
 				}
 
@@ -373,7 +373,7 @@ namespace Chess {
 					move.moves[move.count++] = code_move(to -16, to);
 				}
 				else {
-					std::cout << "MoveList overflow detected!\n";
+					std::cout << "MoveList poza zakresem\n";
 					return;
 				}
 			}

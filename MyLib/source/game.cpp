@@ -26,7 +26,7 @@ namespace Game {
         int squareIndex = rankIndex * 8 + fileIndex;
         return squareIndex;
     }
-    inline std::string SaveMove::createString(Chess::Undo undo)
+    std::string SaveMove::createString(Chess::Undo undo)
     {
         movescount++;
         std::string from = fromIndex(undo.from);
@@ -40,12 +40,13 @@ namespace Game {
         std::string count = std::to_string(this->movescount);
         return (count + ". " + moved + from + " " + captured + to);
     }
-    int SaveMove::saveInFile(std::string text)
+    bool SaveMove::saveInFile(std::string text)
     {
-        std::ofstream plik{ "resources/zapis_parti.txt" };
+        std::ofstream plik{ "resources/zapis_parti.txt", std::ios::app };
         if (!plik.is_open()) 
             return 0; 
-        plik << text << std::endl;
+        plik << text;
+        plik << std::endl;
         return 1;
     }
     void SaveMove::fromFiletoQueue()
@@ -89,10 +90,53 @@ namespace Game {
            visualisation.setBegPos(state);
            state.generateLegalMoves();
     }  
+    bool Game::recreateGame()
+    {
+        bool isSavedLegal = false;
+        Chess::MoveList doneMoves;
+        Move savedMove;
+        while(saver.todomoves.empty()==false)
+        {
+            isSavedLegal = false;
+            savedMove = saver.todomoves.front();
+            saver.todomoves.pop();
+            state.generateLegalMoves();
+            Chess::MoveList movelist= state.getMoves();
+            for(int i = 0;i<movelist.count;i++)
+                if (savedMove == movelist.moves[i])
+                {
+                    isSavedLegal = true;
+                    break;
+                }
+            
+            if (isSavedLegal == false)
+            {
+                break;
+            }
+            else
+            {
+                state.Simulate_Move(savedMove);
+                doneMoves.moves[doneMoves.count++] = savedMove;
+            }
+        }
+        if (isSavedLegal == false)
+        {
+            for (int i = 1; i <= doneMoves.count; i++)
+            {
+                state.undo_Move();
+            }
+            return 0;
+        }
+        for (int i = 0; i < doneMoves.count; i++)
+        {
+            int from = (doneMoves.moves[i] >> 6) & 0x3f;
+            int to = (doneMoves.moves[i] & 0x3f);
+            visualisation.simulateMove(from,to);
+        }
+        return 1;
+    }
     void Game::processClick(int position)
     {
-        saver.fromFiletoQueue();
-       
         if (mode == mode::multiplayer)
         {
             this->uploadPosMoves(position);
@@ -169,7 +213,7 @@ namespace Game {
     void Game::SimulateMove(int clickedPos)
     {
         state.Simulate_Move(Chess::ChessState::code_move(clickedFrom, clickedPos));
-        saver.saveInFile(saver.createString(state.historyTop()));
+        std::cout<<saver.saveInFile(saver.createString(state.historyTop()));
         visualisation.simulateMove(clickedFrom, clickedPos);
         clearPotMoves();
         
@@ -177,7 +221,7 @@ namespace Game {
     void Game::SimulateMove(Move move)
     {
         state.Simulate_Move(move);
-        std::cout<<(saver.saveInFile(saver.createString(state.historyTop())));
+        std::cout<<saver.saveInFile(saver.createString(state.historyTop()));
         visualisation.simulateMove( (move>>6)&0x3f, move & 0x3f);
         clearPotMoves();
 
