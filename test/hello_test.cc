@@ -5,9 +5,16 @@
 #include <ctime>
 #include "chesstate.hpp"
 #include "bitboard.hpp"
+#include "game.hpp"
 class ChessStateTest : public ::testing::Test {
 protected:
 	Chess::ChessState state;
+
+
+};
+class SaveMoveTest : public ::testing::Test {
+protected:
+	Game::SaveMove saver_t;
 
 
 };
@@ -25,5 +32,4 @@ TEST_F(ChessStateTest, defaultPositionCheck) {
 	EXPECT_EQ(state.getPieces(Chess::Pieces::kings), (1ULL << 4) | (1ULL << 60));
 	
 }
-
 

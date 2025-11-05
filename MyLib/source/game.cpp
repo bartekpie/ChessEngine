@@ -9,7 +9,24 @@ namespace Game {
         char rankChar = '1' + rank;
         return std::string{ fileChar, rankChar };
     }
-    inline std::string SaveMove::createString(Chess::Undo)
+    int SaveMove::strToint(std::string& s)
+    {
+        if (s.size() != 2)
+            throw std::invalid_argument("Niepoprawny format pola: " + s);
+
+        char file = s[0]; 
+        char rank = s[1]; 
+
+        if (file < 'a' || file > 'h' || rank < '1' || rank > '8')
+            throw std::out_of_range("Niepoprawne wspó³rzêdne pola: " + s);
+
+        int fileIndex = file - 'a';
+        int rankIndex = rank - '1';
+
+        int squareIndex = rankIndex * 8 + fileIndex;
+        return squareIndex;
+    }
+    inline std::string SaveMove::createString(Chess::Undo undo)
     {
         movescount++;
         std::string from = fromIndex(undo.from);
@@ -34,30 +51,37 @@ namespace Game {
     void SaveMove::fromFiletoQueue()
     {
         std::ifstream plik{ "resources/zapis_parti.txt" };
-        int a{ 1};
+        int a{ 0 };
         int offset{ 0 };
-        string move = "";
+        std::string move = "";
         while (std::getline(plik, move))
         {
-            if (move = "")
-                break;
-            std::string from = move[5 + offset] + move[6 + offset];
-            std::string to = move[8 + offset] + move[9 + offset];
-            for (int i = 0; i < 6; i++)
-            {
-                if (to[1] == names[i]) {
-                    to = move[9+offset] + move[10+offset];
-                    break;
-                }
-            }
             a++;
             if (a > 9)
                 offset = 1;
             if (a > 99)
-                offset =2 ;
-            int from_int = static_cast<int>(from);
-            int to_int = static_cast<int>(to);
-            todomoves.push(code_move(from_int, to_int));
+                offset = 2;
+            if (move == "")
+                break;
+            std::string from;
+            std::string to;
+            from += move[4 + offset];
+            from += move[5 + offset];
+            to += move[7 + offset];
+            to += move[8 + offset];
+            for (int i = 0; i < 6; i++)
+            {
+                if (to[0] == names[i]) {
+                    to = "";
+                    to += move[8+offset];
+                    to += move[9+offset];
+                    break;
+                }
+            }
+            
+            int from_int = strToint(from);
+            int to_int = strToint(to);
+            todomoves.push(Chess::ChessState::code_move(from_int, to_int));
         }
     }
     Game::Game() : window(sf::VideoMode({ 1600,1600 }), "Chess")
@@ -68,7 +92,7 @@ namespace Game {
     void Game::processClick(int position)
     {
         saver.fromFiletoQueue();
-        std::cout << saver.todomoves.pop();
+       
         if (mode == mode::multiplayer)
         {
             this->uploadPosMoves(position);

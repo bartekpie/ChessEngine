@@ -1,5 +1,6 @@
 #include "chesstate.hpp"
 #include "piece.hpp"
+#include "bitboard.hpp"
 #include"SFML/Graphics.hpp"
 #include "console.hpp"
 #include"engine.hpp"
@@ -14,20 +15,19 @@ namespace Game {
 	};
 	struct SaveMove {
 		int movescount{0};
-		std::queue<Move> todomoves{};
-		std::array<std::string,6> names ={
-			"P", "K", "B", "R", "Q", "K"
+		std::queue<Move> todomoves;
+		std::array<char,6> names ={
+			'P', 'K', 'B', 'R', 'Q', 'K'
 		};
 		std::string fromIndex(int index);
-		std::string createString(Chess::Undo);
+		int strToint(std::string& s);
+		std::string createString(Chess::Undo undo);
 		int saveInFile(std::string text);
 		void fromFiletoQueue();
 	};
 	class Game {
 	public:
 		Game();
-		
-	
 		void mainloop();
 	private:
 		mode mode = mode::againstengine;
@@ -36,16 +36,13 @@ namespace Game {
 		Vis::visualization visualisation;
 		Engine::engine engine{ state };
 		SaveMove saver;
-		int movecount{ 0 };
+		int movecount{0};
 		int currentPossibleMoves[50] = {};
 		int currentCount = 0;
 		int clickedFrom = -1;
 		void processClick(int position);
 		void uploadPosMoves(int clickePos);
 		void movePiece(int clickedPos);
-
-		
-		
 		void addCurrPotMovesfromChessState(int clickedPos);
 		void clearPotMoves();
 		void SimulateMove(int clickedPos);
