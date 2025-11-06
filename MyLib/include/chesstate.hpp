@@ -5,6 +5,7 @@
 #include <stack>
 namespace Chess {
 
+	typedef uint16_t Move;
 
 	enum Pieces {
 		none = -1, pawns = 0, knights, bishops, rooks, queens, kings, sizePieces
