@@ -1,5 +1,4 @@
 #pragma once
-#include"types.hpp"
 #include"bitboard.hpp"
 #include "const.hpp"
 #include <stack>

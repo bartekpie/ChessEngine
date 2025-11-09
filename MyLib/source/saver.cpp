@@ -1,4 +1,7 @@
+
 #include"saver.hpp"
+
+
 std::string Saver::fromIndex(int index)
 {
     int file = index % 8;
@@ -49,6 +52,10 @@ bool Saver::saveInFile(std::string text)
 }
 void Saver::fromFiletoQueue()
 {
+    for (int i = 0; i < todomoves.size(); i++)
+    {
+        todomoves.pop();
+    }
     std::ifstream plik{ "resources/zapis_parti.txt" };
     int a{ 0 };
     int offset{ 0 };
@@ -82,4 +89,8 @@ void Saver::fromFiletoQueue()
         int to_int = strToint(to);
         todomoves.push(Chess::ChessState::code_move(from_int, to_int));
     }
+}
+std::queue<Chess::Move> Saver::getQueue()
+{
+    return todomoves;
 }

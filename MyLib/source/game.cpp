@@ -11,12 +11,13 @@ namespace Game {
     {
         bool isSavedLegal = false;
         Chess::MoveList doneMoves;
-        Move savedMove;
-        while(saver.todomoves.empty()==false)
+        Chess::Move savedMove;
+        std::queue<Chess::Move> queue = saver.getQueue();
+        while(queue.empty()==false)
         {
             isSavedLegal = false;
-            savedMove = saver.todomoves.front();
-            saver.todomoves.pop();
+            savedMove = queue.front();
+            queue.pop();
             state.generateLegalMoves();
             Chess::MoveList movelist= state.getMoves();
             for(int i = 0;i<movelist.count;i++)
@@ -135,7 +136,7 @@ namespace Game {
         clearPotMoves();
         
     }
-    void Game::SimulateMove(Move move)
+    void Game::SimulateMove(Chess::Move move)
     {
         state.Simulate_Move(move);
         std::cout<<saver.saveInFile(saver.createString(state.historyTop()));
@@ -183,7 +184,7 @@ namespace Game {
             }
             if (mode == mode::againstengine) {
                 if (state.isWhiteMove() == 0) {
-                    Move a = engine.bestMove(2, -1000000, 100000);
+                    Chess::Move a = engine.bestMove(2, -1000000, 100000);
                     this->SimulateMove(a);
                     this->generateMovesAndcheckMate();
                 }

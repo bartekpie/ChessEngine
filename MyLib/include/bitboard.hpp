@@ -1,9 +1,9 @@
 #pragma once
-#include"types.hpp"
 #include<iostream>
 #include <bit>
+
 typedef unsigned long long U64;
-extern enum Square;
+enum Square;
 void setBit(U64& bitboard, int bit);
 
 void resetBit(U64& bitboard, int bit);

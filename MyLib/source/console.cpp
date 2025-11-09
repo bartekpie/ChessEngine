@@ -10,7 +10,7 @@ int square_from_string(std::string str) {
 
 
 
-Move parse_move(std::string input) {
+Chess::Move parse_move(std::string input) {
     if (input.length() != 4) return 0;
     int from = square_from_string(input.substr(0, 2));
     int to = square_from_string(input.substr(2, 2));
@@ -21,7 +21,7 @@ Move parse_move(std::string input) {
 void handle_move_input(std::string input, Chess::ChessState& state) {
 
 
-    Move userMove = parse_move(input);
+    Chess::Move userMove = parse_move(input);
 
     bool found = false;
 

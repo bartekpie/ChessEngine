@@ -72,7 +72,7 @@ namespace Engine
             int max = -1000000;
             for (int i = 0; i < movelist[depth].count; i++)
             {
-                Move move = this->movelist[depth].moves[i];
+                Chess::Move move = this->movelist[depth].moves[i];
                 state.Simulate_Move(move);
                 int actual = search(depth - 1, alfa, beta);
                 state.undo_Move();
@@ -90,7 +90,7 @@ namespace Engine
             int min = 1000000;
             for (int i = 0; i < movelist[depth].count; i++)
             {
-                Move move = this->movelist[depth].moves[i];
+                Chess:: Move move = this->movelist[depth].moves[i];
                 state.Simulate_Move(move);
                 int actual = search(depth - 1, alfa, beta);
                 state.undo_Move();
@@ -107,20 +107,20 @@ namespace Engine
 
     }
 
-    Move engine::bestMove(int depth, int alfa, int beta)
+    Chess::Move engine::bestMove(int depth, int alfa, int beta)
     {
         
        state.generateLegalMoves(this->movelist[depth]);
         
         /// rojechana pamiec 
 
-        Move bestMove = 0;// state pokazuje w roznych polach obiektu unable to read memory
+        Chess::Move bestMove = 0;// state pokazuje w roznych polach obiektu unable to read memory
         if (state.isWhiteMove()) // tu b³¹d 
         {
             int max = -10000000;
             for (int i = 0; i < movelist[depth].count; i++)
             {
-                Move move = this->movelist[depth].moves[i];
+                Chess::Move move = this->movelist[depth].moves[i];
                 state.Simulate_Move(move);
                 int actual = search(depth - 1, alfa, beta);
                 state.undo_Move();
@@ -141,7 +141,7 @@ namespace Engine
             int min = 10000000;
             for (int i = 0; i < movelist[depth].count; i++)
             {
-                Move move = this->movelist[depth].moves[i];
+                Chess::Move move = this->movelist[depth].moves[i];
                 state.Simulate_Move(move);
                 int actual = search(depth - 1, alfa, beta);
                 state.undo_Move();

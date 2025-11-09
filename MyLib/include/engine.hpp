@@ -1,7 +1,7 @@
 #pragma once
 
-#include"chesstate.hpp"
-#include"bitboard.hpp"
+#include "chesstate.hpp"
+#include "bitboard.hpp"
 #include "const.hpp"
 
 namespace Engine {
@@ -14,7 +14,7 @@ namespace Engine {
 		Chess::MoveList checkhelper;
 		int evalulate();
 		int search(int depth, int alfa, int beta);
-		Move bestMove(int depth, int alfa, int beta);
+		Chess::Move bestMove(int depth, int alfa, int beta);
 	private:
 		Chess::ChessState& state;
 	};

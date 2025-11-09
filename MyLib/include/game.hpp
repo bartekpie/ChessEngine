@@ -5,7 +5,6 @@
 #include "console.hpp"
 #include"engine.hpp"
 #include"visualization.hpp"
-#include "types.hpp"
 #include "saver.hpp"
 #include<fstream>
 #include <queue>
@@ -36,7 +35,7 @@ namespace Game {
 		void addCurrPotMovesfromChessState(int clickedPos);
 		void clearPotMoves();
 		void SimulateMove(int clickedPos);
-		void SimulateMove(Move move);
+		void SimulateMove(Chess::Move move);
 		void generateMovesAndcheckMate();
 		
 	};
