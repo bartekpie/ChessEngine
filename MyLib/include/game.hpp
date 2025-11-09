@@ -17,6 +17,7 @@ namespace Game {
 	public:
 		Game();
 		void mainloop();
+		
 	private:
 		mode mode = mode::againstengine;
 		Chess::ChessState state;
