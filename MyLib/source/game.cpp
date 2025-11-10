@@ -34,8 +34,8 @@ namespace Game {
         std::queue<Chess::Move> queue = saver.getQueue();
         while (queue.empty() == false)
         {
-            int
-            isSavedLegal = false;
+      
+            bool isSavedLegal = false;
             Chess::Move savedMove = queue.front();
             queue.pop();
             state.generateLegalMoves();

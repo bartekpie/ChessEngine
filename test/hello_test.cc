@@ -19,6 +19,7 @@ protected:
 
 };
 
+
 TEST_F(ChessStateTest, defaultPositionCheck) {
 	//kolory 
 	EXPECT_TRUE(state.isWhiteMove()) << "Na pocz¹tku powinien by ruch bia³ych";
