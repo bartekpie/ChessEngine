@@ -9,35 +9,18 @@ namespace Game {
     }  
     bool Game::recreateGame()
     {
-        bool isSavedLegal = false;
         Chess::MoveList doneMoves;
-        Chess::Move savedMove;
-        std::queue<Chess::Move> queue = saver.getQueue();
-        while(queue.empty()==false)
+        if (movesFromFileLegal(doneMoves))
         {
-            isSavedLegal = false;
-            savedMove = queue.front();
-            queue.pop();
-            state.generateLegalMoves();
-            Chess::MoveList movelist= state.getMoves();
-            for(int i = 0;i<movelist.count;i++)
-                if (savedMove == movelist.moves[i])
-                {
-                    isSavedLegal = true;
-                    break;
-                }
-            
-            if (isSavedLegal == false)
+            for (int i = 0; i < doneMoves.count; i++)
             {
-                break;
+                int from = (doneMoves.moves[i] >> 6) & 0x3f;
+                int to = (doneMoves.moves[i] & 0x3f);
+                visualisation.simulateMove(from, to);
             }
-            else
-            {
-                state.Simulate_Move(savedMove);
-                doneMoves.moves[doneMoves.count++] = savedMove;
-            }
+            return 1;
         }
-        if (isSavedLegal == false)
+        else
         {
             for (int i = 1; i <= doneMoves.count; i++)
             {
@@ -45,11 +28,33 @@ namespace Game {
             }
             return 0;
         }
-        for (int i = 0; i < doneMoves.count; i++)
+    }
+    bool Game::movesFromFileLegal(Chess::MoveList& doneMoves)
+    {
+        std::queue<Chess::Move> queue = saver.getQueue();
+        while (queue.empty() == false)
         {
-            int from = (doneMoves.moves[i] >> 6) & 0x3f;
-            int to = (doneMoves.moves[i] & 0x3f);
-            visualisation.simulateMove(from,to);
+            int
+            isSavedLegal = false;
+            Chess::Move savedMove = queue.front();
+            queue.pop();
+            state.generateLegalMoves();
+            Chess::MoveList movelist = state.getMoves();
+            for (int i = 0; i < movelist.count; i++)
+                if (savedMove == movelist.moves[i])
+                {
+                    isSavedLegal = true;
+                    break;
+                }
+            if (isSavedLegal == false)
+            {
+                return 0;
+            } 
+            else
+            {
+                state.Simulate_Move(savedMove);
+                doneMoves.moves[doneMoves.count++] = savedMove;
+            }
         }
         return 1;
     }

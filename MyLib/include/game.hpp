@@ -30,6 +30,7 @@ namespace Game {
 		int currentCount = 0;
 		int clickedFrom = -1;
 		bool recreateGame();
+		bool movesFromFileLegal(Chess::MoveList& doneMoves);
 		void processClick(int position);
 		void uploadPosMoves(int clickePos);
 		void movePiece(int clickedPos);
