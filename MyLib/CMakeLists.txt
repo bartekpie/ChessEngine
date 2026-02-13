@@ -1,5 +1,4 @@
 add_library(MojaBib STATIC 
-source/bitboard.cpp
 source/chesstate.cpp
 source/console.cpp
 source/engine.cpp
