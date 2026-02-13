@@ -6,6 +6,29 @@
 #include "chesstate.hpp"
 #include "bitboard.hpp"
 #include "game.hpp"
+
+
+
+/// testing bitboards
+TEST_F(BitboardTest, LsbReturnsCorrectIndexForRandomHex) {
+	using namespace Bitboard;
+	EXPECT_EQ(lsb(0x1ULL), 0);
+    EXPECT_EQ(lsb(0x100ULL), 8);
+    EXPECT_EQ(lsb(0x80000000ULL), 31);
+    EXPECT_EQ(lsb(0xF000ULL), 12);
+	EXPECT_EQ(lsb(1ULL << 63), 63);
+}
+
+//Test sprawdzajÄ…cy assert dla wartoÅ›ci 0 (Death Test)
+TEST_F(BitboardTest, LsbAssertsOnZeroValue) {
+    
+    #ifndef NDEBUG
+        EXPECT_DEATH(get_lsb(0ULL), "Bitboard cannot be zero");
+    #else
+        GTEST_SKIP() << "Skipping Death Test in Release mode (asserts disabled)";
+    #endif
+}
+
 class ChessStateTest : public ::testing::Test {
 protected:
 	Chess::ChessState state;
@@ -22,9 +45,9 @@ protected:
 
 TEST_F(ChessStateTest, defaultPositionCheck) {
 	//kolory 
-	EXPECT_TRUE(state.isWhiteMove()) << "Na pocz¹tku powinien by ruch bia³ych";
+	EXPECT_TRUE(state.isWhiteMove()) << "Na poczï¿½tku powinien by ruch biaï¿½ych";
 	EXPECT_EQ(state.getWhitePieces() & state.getBlackPieces(), 0ULL)
-		<< "nie moze byc czêœci wspólnej ";
+		<< "nie moze byc czï¿½ci wspï¿½lnej ";
 	//ustawienie figur
 	EXPECT_EQ(state.getPieces(Chess::Pieces::bishops), (1ULL << 2) | (1ULL << 5) | (1ULL << 61) | (1ULL << 58));
 	EXPECT_EQ(state.getPieces(Chess::Pieces::knights), (1ULL << 1) | (1ULL << 6) | (1ULL << 62) | (1ULL << 57));
