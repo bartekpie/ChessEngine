@@ -1,15 +1,83 @@
 #pragma once
-#include<iostream>
-#include <bit>
+#include <cstdint>
+#include <iostream>
+#include <cassert>
+namespace Bitboard {
 
-typedef unsigned long long U64;
-enum Square;
-void setBit(U64& bitboard, int bit);
+  using bitboard = uint64_t;
 
-void resetBit(U64& bitboard, int bit);
+  // using enum instead of enum class for clarity 
+  // implicit conversion is better in this case instead of using static_cast 
+  enum Square : uint8_t {
+      a1, b1, c1, d1, e1, f1, g1, h1,
+      a2, b2, c2, d2, e2, f2, g2, h2,
+      a3, b3, c3, d3, e3, f3, g3, h3,
+      a4, b4, c4, d4, e4, f4, g4, h4,
+      a5, b5, c5, d5, e5, f5, g5, h5,
+      a6, b6, c6, d6, e6, f6, g6, h6,
+      a7, b7, c7, d7, e7, f7, g7, h7,
+      a8, b8, c8, d8, e8, f8, g8, h8
+  };
+  // inline functions for maximum efficency 
 
-bool getBit(U64 bitboard, int sq);
-int resetLSB(U64& bitboard);
-int howmanyBits(U64 bitboard);
+  inline Square lsb(bitboard b) {
+    assert(b);
+    #if defined(_MSC_VER)
+    
+      #include <intrin.h>
+      unsigned long index;
+      _BitScanForward64(&index, b);
+      return static_cast<Square>(index);
+    
+    #elif define(__GNUC__)
+      return(__builtint_ctzll(b))
+    #endif
+  }
 
-void printBitboard(U64 bitboard);
+  inline Square msb(bitboard b) {
+    assert(b);
+    #if defined(_MSC_VER)
+    
+      #include <intrin.h>
+      unsigned long index;
+      _BitScanReverse64(&index, b);
+      return static_cast<Square>(index);
+    
+    #elif define(__GNUC__)
+      return(__builtint_clzll(b))
+    #endif
+  }
+
+  inline Square count_bits(bitboard b) {
+    assert(b);
+    #if defined(_MSC_VER)
+    
+      #include <intrin.h>
+      unsigned long index;
+      return static_cast<Square>(__popcnt64(b));
+    
+    #elif define(__GNUC__)
+      return(__builtin_popcountll(b))
+    #endif
+  }
+  
+  inline void set_bit(bitboard& b, Square index)
+  {
+      b |= (1ULL << index);
+  }
+
+  inline void reset_bit(bitboard& b, Square index)
+  {
+      b &= ~(1ULL << index);
+  }
+
+  inline bool get_bit(bitboard& b, Square index) {
+  
+      return (b >> index) & 1ULL; 
+  }
+
+}
+
+
+
+
