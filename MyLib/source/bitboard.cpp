@@ -1,5 +1,48 @@
-#include "bitboard.hpp"
-enum Square {
+#include <cstdint>
+#include <iostream>
+#include <cassert>
+
+using bitboard = uint64_t;
+
+inline int lsb(bitboard b) {
+assert(b);
+#if defined(_MSC_VER)
+
+  #include <intrin.h>
+  unsigned long index;
+  _BitScanForward64(&index, b);
+  return static_cast<int>(index);
+
+#elif define(__GNUC__)
+  return(__builtint_ctzll(b))
+#endif
+}
+inline int msb(bitboard b) {
+assert(b);
+#if defined(_MSC_VER)
+
+  #include <intrin.h>
+  unsigned long index;
+  _BitScanReverse64(&index, b);
+  return static_cast<int>(index);
+
+#elif define(__GNUC__)
+  return(__builtint_clzll(b))
+#endif
+}
+inline int count_bits(bitboard b) {
+assert(b);
+#if defined(_MSC_VER)
+
+  #include <intrin.h>
+  unsigned long index;
+  return static_cast<int>(__popcnt64(b));
+
+#elif define(__GNUC__)
+  return(__builtin_popcountll(b))
+#endif
+}
+enum Square : uint8_t {
     a1, b1, c1, d1, e1, f1, g1, h1,
     a2, b2, c2, d2, e2, f2, g2, h2,
     a3, b3, c3, d3, e3, f3, g3, h3,
@@ -19,7 +62,7 @@ void resetBit(U64& bitboard, int bit)
 }
 bool getBit(U64 bitboard, int sq) {
 
-    return (bitboard >> sq) & 1ULL; // przesuwa bitboard w lewo i powrównuje tylko pierwszy bit
+    return (bitboard >> sq) & 1ULL; // przesuwa bitboard w lewo i powrï¿½wnuje tylko pierwszy bit
 }
 int resetLSB(U64& bitboard)
 {
