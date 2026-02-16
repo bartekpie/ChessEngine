@@ -16,8 +16,13 @@ enable_testing()
 
 add_executable(
   Bitboard_
-  bitboard.cc
   ../../../MyLib/include/bitboard.hpp
+  bitboard.cc
+ 
+)
+target_include_directories(
+  Bitboard_ PRIVATE
+  ../../../MyLib/include
 )
 target_link_libraries(
   Bitboard_ PRIVATE
