@@ -22,7 +22,7 @@ add_executable(
 )
 target_include_directories(
   Bitboard_ PRIVATE
-  ../../../MyLib/include
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../../MyLib/include"
 )
 target_link_libraries(
   Bitboard_ PRIVATE
