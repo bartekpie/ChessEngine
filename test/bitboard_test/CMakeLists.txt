@@ -12,17 +12,19 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+get_filename_component(MYLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../MyLib/include" ABSOLUTE)
+
 enable_testing()
 
 add_executable(
   Bitboard_
-  ../../../MyLib/include/bitboard.hpp
   bitboard.cc
+  "${MyLIB_INCLUDE_DIR}/bitboard.hpp"
  
 )
 target_include_directories(
   Bitboard_ PRIVATE
-  "${CMAKE_CURRENT_SOURCE_DIR}/../../../MyLib/include"
+  "${MYLIB_INCLUDE_DIR}"
 )
 target_link_libraries(
   Bitboard_ PRIVATE
