@@ -17,8 +17,8 @@ enable_testing()
 add_executable(
   Bitboard_
   bitboard.cc
+  ../../../MyLib/include/bitboard.hpp
 )
-target_include_directories(Bitboard_ PUBLIC ../../../MyLib/include/)
 target_link_libraries(
   Bitboard_ PRIVATE
   GTest::gtest_main
