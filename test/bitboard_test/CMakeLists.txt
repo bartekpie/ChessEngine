@@ -19,7 +19,7 @@ enable_testing()
 add_executable(
   Bitboard_
   bitboard.cc
-  "${MyLIB_INCLUDE_DIR}bitboard.hpp"
+
  
 )
 target_include_directories(
