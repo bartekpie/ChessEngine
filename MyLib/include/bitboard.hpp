@@ -2,6 +2,9 @@
 #include <cstdint>
 #include <iostream>
 #include <cassert>
+#if defined(_MSC_VER)
+    #include <intrin.h>
+#endif
 namespace Bitboard {
 
   using bitboard = uint64_t;
@@ -23,8 +26,6 @@ namespace Bitboard {
   inline Square lsb(bitboard b) {
     assert(b);
     #if defined(_MSC_VER)
-    
-      #include <intrin.h>
       unsigned long index;
       _BitScanForward64(&index, b);
       return static_cast<Square>(index);
@@ -37,8 +38,6 @@ namespace Bitboard {
   inline Square msb(bitboard b) {
     assert(b);
     #if defined(_MSC_VER)
-    
-      #include <intrin.h>
       unsigned long index;
       _BitScanReverse64(&index, b);
       return static_cast<Square>(index);
@@ -51,12 +50,10 @@ namespace Bitboard {
   inline Square count_bits(bitboard b) {
     assert(b);
     #if defined(_MSC_VER)
-    
-      #include <intrin.h>
       unsigned long index;
       return static_cast<Square>(__popcnt64(b));
     
-    #elif define(__GNUC__)
+    #elif defined(__GNUC__)
       return(__builtin_popcountll(b))
     #endif
   }
