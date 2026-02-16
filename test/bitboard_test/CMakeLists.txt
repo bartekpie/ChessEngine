@@ -25,4 +25,4 @@ target_link_libraries(
 )
 
 include(GoogleTest)
-gtest_discover_tests(test_)
+gtest_discover_tests(Bitboard_)
