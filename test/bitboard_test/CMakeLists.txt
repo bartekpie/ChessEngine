@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.28)
 project(UnitTests LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR = ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "MYLIB_INCLUDE_DIR = ${MYLIB_INCLUDE_DIR}")
 include(FetchContent)
 #GoogleTest
 FetchContent_Declare(
@@ -19,8 +20,7 @@ enable_testing()
 add_executable(
   Bitboard_
   bitboard.cc
-
- 
+  "${MYLIB_INCLUDE_DIR}/bitboard.hpp"
 )
 target_include_directories(
   Bitboard_ PRIVATE
