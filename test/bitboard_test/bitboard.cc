@@ -55,7 +55,7 @@ TEST(BitboardTest, msbAndLsbOnTheSameNumber) {
 	EXPECT_EQ(lsb(b), 15);
 	EXPECT_EQ(msb(b), 30);
 }
-TEST(BitboardTest, checkIfSetOnlySetsDesiredBits) {
+TEST(BitboardTest, checkIfSetBitOnlySetsDesiredBits) {
 	using namespace Bitboard;
 	bitboard b = 0ULL;
 	set_bit(b, Square(6));
@@ -67,7 +67,7 @@ TEST(BitboardTest, checkIfSetOnlySetsDesiredBits) {
 		 EXPECT_FALSE(get_bit(b, Square(i)));
 	}
 }
-TEST(BitboardTest, checkIfResetsOnlyResetsDesiredBits) {
+TEST(BitboardTest, checkIfResetBitOnlyResetsDesiredBits) {
 	using namespace Bitboard;
 	bitboard b = 0ULL;
 	set_bit(b, Square(6));
