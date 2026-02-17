@@ -24,7 +24,7 @@ namespace Bitboard {
   // inline functions for maximum efficency 
 
   inline Square lsb(bitboard b) {
-    assert(b != 0 && "bitboard cannot be zero in lsb");
+    assert(b);
     #if defined(_MSC_VER)
       unsigned long index;
       _BitScanForward64(&index, b);
