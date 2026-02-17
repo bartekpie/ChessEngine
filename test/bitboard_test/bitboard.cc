@@ -6,23 +6,41 @@
 
 
 /// testing bitboards
-TEST(BitboardTest, LsbReturnsCorrectIndexForRandomHex) {
+TEST(BitboardTest, lsbReturnsCorrectIndexForRandomHex) {
 	using namespace Bitboard;
 	EXPECT_EQ(lsb(0x1ULL), 0);
     EXPECT_EQ(lsb(0x100ULL), 8);
     EXPECT_EQ(lsb(0x80000000ULL), 31);
     EXPECT_EQ(lsb(0xF000ULL), 12);
-	EXPECT_EQ(lsb(1ULL << 63), 63);
 }
-TEST(BitboardTest, LsbReturnsCorreectIndexForHex) {
+TEST(BitboardTest, lsbReturnsCorreectIndexForHex) {
    using namespace Bitboard;
    for (int i{}; i < 64; i++) {
      EXPECT_EQ((lsb(1ULL << i)), i);
    }
 }
-
-
-TEST(BitboardTest, LsbAssertsOnZeroValue) {
+TEST(BitboardTest, lsbAssertsOnZeroValue) {
+    using namespace Bitboard;
+    #ifndef NDEBUG
+        EXPECT_DEATH(lsb(0ULL), "");
+    #else
+        GTEST_SKIP() << "Skipping Death Test in Release mode (asserts disabled)";
+    #endif
+}
+TEST(BitboardTest, msbReturnsCorrectIndexForRandomHex) {
+	using namespace Bitboard;
+	EXPECT_EQ(lsb(0x1ULL), 63);
+    EXPECT_EQ(lsb(0x100ULL), 55);
+    EXPECT_EQ(lsb(0x80000000ULL), 32);
+    EXPECT_EQ(lsb(0xF000ULL), 51);
+}
+TEST(BitboardTest, msbReturnsCorreectIndexForHex) {
+   using namespace Bitboard;
+   for (int i{}; i < 64; i++) {
+     EXPECT_EQ((msb(1ULL >> i)), i);
+   }
+}
+TEST(BitboardTest, msbAssertsOnZeroValue) {
     using namespace Bitboard;
     #ifndef NDEBUG
         EXPECT_DEATH(lsb(0ULL), "");
