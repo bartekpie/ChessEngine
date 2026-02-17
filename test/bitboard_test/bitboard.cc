@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <iostream>
 #include "bitboard.hpp"
 
 
@@ -12,6 +13,12 @@ TEST(BitboardTest, LsbReturnsCorrectIndexForRandomHex) {
     EXPECT_EQ(lsb(0x80000000ULL), 31);
     EXPECT_EQ(lsb(0xF000ULL), 12);
 	EXPECT_EQ(lsb(1ULL << 63), 63);
+}
+TEST(BitboardTest, LsbReturnsCorreectIndexForHex) {
+   using namespace Bitboard;
+   for (int i{}; i < 64; i++) {
+     EXPECT_EQ((1ULL << i), i);
+   }
 }
 
 
