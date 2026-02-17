@@ -24,7 +24,7 @@ namespace Bitboard {
   // inline functions for maximum efficency 
 
   inline Square lsb(bitboard b) {
-    assert(b);
+    assert(b, "bitboard cannot be zero in lsb");
     #if defined(_MSC_VER)
       unsigned long index;
       _BitScanForward64(&index, b);
@@ -36,7 +36,7 @@ namespace Bitboard {
   }
 
   inline Square msb(bitboard b) {
-    assert(b);
+    assert(b, "bitboard cannot be zero in msb");
     #if defined(_MSC_VER)
       unsigned long index;
       _BitScanReverse64(&index, b);
@@ -48,7 +48,7 @@ namespace Bitboard {
   }
 
   inline Square count_bits(bitboard b) {
-    assert(b);
+    assert(b, "bitboard cannot be zero in count_bits");
     #if defined(_MSC_VER)
       unsigned long index;
       return static_cast<Square>(__popcnt64(b));
