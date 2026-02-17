@@ -36,7 +36,7 @@ namespace Bitboard {
   }
 
   inline Square msb(bitboard b) {
-    assert(b != 0 && "bitboard cannot be zero in msb");
+    assert(b);
     #if defined(_MSC_VER)
       unsigned long index;
       _BitScanReverse64(&index, b);
@@ -48,7 +48,7 @@ namespace Bitboard {
   }
 
   inline Square count_bits(bitboard b) {
-    assert(b != 0 && "bitboard cannot be zero in count_bits");
+    assert(b);
     #if defined(_MSC_VER)
       unsigned long index;
       return static_cast<Square>(__popcnt64(b));
