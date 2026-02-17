@@ -48,9 +48,19 @@ TEST(BitboardTest, msbAssertsOnZeroValue) {
         GTEST_SKIP() << "Skipping Death Test in Release mode (asserts disabled)";
     #endif
 }
-TEST(BitboardTest, msbAndlsbOnTheSameNumber) {
+TEST(BitboardTest, msbAndLsbOnTheSameNumber) {
 	using namespace Bitboard;
 	bitboard b = (1ULL << 30) | (1ULL << 15) ;
 	EXPECT_EQ(lsb(b), 15);
 	EXPECT_EQ(msb(b), 30);
+}
+TEST(BitboardTest, setGetResetTest) {
+	using namespace Bitboard;
+	bitboard b = 0ULL;
+	Square sq = e8 ;
+    EXPECT_EQ((b, sq), 0);
+	set_bit(b, sq);
+	EXPECT_EQ((b, sq), 1);
+	reset_bit(b, sq);
+	EXPECT_EQ(get_bit(b, sq), 0);
 }
