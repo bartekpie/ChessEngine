@@ -14,14 +14,12 @@ TEST(BitboardTest, LsbReturnsCorrectIndexForRandomHex) {
 	EXPECT_EQ(lsb(1ULL << 63), 63);
 }
 
-//Test sprawdzający assert dla wartości 0 (Death Test)
-/*
+
 TEST(BitboardTest, LsbAssertsOnZeroValue) {
-    
+    using namespace Bitboard;
     #ifndef NDEBUG
         EXPECT_DEATH(get_lsb(0ULL), "Bitboard cannot be zero");
     #else
         GTEST_SKIP() << "Skipping Death Test in Release mode (asserts disabled)";
     #endif
 }
-*/
