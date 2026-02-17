@@ -17,7 +17,7 @@ TEST(BitboardTest, LsbReturnsCorrectIndexForRandomHex) {
 TEST(BitboardTest, LsbReturnsCorreectIndexForHex) {
    using namespace Bitboard;
    for (int i{}; i < 64; i++) {
-     EXPECT_EQ((1ULL << i), i);
+     EXPECT_EQ((lsb(1ULL << i)), i);
    }
 }
 
