@@ -29,15 +29,15 @@ TEST(BitboardTest, lsbAssertsOnZeroValue) {
 }
 TEST(BitboardTest, msbReturnsCorrectIndexForRandomHex) {
 	using namespace Bitboard;
-	EXPECT_EQ(msb(0x1ULL), 63);
-    EXPECT_EQ(msb(0x100ULL), 55);
-    EXPECT_EQ(msb(0x80000000ULL), 32);
-    EXPECT_EQ(msb(0xF000ULL), 51);
+	EXPECT_EQ(msb(0x1ULL), 0);
+    EXPECT_EQ(msb(0x100ULL), 8);
+    EXPECT_EQ(msb(0x80000000ULL), 31);
+    EXPECT_EQ(msb(0xF000ULL), 15);
 }
 TEST(BitboardTest, msbReturnsCorreectIndexForHex) {
    using namespace Bitboard;
    for (int i{}; i < 64; i++) {
-     EXPECT_EQ((msb(1ULL >> i)), i);
+     EXPECT_EQ((msb(1ULL << i)), i);
    }
 }
 TEST(BitboardTest, msbAssertsOnZeroValue) {
