@@ -29,10 +29,10 @@ TEST(BitboardTest, lsbAssertsOnZeroValue) {
 }
 TEST(BitboardTest, msbReturnsCorrectIndexForRandomHex) {
 	using namespace Bitboard;
-	EXPECT_EQ(lsb(0x1ULL), 63);
-    EXPECT_EQ(lsb(0x100ULL), 55);
-    EXPECT_EQ(lsb(0x80000000ULL), 32);
-    EXPECT_EQ(lsb(0xF000ULL), 51);
+	EXPECT_EQ(msb(0x1ULL), 63);
+    EXPECT_EQ(msb(0x100ULL), 55);
+    EXPECT_EQ(msb(0x80000000ULL), 32);
+    EXPECT_EQ(msb(0xF000ULL), 51);
 }
 TEST(BitboardTest, msbReturnsCorreectIndexForHex) {
    using namespace Bitboard;
@@ -43,7 +43,7 @@ TEST(BitboardTest, msbReturnsCorreectIndexForHex) {
 TEST(BitboardTest, msbAssertsOnZeroValue) {
     using namespace Bitboard;
     #ifndef NDEBUG
-        EXPECT_DEATH(lsb(0ULL), "");
+        EXPECT_DEATH(msb(0ULL), "");
     #else
         GTEST_SKIP() << "Skipping Death Test in Release mode (asserts disabled)";
     #endif
