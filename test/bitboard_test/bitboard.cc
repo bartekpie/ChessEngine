@@ -67,6 +67,19 @@ TEST(BitboardTest, checkIfSetOnlySetsDesiredBits) {
 		 EXPECT_FALSE(get_bit(b, Square(i)));
 	}
 }
+TEST(BitboardTest, checkIfResetsOnlyResetsDesiredBits) {
+	using namespace Bitboard;
+	bitboard b = 0ULL;
+	set_bit(b, Square(6));
+	set_bit(b, Square(9));
+	reset_bit(b, Square(6));
+	for (int i{}; i < 63; i++) {
+      if (i == 9)
+	     EXPECT_TRUE(get_bit(b, Square(i)));
+	  else 
+		 EXPECT_FALSE(get_bit(b, Square(i)));
+	}
+}
 TEST(BitboardTest, setGetResetCycleTest) {
 	using namespace Bitboard;
 	bitboard b = 0ULL;
