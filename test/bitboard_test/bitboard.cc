@@ -54,6 +54,18 @@ TEST(BitboardTest, msbAndLsbOnTheSameNumber) {
 	EXPECT_EQ(lsb(b), 15);
 	EXPECT_EQ(msb(b), 30);
 }
+TEST(BitboardTest, checkIfSetOnlySetsDesiredBits) {
+	using namespace Bitboard;
+	bitboard b = 0ULL;
+	set_bit(b, Square(6));
+	set_bit(b, Square(9));
+	for (int i{}; i < 63; i++) {
+      if (i == 6 || i == 9)
+	     EXPECT_EQ(get_bit(b, Square(i)), 1);
+	  else 
+		 EXPECT_EQ(get_bit(b, Square(i)), 0);
+	}
+}
 TEST(BitboardTest, setGetResetTest) {
 	using namespace Bitboard;
 	bitboard b = 0ULL;
