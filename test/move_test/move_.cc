@@ -10,6 +10,10 @@ TEST(MoveTest, constructorTest) {
     Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotion, queen );
     EXPECT_EQ(m.data(), 0xE30C);
 }
+TEST(MoveTest, objectSizeTest) {
+    Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotion, queen );
+    EXPECT_EQ(sizeof(m), 2);
+}
 TEST(MoveTest, fromToEncodingTest) {
     for (int i{}; i < 64; i++) {
       for (int j{63}; j>=0; j-- ){
