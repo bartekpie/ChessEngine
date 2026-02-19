@@ -8,7 +8,7 @@ TEST(MoveTest, valueConstructorTest) {
 }
 TEST(MoveTest, constructorTest) {
     Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotion, queen );
-    EXPECT_EQ(m.data(), 0xE33);
+    EXPECT_EQ(m.data(), 0xECC);
 }
 TEST(MoveTest, fromToEncodingTest) {
     for (int i{}; i < 64; i++) {
