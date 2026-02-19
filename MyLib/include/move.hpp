@@ -38,7 +38,7 @@ constexpr Move::Move(Bitboard::Square from, Bitboard::Square to, MoveType type, 
   assert(from >= Bitboard::a1 && from <= Bitboard::h8);
   assert(to >= Bitboard::a1 && to <= Bitboard::h8);
   assert(type >= MoveType::standard && type <= MoveType::castle);
-  assert(piece >= PromotionPiece::knight && type <= MoveType::castle);
+  assert(piece >= PromotionPiece::knight && piece <= MoveType::castle);
 }
 
 constexpr MoveType Move::type() const{
