@@ -35,10 +35,10 @@ constexpr Move::Move(uint16_t move) :
 
 constexpr Move::Move(Bitboard::Square from, Bitboard::Square to, MoveType type, PromotionPiece piece) : 
   data_(from | to << 6 | type | piece) {
-  assert(from > Bitboard::a1 && from <= Bitboard::h8);
-  assert(to > Bitboard::a1 && to <= Bitboard::h8);
-  assert(type > MoveType::standard && type <= MoveType::castle);
-  assert(piece > PromotionPiece::knight && type <= MoveType::castle);
+  assert(from >= Bitboard::a1 && from <= Bitboard::h8);
+  assert(to >= Bitboard::a1 && to <= Bitboard::h8);
+  assert(type >= MoveType::standard && type <= MoveType::castle);
+  assert(piece >= PromotionPiece::knight && type <= MoveType::castle);
 }
 
 constexpr MoveType Move::type() const{
