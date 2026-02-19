@@ -46,6 +46,6 @@ constexpr Bitboard::Square Move::from() const{
 constexpr Bitboard::Square Move::to() const{
     return Bitboard::Square((data_ >> 6) & 0x3f);
 }
-constexpr Move Move::makeMove(Bitboard::Square from, Bitboard::Square to, MoveType type = standard, PromotionPiece piece = knight) {
+constexpr Move Move::makeMove(Bitboard::Square from, Bitboard::Square to, MoveType type, PromotionPiece piece) {
     return Move(from, to, type, piece);
 }
