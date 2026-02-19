@@ -31,7 +31,7 @@ class Move {
 constexpr Move::Move(uint16_t move) : 
   data_(move){}
 
-constexpr Move::Move(Bitboard::Square from, Bitboard::Square to, MoveType type = standard, PromotionPiece piece = knight) : 
+constexpr Move::Move(Bitboard::Square from, Bitboard::Square to, MoveType type, PromotionPiece piece) : 
   data_(from | to << 6 | type | piece) {}
 
 constexpr MoveType Move::type() const{
