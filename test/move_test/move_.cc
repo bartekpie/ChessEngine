@@ -9,7 +9,7 @@ TEST(MoveTest, constructorTest) {
 
 TEST(MoveTest, fromToEncodingTest) {
     for (int i{}; i < 64; i++) {
-      for (int j{63}; j>=0; j++ ){
+      for (int j{63}; j>=0; j-- ){
         Bitboard::Square from = static_cast<Bitboard::Square>(i);
         Bitboard::Square to = static_cast<Bitboard::Square>(j);
         Move m(from, to);
