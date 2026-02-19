@@ -15,14 +15,12 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 get_filename_component(MYLIB_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}../../../MyLib/include" ABSOLUTE)
-get_filename_component(MYLIB_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}../../../MyLib/source" ABSOLUTE)
 enable_testing()
 
 add_executable(
   Move_
   move_.cc
   "${MYLIB_INCLUDE_DIR}/move.hpp"
-  "${MYLIB_SOURCE_DIR}/move.cpp"
 )
 target_include_directories(
   Move_ PRIVATE
