@@ -27,7 +27,6 @@ TEST(MoveTest, enumOutOfBounds) {
   #ifndef NDebug
     EXPECT_DEATH(Move m(static_cast<Bitboard::Square>(70), Bitboard::a1), "");
     EXPECT_DEATH(Move m(Bitboard::a1,static_cast<Bitboard::Square>(70)), "");
-    EXPECT_DEATH(Move m(Bitboard::a1,static_cast<Bitboard::Square>(70)), "");
     EXPECT_DEATH(Move m(Bitboard::a1,Bitboard::a1, static_cast<MoveType>(10)), "");
     EXPECT_DEATH(Move m(Bitboard::a1,Bitboard::a1, MoveType::promotion, static_cast<PromotionPiece>(10)), "");
   #endif
