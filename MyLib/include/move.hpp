@@ -25,8 +25,9 @@ class Move {
       constexpr PromotionPiece promotionType() const;
       constexpr Bitboard::Square from()const;
       constexpr Bitboard::Square to()const;
+      constexpr uint16_t data()const;
       static constexpr Move makeMove(Bitboard::Square from, Bitboard::Square to, MoveType type = standard, PromotionPiece piece = knight);
-
+      
 };
 constexpr Move::Move(uint16_t move) : 
   data_(move){}
@@ -36,6 +37,9 @@ constexpr Move::Move(Bitboard::Square from, Bitboard::Square to, MoveType type, 
 
 constexpr MoveType Move::type() const{
     return( MoveType(data_  & 0x3000) );
+}
+constexpr uint16_t Move::data()const {
+    return data_;
 }
 constexpr PromotionPiece Move::promotionType() const{
     return PromotionPiece(data_ & 0xC000);
