@@ -14,6 +14,12 @@ TEST(MoveTest, objectSizeTest) {
     Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotion, queen );
     EXPECT_EQ(sizeof(m), 2);
 }
+TEST(MoveTest, enumOutOfBounds) {
+  #ifndef NDebug
+    EXPECT_DEATH(Move m(static_cast<Bitboard::Square>(70), Bitboard::a1), "");
+    EXPECT_DEATH(Move m(Bitboard::a1,static_cast<Bitboard::Square>(70)), "");
+  #endif
+}
 TEST(MoveTest, fromToEncodingTest) {
     for (int i{}; i < 64; i++) {
       for (int j{63}; j>=0; j-- ){
