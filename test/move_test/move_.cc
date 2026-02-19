@@ -27,9 +27,9 @@ TEST(MoveTest, enumOutOfBounds) {
   #ifndef NDebug
     EXPECT_DEATH(Move m(static_cast<Bitboard::Square>(70), Bitboard::a1), "");
     EXPECT_DEATH(Move m(Bitboard::a1,static_cast<Bitboard::Square>(70)), "");
-    std::cout<< static_cast<MoveType>(10);
     EXPECT_DEATH(Move m(Bitboard::a1,Bitboard::a1, static_cast<MoveType>(10)), "");
     EXPECT_DEATH(Move m(Bitboard::a1,Bitboard::a1, MoveType::promotion, static_cast<PromotionPiece>(10)), "");
+
   #endif
 }
 TEST(MoveTest, fromToEncodingTest) {
@@ -46,3 +46,8 @@ TEST(MoveTest, fromToEncodingTest) {
       }
     }
 } 
+TEST(MoveTest, staticMakeMoveTest) {
+  Move m = Move::makeMove(Bitboard::b1, Bitboard::b1, standard);
+  Move r(Bitboard::b1, Bitboard::b1, standard);
+  EXPECT_EQ(m.data(),r.data());
+}
