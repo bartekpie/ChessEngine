@@ -10,6 +10,15 @@ TEST(MoveTest, constructorTest) {
     Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotion, queen );
     EXPECT_EQ(m.data(), 0xE30C);
 }
+TEST(MoveTest, promotionTypeMetohodTest) {
+    Move m(Bitboard::a1, Bitboard::a1, promotion, rook);
+    EXPECT_EQ(m.promotionType(), rook);
+
+}
+TEST(MoveTest, typeMetohodTest) {
+    Move m(Bitboard::a1, Bitboard::a1, castle);
+    EXPECT_EQ(m.type(), castle);
+}
 TEST(MoveTest, objectSizeTest) {
     Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotion, queen );
     EXPECT_EQ(sizeof(m), 2);
