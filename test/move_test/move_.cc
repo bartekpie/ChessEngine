@@ -7,20 +7,15 @@ TEST(MoveTest, valueConstructorTest) {
     EXPECT_EQ(m.data(), static_cast<uint16_t>(0x4));
 }
 TEST(MoveTest, constructorTest) {
-    Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotion, queen );
+    Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotionQueen );
     EXPECT_EQ(m.data(), 0xE30C);
-}
-TEST(MoveTest, promotionTypeMetohodTest) {
-    Move m(Bitboard::a1, Bitboard::a1, promotion, rook);
-    EXPECT_EQ(m.promotionType(), rook);
-
 }
 TEST(MoveTest, typeMetohodTest) {
     Move m(Bitboard::a1, Bitboard::a1, castle);
     EXPECT_EQ(m.type(), castle);
 }
 TEST(MoveTest, objectSizeTest) {
-    Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotion, queen );
+    Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotionQueen );
     EXPECT_EQ(sizeof(m), 2);
 }
 TEST(MoveTest, enumOutOfBounds) {
@@ -28,8 +23,6 @@ TEST(MoveTest, enumOutOfBounds) {
     EXPECT_DEATH(Move m(static_cast<Bitboard::Square>(70), Bitboard::a1), "");
     EXPECT_DEATH(Move m(Bitboard::a1,static_cast<Bitboard::Square>(70)), "");
     EXPECT_DEATH(Move m(Bitboard::a1,Bitboard::a1, static_cast<MoveType>(10)), "");
-    EXPECT_DEATH(Move m(Bitboard::a1,Bitboard::a1, MoveType::promotion, static_cast<PromotionPiece>(10)), "");
-
   #endif
 }
 TEST(MoveTest, fromToEncodingTest) {
@@ -41,8 +34,6 @@ TEST(MoveTest, fromToEncodingTest) {
         EXPECT_EQ(m.from(), from);
         EXPECT_EQ(m.to(), to);
         EXPECT_EQ(m.type(), standard);
-        EXPECT_EQ(m.promotionType(), knight);
-
       }
     }
 } 
