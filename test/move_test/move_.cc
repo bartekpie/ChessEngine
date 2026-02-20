@@ -8,7 +8,7 @@ TEST(MoveTest, valueConstructorTest) {
 }
 TEST(MoveTest, constructorTest) {
     Move m(Bitboard::Square(3 << 2), Bitboard::Square(3 << 2), promotionQueen );
-    EXPECT_EQ(m.data(), 0xE30C);
+    EXPECT_EQ(m.data(), 0x730C);
 }
 TEST(MoveTest, typeMetohodTest) {
     Move m(Bitboard::a1, Bitboard::a1, castle);
