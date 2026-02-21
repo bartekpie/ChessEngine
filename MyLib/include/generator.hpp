@@ -44,7 +44,7 @@ constexpr std::array<Bitboard::bitboard, 64> knight_precompiled = []() constexpr
 {
    std::array<Bitboard::bitboard, 64> moves {};
    Bitboard::bitboard current {};
-   for (uint8_t square{0}; square < 64; square++) {
+   for (auto square{0}; square < 64; square++) {
      current = 1ULL << square;
 
      moves[square] |= (current << 17) & notAFile;
@@ -57,4 +57,25 @@ constexpr std::array<Bitboard::bitboard, 64> knight_precompiled = []() constexpr
      moves[square] |= (current >> 6)  & notABFile;
    } 
    return moves;
+}();
+enum class Directions { North= 0, South, East, West, Size};
+constexpr std::array<std::array<Bitboard::bitboard, 64>, int(Directions::Size)> rook_precompiled = []() constexpr {
+    std::array<std::array<Bitboard::bitboard, 64>, int(Directions::Size)> moves {};
+    for (auto square {0}; square < 64; square++) {
+		int rank = square / 8;
+		int file = square % 8;
+		Bitboard::bitboard N = 0ULL;
+		Bitboard::bitboard S = 0ULL;
+		Bitboard::bitboard E = 0ULL;
+		Bitboard::bitboard W = 0ULL;
+		for (int r = rank + 1; r < 8; ++r)
+			moves[int(Directions::North)][square] |= 1ULL << (r * 8 + file);
+		for (int r = rank - 1; r >= 0; --r)
+			moves[int(Directions::South)][square] |= 1ULL << (r * 8 + file);
+		for (int f = file + 1; f < 8; ++f)
+			moves[int(Directions::East)][square]  |= 1ULL << (rank * 8 + f);
+		for (int f = file - 1; f >= 0; --f)
+			moves[int(Directions::West)][square]  |= 1ULL << (rank * 8 + f);
+		}
+        return moves;
 }();
