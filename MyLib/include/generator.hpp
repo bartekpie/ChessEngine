@@ -40,7 +40,7 @@ constexpr Bitboard::bitboard notABFile = 0xfcfcfcfcfcfcfcfcULL;
 constexpr Bitboard::bitboard notHFile  = 0x7f7f7f7f7f7f7f7fULL;
 constexpr Bitboard::bitboard notGHFile = 0x3f3f3f3f3f3f3f3fULL;
 
-constexpr std::array<Bitboard::bitboard, 64> knight_precompiled = []() constexpr  
+alignas(64) static constexpr auto knight_precompiled = []() constexpr  
 {
    std::array<Bitboard::bitboard, 64> moves {};
    Bitboard::bitboard current {};
@@ -58,9 +58,9 @@ constexpr std::array<Bitboard::bitboard, 64> knight_precompiled = []() constexpr
    } 
    return moves;
 }();
-enum class Directions { North= 0, South, East, West, Size};
-constexpr std::array<std::array<Bitboard::bitboard, 64>, int(Directions::Size)> rook_precompiled = []() constexpr {
-    std::array<std::array<Bitboard::bitboard, 64>, int(Directions::Size)> moves {};
+// table return all north possible moves
+alignas(64) static constexpr auto north_precompiled = []() constexpr {
+    std::array<Bitboard::bitboard, 64> moves {};
     for (auto square {0}; square < 64; square++) {
 		int rank = square / 8;
 		int file = square % 8;
@@ -68,14 +68,50 @@ constexpr std::array<std::array<Bitboard::bitboard, 64>, int(Directions::Size)> 
 		Bitboard::bitboard S = 0ULL;
 		Bitboard::bitboard E = 0ULL;
 		Bitboard::bitboard W = 0ULL;
-		for (int r = rank + 1; r < 8; ++r)
-			moves[int(Directions::North)][square] |= 1ULL << (r * 8 + file);
-		for (int r = rank - 1; r >= 0; --r)
-			moves[int(Directions::South)][square] |= 1ULL << (r * 8 + file);
-		for (int f = file + 1; f < 8; ++f)
-			moves[int(Directions::East)][square]  |= 1ULL << (rank * 8 + f);
-		for (int f = file - 1; f >= 0; --f)
-			moves[int(Directions::West)][square]  |= 1ULL << (rank * 8 + f);
+		for (int r = rank + 1; r < 8; r++)
+			moves[square] |= 1ULL << (r * 8 + file);
 		}
-        return moves;
+    return moves;
+}();
+static constexpr auto south_precompiled = []() constexpr {
+    std::array<Bitboard::bitboard, 64> moves {};
+    for (auto square {0}; square < 64; square++) {
+		int rank = square / 8;
+		int file = square % 8;
+		Bitboard::bitboard N = 0ULL;
+		Bitboard::bitboard S = 0ULL;
+		Bitboard::bitboard E = 0ULL;
+		Bitboard::bitboard W = 0ULL;
+		for (int r = rank - 1; r >=0; r--)
+			moves[square] |= 1ULL << (r * 8 + file);
+		}
+    return moves;
+}();
+static constexpr auto east_precompiled = []() constexpr {
+    std::array<Bitboard::bitboard, 64> moves {};
+    for (auto square {0}; square < 64; square++) {
+		int rank = square / 8;
+		int file = square % 8;
+		Bitboard::bitboard N = 0ULL;
+		Bitboard::bitboard S = 0ULL;
+		Bitboard::bitboard E = 0ULL;
+		Bitboard::bitboard W = 0ULL;
+		for (int f{file+1}; f < 8; f++)
+			moves[square] |= 1ULL << (rank * 8 + f);
+		}
+    return moves;
+}();
+static constexpr auto west_precompiled = []() constexpr {
+    std::array<Bitboard::bitboard, 64> moves {};
+    for (auto square {0}; square < 64; square++) {
+		int rank = square / 8;
+		int file = square % 8;
+		Bitboard::bitboard N = 0ULL;
+		Bitboard::bitboard S = 0ULL;
+		Bitboard::bitboard E = 0ULL;
+		Bitboard::bitboard W = 0ULL;
+		for (int f{file-1}; f >=0; f--)
+			moves[square] |= 1ULL << (rank * 8 + f);
+		}
+    return moves;
 }();
