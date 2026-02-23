@@ -1,6 +1,7 @@
 #include <cassert>
 #include <array>
 #include "bitboard.hpp"
+#include "position.hpp"
 #include "move.hpp"
 constexpr size_t MaxMoves = 256;
 
@@ -28,11 +29,18 @@ struct MoveList {
       inline const Move* end() const noexcept { 
         return data_.data() + index_; 
       }
+      inline void bitboardToMoves(Bitboard::Square from, Bitboard::bitboard b, MoveType m = standard) {
+        while(b) {
+          auto to = Bitboard::lsb(b);
+          Bitboard::reset_bit(b, to);
+          *this += Move::makeMove(from, to, m);
+        }
+      }
 
 };
 enum Pieces : uint8_t { Pawn = 0, Knight, Bishop, Queen, King};
 
-template<Pieces>
+template<Pieces p>
 void generate_moves(const Position& position, MoveList& list);
 
 constexpr Bitboard::bitboard notAFile  = 0xfefefefefefefefeULL;
@@ -73,7 +81,7 @@ alignas(64) static constexpr auto north_precompiled = []() constexpr {
 		}
     return moves;
 }();
-static constexpr auto south_precompiled = []() constexpr {
+alignas(64) static constexpr auto south_precompiled = []() constexpr {
     std::array<Bitboard::bitboard, 64> moves {};
     for (auto square {0}; square < 64; square++) {
 		int rank = square / 8;
@@ -87,7 +95,7 @@ static constexpr auto south_precompiled = []() constexpr {
 		}
     return moves;
 }();
-static constexpr auto east_precompiled = []() constexpr {
+alignas(64) static constexpr auto east_precompiled = []() constexpr {
     std::array<Bitboard::bitboard, 64> moves {};
     for (auto square {0}; square < 64; square++) {
 		int rank = square / 8;
@@ -101,7 +109,7 @@ static constexpr auto east_precompiled = []() constexpr {
 		}
     return moves;
 }();
-static constexpr auto west_precompiled = []() constexpr {
+alignas(64) static constexpr auto west_precompiled = []() constexpr {
     std::array<Bitboard::bitboard, 64> moves {};
     for (auto square {0}; square < 64; square++) {
 		int rank = square / 8;
@@ -115,3 +123,71 @@ static constexpr auto west_precompiled = []() constexpr {
 		}
     return moves;
 }();
+alignas(64) static constexpr auto north_east_precompiled = []() constexpr {
+    std::array<Bitboard::bitboard, 64> moves {};
+    for (auto square {0}; square < 64; square++) {
+		int rank = square / 8;
+		int file = square % 8;
+		Bitboard::bitboard N = 0ULL;
+		Bitboard::bitboard S = 0ULL;
+		Bitboard::bitboard E = 0ULL;
+		Bitboard::bitboard W = 0ULL;
+    for (int r{rank+1}; r < 8; r++) {
+      for (int f{file+1}; f < 8; f++)
+			  moves[square] |= 1ULL << (r * 8 + f);
+		  }
+    }
+    return moves;
+}();
+alignas(64) static constexpr auto north_west_precompiled = []() constexpr {
+    std::array<Bitboard::bitboard, 64> moves {};
+    for (auto square {0}; square < 64; square++) {
+		int rank = square / 8;
+		int file = square % 8;
+		Bitboard::bitboard N = 0ULL;
+		Bitboard::bitboard S = 0ULL;
+		Bitboard::bitboard E = 0ULL;
+		Bitboard::bitboard W = 0ULL;
+    for (int r{rank+1}; r < 8; r++) {
+      for (int f{file-1}; f >= 0; f--)
+			  moves[square] |= 1ULL << (r * 8 + f);
+		  }
+    }
+    return moves;
+}();
+alignas(64) static constexpr auto south_east_precompiled = []() constexpr {
+    std::array<Bitboard::bitboard, 64> moves {};
+    for (auto square {0}; square < 64; square++) {
+		int rank = square / 8;
+		int file = square % 8;
+		Bitboard::bitboard N = 0ULL;
+		Bitboard::bitboard S = 0ULL;
+		Bitboard::bitboard E = 0ULL;
+		Bitboard::bitboard W = 0ULL;
+    for (int r{rank-1}; r >= 0; r--) {
+      for (int f{file+1}; f < 8; f++)
+			  moves[square] |= 1ULL << (r * 8 + f);
+		  }
+    }
+    return moves;
+}();
+alignas(64) static constexpr auto south_west_precompiled = []() constexpr {
+    std::array<Bitboard::bitboard, 64> moves {};
+    for (auto square {0}; square < 64; square++) {
+		int rank = square / 8;
+		int file = square % 8;
+		Bitboard::bitboard N = 0ULL;
+		Bitboard::bitboard S = 0ULL;
+		Bitboard::bitboard E = 0ULL;
+		Bitboard::bitboard W = 0ULL;
+    for (int r{rank-1}; r >= 0; r--) {
+      for (int f{file-1}; f >= 0; f++)
+			  moves[square] |= 1ULL << (r * 8 + f);
+		  }
+    }
+    return moves;
+}();
+
+
+
+
