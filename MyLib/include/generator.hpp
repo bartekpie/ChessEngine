@@ -226,7 +226,7 @@ alignas(64) static constexpr auto south_west_precompiled = []() constexpr {
 		Bitboard::bitboard E = 0ULL;
 		Bitboard::bitboard W = 0ULL;
     for (int r{rank-1}; r >= 0; r--) {
-      for (int f{file-1}; f >= 0; f++)
+      for (int f{file-1}; f >= 0; f--)
 			  moves[square] |= 1ULL << (r * 8 + f);
 		  }
     }
