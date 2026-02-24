@@ -7,7 +7,7 @@ constexpr size_t MaxMoves = 256;
 
 struct MoveList {
     private:
-      std::array<Move,256> data_ ;  
+      std::array<Move,256> data_{};  
       uint16_t index_{0};   
     public:
       constexpr void operator+=(Move m) {
@@ -48,7 +48,6 @@ constexpr Bitboard::bitboard notGHFile = 0x3f3f3f3f3f3f3f3fULL;
 /*template<Pieces p>
 void generate_moves(const Position& position, MoveList& list);*/
 
-enum directions { north=0, south, west, east, north_east, north_west, south_east, south_west, knight};
 alignas(64) static constexpr std::array<std::array<Bitboard::bitboard,7>, 64> precompiled_directions = []()constexpr
 {
   std::array<std::array<Bitboard::bitboard,7>, 64> table{};
