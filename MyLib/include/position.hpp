@@ -24,6 +24,7 @@ class Position {
       Bitboard::bitboard getOurs() const;
       template <PiecesType piece> Bitboard::bitboard getOpponents() const;
       Bitboard::bitboard getOpponents() const;
+      Bitboard::bitboard getEmptySpaces() const;
 
 };
 template <Color color>
@@ -48,4 +49,7 @@ Bitboard::bitboard Position::getOpponents() const {
 Bitboard::bitboard Position::getOpponents() const {
   auto r = sideToMove == Color::white ? blackPieces_ : whitePieces_;
   return r;
+}
+Bitboard::bitboard Position::getEmptySpaces() const {
+  return emptySpaces_;
 }

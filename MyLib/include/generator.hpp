@@ -38,7 +38,6 @@ struct MoveList {
       }
 
 };
-enum Pieces : uint8_t { Pawn = 0, Knight, Bishop, Queen, King};
 enum directions : uint8_t { north=0, south, west, east, north_east, north_west, south_east, south_west, knight};
 constexpr Bitboard::bitboard notAFile  = 0xfefefefefefefefeULL;
 constexpr Bitboard::bitboard notABFile = 0xfcfcfcfcfcfcfcfcULL;
