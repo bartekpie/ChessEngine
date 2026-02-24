@@ -30,7 +30,7 @@ class Position {
 template <Color color>
 Bitboard::bitboard Position::getPiecesByColor(PiecesType piece) const {
     if constexpr (color == Color::white)
-      return board_[int(piece)]
+      return board_[int(piece)];
     else {
         return board_[int(piece) + 6];
     }
