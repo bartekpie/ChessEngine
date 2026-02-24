@@ -19,14 +19,10 @@ class Position {
       Color sideToMove ;
     public :
       Bitboard::bitboard getPieces(Pieces piece) const {return board_[int(piece)];}
-      template <Color color>
-      Bitboard::bitboard getPiecesByColor(PiecesType piece, Color color) const;
-      
-      Bitboard::bitboard getMyPieces(PiecesType piece) const;
-      Bitboard::bitboard getOpponentPieces(PiecesType piece) const;
-      template <PiecesType piece>
+      template <Color color> Bitboard::bitboard getPiecesByColor(PiecesType piece) const;
+      template <PiecesType piece> Bitboard::bitboard getOurs() const;
       Bitboard::bitboard getOurs() const;
-      template <PiecesType piece>
+      template <PiecesType piece> Bitboard::bitboard getOpponents() const;
       Bitboard::bitboard getOpponents() const;
 
 };
@@ -35,21 +31,21 @@ Bitboard::bitboard Position::getPiecesByColor(PiecesType piece) const {
     constexpr int offset = color == Color::white ? 0 : 6;
     return board_[int(piece) + offset];
 }
-Bitboard::bitboard Position::getMyPieces(PiecesType piece) const {
-    int offset = sideToMove == Color::white ? 0 : 6;
-    return board_[int(piece) + offset];
-}
-Bitboard::bitboard Position::getOpponentPieces(PiecesType piece) const {
-    int offset = sideToMove == Color::white ? 6 : 0;
-    return board_[int(piece) + offset];
-}
 template <PiecesType piece>
 Bitboard::bitboard Position::getOurs() const {
     constexpr int offset = sideToMove == Color::black ? 0 : 6;
     return board_[int(piece) + offset];
 }
+Bitboard::bitboard Position::getOurs() const {
+  auto r = sideToMove == Color::white ? whitePieces_ : blackPieces_;
+  return r;
+}
 template <PiecesType piece>
 Bitboard::bitboard Position::getOpponents() const {
     constexpr int offset = sideToMove == Color::white ? 0 : 6;
     return board_[int(piece) + offset];
+}
+Bitboard::bitboard Position::getOpponents() const {
+  auto r = sideToMove == Color::white ? blackPieces_ : whitePieces_;
+  return r;
 }

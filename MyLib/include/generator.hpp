@@ -188,6 +188,10 @@ alignas(64) static constexpr auto south_west_precompiled = []() constexpr {
     return moves;
 }();
 
-
+void generate_knight_moves(const Position& position, MoveList& list);
+void generate_bishop_moves(const Position& position, MoveList& list);
+void generate_rook_moves(const Position& position, MoveList& list);
+void generate_queen_moves(const Position& position, MoveList& list);
+void generate_king_moves(const Position& position, MoveList& list);
 
 
