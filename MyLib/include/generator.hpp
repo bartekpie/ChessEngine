@@ -47,9 +47,9 @@ constexpr Bitboard::bitboard notGHFile = 0x3f3f3f3f3f3f3f3fULL;
 /*template<Pieces p>
 void generate_moves(const Position& position, MoveList& list);*/
 
-alignas(64) static constexpr std::array<std::array<Bitboard::bitboard,7>, 64> precompiled_directions = []()constexpr
+alignas(64) static constexpr std::array<std::array<Bitboard::bitboard,9>, 64> precompiled_directions = []()constexpr
 {
-  std::array<std::array<Bitboard::bitboard,7>, 64> table{};
+  std::array<std::array<Bitboard::bitboard,9>, 64> table{};
 
   //knights 
   Bitboard::bitboard current {};
@@ -67,10 +67,6 @@ alignas(64) static constexpr std::array<std::array<Bitboard::bitboard,7>, 64> pr
   for (auto square {0}; square < 64; square++) {
 	  int rank = square / 8;
 	  int file = square % 8;
-	  Bitboard::bitboard N = 0ULL;
-	  Bitboard::bitboard S = 0ULL;
-	  Bitboard::bitboard E = 0ULL;
-	  Bitboard::bitboard W = 0ULL;
 	  for (int r{rank + 1}; r < 8; r++)
 	  	table[square][north] |= 1ULL << (r * 8 + file);
     for (int r{rank - 1}; r >=0; r--)
@@ -80,13 +76,13 @@ alignas(64) static constexpr std::array<std::array<Bitboard::bitboard,7>, 64> pr
     for (int f{file-1}; f >=0; f--)
 		  table[square][west] |= 1ULL << (rank * 8 + f);
     for (int r{rank + 1}, f{file +1}; r<8 && f < 8; r++, f++)
-      table[square][north_east] |= 1ULL << (r * 8) + f ;
+      table[square][north_east] |= 1ULL << (r * 8 + f) ;
     for (int r{rank + 1}, f{file -1}; r<8 && f >= 0; r++, f--)
-      table[square][north_west] |= 1ULL << (r * 8) + f ;
+      table[square][north_west] |= 1ULL << (r * 8 + f) ;
     for (int r{rank - 1}, f{file +1}; r>=0 && f < 8; r--, f++)
-      table[square][south_east] |= 1ULL << (r * 8) + f ;
+      table[square][south_east] |= 1ULL << (r * 8 + f) ;
     for (int r{rank - 1}, f{file - 1}; r>=0 && f >= 0; r--, f--)
-      table[square][south_west] |= 1ULL << (r * 8) + f ;
+      table[square][south_west] |= 1ULL << (r * 8 + f) ;
 	}
   return table;
 }();
