@@ -22,8 +22,9 @@ enum MoveType : uint16_t{
 // and extracting that information efficiently. 
 class Move {
     private :
-      uint16_t data_;
+      uint16_t data_{};
     public :
+      Move(): data_(0){};
       constexpr Move(uint16_t move);
       constexpr Move(Bitboard::Square from, Bitboard::Square to, MoveType type = standard); 
         
