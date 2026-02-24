@@ -34,7 +34,7 @@ Bitboard::bitboard Position::getPiecesByColor(PiecesType piece) const {
 }
 template <PiecesType piece>
 Bitboard::bitboard Position::getOurs() const {
-    constexpr int offset = sideToMove == Color::black ? 0 : 6;
+    int offset = sideToMove == Color::black ? 0 : 6;
     return board_[int(piece) + offset];
 }
 Bitboard::bitboard Position::getOurs() const {
