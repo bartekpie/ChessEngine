@@ -34,7 +34,7 @@ TEST(MoveListTest, IterationAfterReset) {
     MoveList list;
     Move m1 = Move::makeMove(Bitboard::a1, Bitboard::a2);
     Move m2 = Move::makeMove(Bitboard::h7, Bitboard::h8, MoveType::promotionBishop);
-
+    
     list += m1;
     list += m2;
     list.reset();
