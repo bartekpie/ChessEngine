@@ -10,7 +10,7 @@ TEST(MoveListTest, AddsMovesCorrectly) {
     list += m2;
 
     int count = 0;
-    for (const auto& move : list) {
+    for (auto& move : list) {
         if (count == 0)
           EXPECT_EQ(move, m1);
         if (count == 1)
