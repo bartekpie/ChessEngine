@@ -12,9 +12,9 @@ TEST(MoveListTest, AddsMovesCorrectly) {
     int count = 0;
     for (auto& move : list) {
         if (count == 0)
-          EXPECT_EQ(move, m1);
+          EXPECT_EQ(move.data(), m1.data());
         if (count == 1)
-          EXPECT_EQ(move, m2);
+          EXPECT_EQ(move.data(), m2.data());
         count++;
         
     }
