@@ -225,11 +225,11 @@ TEST(Precompiled_directionsTest, checkingStraightDirections) {
 
     test_case = precompiled_directions[Bitboard::e4][south];
     EXPECT_EQ(Bitboard::count_bits(test_case), 3);
-    EXPECT_EQ(Bitboard::msb(test_case), 4);
+    EXPECT_EQ(Bitboard::lsb(test_case), 4);
     Bitboard::reset_bit(test_case, Bitboard::Square(4));
-    EXPECT_EQ(Bitboard::msb(test_case), 12);
+    EXPECT_EQ(Bitboard::lsb(test_case), 12);
     Bitboard::reset_bit(test_case, Bitboard::Square(12));
-    EXPECT_EQ(Bitboard::msb(test_case), 20);
+    EXPECT_EQ(Bitboard::lsb(test_case), 20);
     Bitboard::reset_bit(test_case, Bitboard::Square(20));
     EXPECT_FALSE(test_case);
 };
