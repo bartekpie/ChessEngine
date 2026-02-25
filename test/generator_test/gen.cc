@@ -104,7 +104,7 @@ TEST(MoveListTest, BitboardToMovesTest) {
     EXPECT_TRUE(std::find(targetSquares.begin(), targetSquares.end(), Bitboard::f3) != targetSquares.end());
 
 };
-TEST(Precompiled_directionsTest, checkingKnightMovesInTheSideOfBoard) {
+TEST(Precompiled_directionsTest, checkingKnightMovesInTheLeftSideOfBoard) {
     auto test_case =precompiled_directions[16][knight];
     EXPECT_EQ(Bitboard::count_bits(test_case), 4);
     EXPECT_EQ(Bitboard::lsb(test_case), 1);
@@ -115,6 +115,19 @@ TEST(Precompiled_directionsTest, checkingKnightMovesInTheSideOfBoard) {
     Bitboard::reset_bit(test_case, Bitboard::Square(26));
     EXPECT_EQ(Bitboard::lsb(test_case), 33);
     Bitboard::reset_bit(test_case, Bitboard::Square(33));
+    EXPECT_FALSE(test_case);
+};
+TEST(Precompiled_directionsTest, checkingKnightMovesInTheRigthSideOfBoard) {
+    auto test_case =precompiled_directions[23][knight];
+    EXPECT_EQ(Bitboard::count_bits(test_case), 4);
+    EXPECT_EQ(Bitboard::lsb(test_case), 6);
+    Bitboard::reset_bit(test_case, Bitboard::Square(6));
+    EXPECT_EQ(Bitboard::lsb(test_case), 13);
+    Bitboard::reset_bit(test_case, Bitboard::Square(13));
+    EXPECT_EQ(Bitboard::lsb(test_case), 29);
+    Bitboard::reset_bit(test_case, Bitboard::Square(29));
+    EXPECT_EQ(Bitboard::lsb(test_case), 38);
+    Bitboard::reset_bit(test_case, Bitboard::Square(38));
     EXPECT_FALSE(test_case);
 };
 TEST(Precompiled_directionsTest, checkingKnightMovesInTheEges) {
