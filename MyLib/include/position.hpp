@@ -21,6 +21,8 @@ class Position {
       Bitboard::bitboard emptySpaces_;
       Color sideToMove ;
     public :
+      Position(): board_{}, whitePieces_{}, blackPieces_{}, emptySpaces_{~0ULL} {}
+      Position(std::string fen_position);
       void loadFromFEN(std::string fen_position);
       void clear();
       Bitboard::bitboard getPieces(Pieces piece) const {return board_[int(piece)];}
@@ -51,6 +53,10 @@ inline void Position::clear()
     blackPieces_ = 0ULL;
     emptySpaces_ = ~0ULL;
     board_.fill(0ULL);
+}
+inline Position::Position(std::string fen_position)
+{
+    loadFromFEN(fen_position);
 }
 inline void Position::loadFromFEN(std::string fen_position)
 {
