@@ -104,3 +104,22 @@ TEST(MoveListTest, BitboardToMovesTest) {
     EXPECT_TRUE(std::find(targetSquares.begin(), targetSquares.end(), Bitboard::f3) != targetSquares.end());
 
 };
+TEST(Precompiled_directionsTest, checkingKnightMovesInTheEges) {
+    auto test_case =precompiled_directions[16][knight];
+    EXPECT_EQ(Bitboard::count_bits(test_case), 4);
+    EXPECT_EQ(Bitboard::lsb(test_case), 1);
+    Bitboard::reset_bit(test_case, Bitboard::Square(1));
+    EXPECT_EQ(Bitboard::lsb(test_case), 10);
+    Bitboard::reset_bit(test_case, Bitboard::Square(10));
+    EXPECT_EQ(Bitboard::lsb(test_case), 26);
+    Bitboard::reset_bit(test_case, Bitboard::Square(26));
+    EXPECT_EQ(Bitboard::lsb(test_case), 33);
+    Bitboard::reset_bit(test_case, Bitboard::Square(33));
+    EXPECT_FALSE(test_case);
+    
+    
+    
+    
+
+
+};
