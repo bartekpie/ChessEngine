@@ -256,8 +256,8 @@ TEST(Precompiled_directionsTest, checkingStraightDirectionsInEdges) {
 
    
     EXPECT_EQ(precompiled_directions[Bitboard::h1][south], 0);
-    EXPECT_EQ(precompiled_directions[Bitboard::h1][west], 0);
+    EXPECT_EQ(precompiled_directions[Bitboard::h1][east], 0);
    
     EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h1][north]), 7);
-    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h1][east]), 7);
+    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h1][west]), 7);
 };
