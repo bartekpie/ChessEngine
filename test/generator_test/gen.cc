@@ -70,3 +70,37 @@ TEST(MoveListTest, AddingAfterMaxCapacity) {
     #endif
 
 };
+TEST(MoveListTest, BitboardToMovesWithEmptyBitboard) {
+    MoveList list;
+    list.bitboardToMoves(Bitboard::a1, 0ULL);
+    int count{};
+    for (const auto& move : list) 
+        count++;
+    EXPECT_EQ(count, 0);
+
+};
+TEST(MoveListTest, BitboardToMovesTest) {
+    MoveList list;
+    Bitboard::Square from = Bitboard::e2;
+    Bitboard::bitboard moves{};
+    Bitboard::set_bit(moves, Bitboard::e4);
+    Bitboard::set_bit(moves, Bitboard::d3);
+    Bitboard::set_bit(moves, Bitboard::f3);
+    
+    list.bitboardToMoves(from, moves, MoveType::standard);
+
+    int count = std::distance(list.begin(), list.end());
+    EXPECT_EQ(count, 3);
+
+    
+    std::vector<Bitboard::Square> targetSquares;
+    for (const auto& move : list) {
+        targetSquares.push_back(move.to());
+        EXPECT_EQ(move.from(), from);
+    }
+    
+    EXPECT_TRUE(std::find(targetSquares.begin(), targetSquares.end(), Bitboard::e4) != targetSquares.end());
+    EXPECT_TRUE(std::find(targetSquares.begin(), targetSquares.end(), Bitboard::d3) != targetSquares.end());
+    EXPECT_TRUE(std::find(targetSquares.begin(), targetSquares.end(), Bitboard::f3) != targetSquares.end());
+
+};
