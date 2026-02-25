@@ -316,18 +316,18 @@ TEST(Precompiled_Test, checkingDiagonalDirectionsInCorners) {
     EXPECT_EQ(precompiled_directions[Bitboard::h1][south_east], 0);
     EXPECT_EQ(precompiled_directions[Bitboard::h1][south_west], 0);
     
-    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h8][north_west]), 7);
+    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h1][north_west]), 7);
 
     EXPECT_EQ(precompiled_directions[Bitboard::a8][north_east], 0);
     EXPECT_EQ(precompiled_directions[Bitboard::a8][south_west], 0);
     EXPECT_EQ(precompiled_directions[Bitboard::a8][north_west], 0);
     
-    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h8][south_east]), 7);
+    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::a8][south_east]), 7);
 
     EXPECT_EQ(precompiled_directions[Bitboard::a1][south_east], 0);
     EXPECT_EQ(precompiled_directions[Bitboard::a1][south_west], 0);
     EXPECT_EQ(precompiled_directions[Bitboard::a1][north_west], 0);
     
-    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h8][north_east]), 7);
+    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::a1][north_east]), 7);
 };
 
