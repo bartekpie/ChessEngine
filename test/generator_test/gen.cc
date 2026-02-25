@@ -104,7 +104,7 @@ TEST(MoveListTest, BitboardToMovesTest) {
     EXPECT_TRUE(std::find(targetSquares.begin(), targetSquares.end(), Bitboard::f3) != targetSquares.end());
 
 };
-TEST(Precompiled_directionsTest, checkingKnightMovesInTheLeftSideOfBoard) {
+TEST(Precompiled_Test, checkingKnightMovesInTheLeftSideOfBoard) {
     auto test_case =precompiled_directions[16][knight];
     EXPECT_EQ(Bitboard::count_bits(test_case), 4);
     EXPECT_EQ(Bitboard::lsb(test_case), 1);
@@ -117,7 +117,7 @@ TEST(Precompiled_directionsTest, checkingKnightMovesInTheLeftSideOfBoard) {
     Bitboard::reset_bit(test_case, Bitboard::Square(33));
     EXPECT_FALSE(test_case);
 };
-TEST(Precompiled_directionsTest, checkingKnightMovesInTheRigthSideOfBoard) {
+TEST(Precompiled_Test, checkingKnightMovesInTheRigthSideOfBoard) {
     auto test_case =precompiled_directions[23][knight];
     EXPECT_EQ(Bitboard::count_bits(test_case), 4);
     EXPECT_EQ(Bitboard::lsb(test_case), 6);
@@ -130,7 +130,7 @@ TEST(Precompiled_directionsTest, checkingKnightMovesInTheRigthSideOfBoard) {
     Bitboard::reset_bit(test_case, Bitboard::Square(38));
     EXPECT_FALSE(test_case);
 };
-TEST(Precompiled_directionsTest, checkingKnightMovesInTheEges) {
+TEST(Precompiled_Test, checkingKnightMovesInTheEges) {
     // letfdown
     auto test_case =precompiled_directions[0][knight];
     EXPECT_EQ(Bitboard::count_bits(test_case), 2);
@@ -164,7 +164,7 @@ TEST(Precompiled_directionsTest, checkingKnightMovesInTheEges) {
     Bitboard::reset_bit(test_case, Bitboard::Square(53));
     EXPECT_FALSE(test_case);
 };
-TEST(Precompiled_directionsTest, checkingKnightInMiddle) {
+TEST(Precompiled_Test, checkingKnightInMiddle) {
     Bitboard::bitboard test_case = precompiled_directions[Bitboard::d4][knight];
    
     EXPECT_EQ(Bitboard::count_bits(test_case), 8);
@@ -187,7 +187,7 @@ TEST(Precompiled_directionsTest, checkingKnightInMiddle) {
     Bitboard::reset_bit(test_case, Bitboard::Square(Bitboard::e6));
     EXPECT_EQ(test_case, 0);
 };
-TEST(Precompiled_directionsTest, checkingStraightDirections) {
+TEST(Precompiled_Test, checkingStraightDirections) {
     auto test_case = precompiled_directions[Bitboard::e4][north];
     EXPECT_EQ(Bitboard::count_bits(test_case), 4);
     EXPECT_EQ(Bitboard::lsb(test_case), 36);
@@ -233,7 +233,7 @@ TEST(Precompiled_directionsTest, checkingStraightDirections) {
     Bitboard::reset_bit(test_case, Bitboard::Square(20));
     EXPECT_FALSE(test_case);
 };
-TEST(Precompiled_directionsTest, checkingStraightDirectionsInEdges) {
+TEST(Precompiled_Test, checkingStraightDirectionsInEdges) {
     EXPECT_EQ(precompiled_directions[Bitboard::h8][north], 0);
     EXPECT_EQ(precompiled_directions[Bitboard::h8][east], 0);
     
@@ -261,3 +261,73 @@ TEST(Precompiled_directionsTest, checkingStraightDirectionsInEdges) {
     EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h1][north]), 7);
     EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h1][west]), 7);
 };
+TEST(Precompiled_Test, checkingDiagonalDirections) {
+    auto test_case = precompiled_directions[Bitboard::e4][north_east];
+    EXPECT_EQ(Bitboard::count_bits(test_case), 3);
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::f5);
+    Bitboard::reset_bit(test_case, Bitboard::Square(Bitboard::f5));
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::g6);
+    Bitboard::reset_bit(test_case, Bitboard::Square(Bitboard::g6));
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::h7);
+    Bitboard::reset_bit(test_case, Bitboard::Square(Bitboard::h7));
+
+    test_case = precompiled_directions[Bitboard::e4][north_west];
+    EXPECT_EQ(Bitboard::count_bits(test_case), 4);
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::d5);
+    Bitboard::reset_bit(test_case, Bitboard::Square(Bitboard::d5));
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::c6);
+    Bitboard::reset_bit(test_case, Bitboard::Square(Bitboard::c6));
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::b7);
+    Bitboard::reset_bit(test_case, Bitboard::Square(Bitboard::b7));
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::a8);
+    Bitboard::reset_bit(test_case, Bitboard::Square(Bitboard::a8));
+
+    test_case = precompiled_directions[Bitboard::e4][south_east];
+    EXPECT_EQ(Bitboard::count_bits(test_case), 3);
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::h1); 
+    Bitboard::reset_bit(test_case, Bitboard::h1);
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::g2);
+    Bitboard::reset_bit(test_case, Bitboard::g2);
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::f3);
+    Bitboard::reset_bit(test_case, Bitboard::f3);
+    EXPECT_EQ(test_case, 0);
+
+    
+    test_case = precompiled_directions[Bitboard::e4][south_west];
+    EXPECT_EQ(Bitboard::count_bits(test_case), 3);
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::b1);
+    Bitboard::reset_bit(test_case, Bitboard::b1);
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::c2);
+    Bitboard::reset_bit(test_case, Bitboard::c2);
+    EXPECT_EQ(Bitboard::lsb(test_case), Bitboard::d3);
+    Bitboard::reset_bit(test_case, Bitboard::d3);
+    EXPECT_EQ(test_case, 0);
+
+};
+TEST(Precompiled_Test, checkingDiagonalDirectionsInCorners) {
+    
+    EXPECT_EQ(precompiled_directions[Bitboard::h8][north_east], 0);
+    EXPECT_EQ(precompiled_directions[Bitboard::h8][south_east], 0);
+    EXPECT_EQ(precompiled_directions[Bitboard::h8][north_west], 0);
+    
+    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h8][south_west]), 7);
+
+    EXPECT_EQ(precompiled_directions[Bitboard::h1][north_east], 0);
+    EXPECT_EQ(precompiled_directions[Bitboard::h1][south_east], 0);
+    EXPECT_EQ(precompiled_directions[Bitboard::h1][south_west], 0);
+    
+    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h8][north_west]), 7);
+
+    EXPECT_EQ(precompiled_directions[Bitboard::a8][north_east], 0);
+    EXPECT_EQ(precompiled_directions[Bitboard::a8][south_west], 0);
+    EXPECT_EQ(precompiled_directions[Bitboard::a8][north_west], 0);
+    
+    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h8][south_east]), 7);
+
+    EXPECT_EQ(precompiled_directions[Bitboard::a1][south_east], 0);
+    EXPECT_EQ(precompiled_directions[Bitboard::a1][south_west], 0);
+    EXPECT_EQ(precompiled_directions[Bitboard::a1][north_west], 0);
+    
+    EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::h8][north_east]), 7);
+};
+
