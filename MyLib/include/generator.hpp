@@ -29,6 +29,7 @@ struct MoveList {
       inline const Move* end() const noexcept { 
         return data_.data() + index_; 
       }
+      void reset() {index_ = 0;}
       inline void bitboardToMoves(Bitboard::Square from, Bitboard::bitboard b, MoveType m = standard) {
         while(b) {
           auto to = Bitboard::lsb(b);
