@@ -29,7 +29,7 @@ TEST(MoveListTest, EmptyListIteration) {
     
     EXPECT_EQ(count, 0);
     EXPECT_EQ(list.begin(), list.end());
-}
+};
 TEST(MoveListTest, IterationAfterReset) {
     MoveList list;
     Move m1 = Move::makeMove(Bitboard::a1, Bitboard::a2);
@@ -44,4 +44,4 @@ TEST(MoveListTest, IterationAfterReset) {
     }
     EXPECT_EQ(count, 0);
     EXPECT_EQ(list.begin(), list.end());
-}
+};
