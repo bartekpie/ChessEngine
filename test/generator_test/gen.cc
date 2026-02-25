@@ -57,8 +57,8 @@ TEST(MoveListTest, AddingAfterReset) {
     Move m4 = Move::makeMove(Bitboard::h2, Bitboard::g8, MoveType::promotionQueen);
     list += m3;
     list += m4;
-    EXPECT_EQ(list.begin(), m3);
-    EXPECT_EQ(list.begin() + 1, m4);
+    EXPECT_EQ(list.begin()->data(), m3.data());
+    EXPECT_EQ((list.begin() + 1)->data(), m4.data());
 };
 TEST(MoveListTest, AddingAfterMaxCapacity) {
     MoveList list;
