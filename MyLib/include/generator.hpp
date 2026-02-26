@@ -34,6 +34,7 @@ struct MoveList {
         while(b) {
           auto to = Bitboard::lsb(b);
           Bitboard::reset_bit(b, to);
+          assert(to != from);
           *this += Move::makeMove(from, to, m);
         }
       }
