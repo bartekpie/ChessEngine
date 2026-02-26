@@ -19,7 +19,7 @@ void generate_bishop_moves(const Position& position, MoveList& list) {
      Bitboard::bitboard quiets {};
      Bitboard::bitboard captures {};
      for (int dir = int(north_east); dir < int(knight); dir++ ) {
-         auto blockers = precompiled_directions[square][dir] & ~position.getOpponents();
+         auto blockers = precompiled_directions[square][dir] & ~position.getEmptySpaces();
          if (blockers) {
           auto blocking_square = dir < int(south_east) ? Bitboard::lsb(blockers) : Bitboard::msb(blockers);
           auto reduced = precompiled_directions[square][dir] ^ precompiled_directions[blocking_square][dir];
