@@ -22,8 +22,8 @@ class Position {
       Color sideToMove ;
     public :
       Position(): board_{}, whitePieces_{}, blackPieces_{}, emptySpaces_{~0ULL} {}
-      Position(std::string fen_position);
-      void loadFromFEN(std::string fen_position);
+      Position(const std::string& fen_position);
+      void loadFromFEN(const std::string& fen_position);
       void clear();
       Bitboard::bitboard getPieces(Pieces piece) const {return board_[int(piece)];}
       template <Color color> Bitboard::bitboard getPiecesByColor(PiecesType piece) const;
@@ -54,11 +54,55 @@ inline void Position::clear()
     emptySpaces_ = ~0ULL;
     board_.fill(0ULL);
 }
-inline Position::Position(std::string fen_position)
+inline Position::Position(const std::string& fen_position)
 {
-    loadFromFEN(fen_position);
+    clear();
+    auto rank{7};
+    auto file{0};
+    auto index{0};
+    std::unordered_map<char, std::pair<Pieces, Color>> charToPiece {
+        {'P', {Pieces::white_pawn,   Color::white}},
+        {'N', {Pieces::white_knight, Color::white}},
+        {'B', {Pieces::white_bishop, Color::white}},
+        {'R', {Pieces::white_rook,   Color::white}},
+        {'Q', {Pieces::white_queen,  Color::white}},
+        {'K', {Pieces::white_king,   Color::white}},
+        {'p', {Pieces::black_pawn,   Color::black}},
+        {'n', {Pieces::black_knight, Color::black}},
+        {'b', {Pieces::black_bishop, Color::black}},
+        {'r', {Pieces::black_rook,   Color::black}},
+        {'q', {Pieces::black_queen,  Color::black}},
+        {'k', {Pieces::black_king,   Color::black}}
+    };
+    for (char piece: fen_position) {
+        if (piece == ' '){
+            break;
+        }
+        else if (piece == '/'){
+            rank--;
+            file = 0;
+        } 
+        else if(isdigit(piece)){
+            file += piece - '0';
+        }
+        else {
+            assert(charToPiece.find(piece) == charToPiece.end());
+            auto [piecetype, color] = charToPiece[piece];
+            auto position = Bitboard::Square(rank*8 + file);
+            Bitboard::set_bit(board_[piecetype], position);
+            whitePieces_ |= color == Color::white ? 1ULL << position : 0ULL;
+            blackPieces_ |= color == Color::black ? 1ULL << position : 0ULL;
+            emptySpaces_ &= ~(1ULL << position);
+            file++;
+        }
+        index++;
+        
+    }
+    if( ++index < fen_position.length())
+      sideToMove = fen_position[index] == 'w' ? Color::white : Color::black;
+
 }
-inline void Position::loadFromFEN(std::string fen_position)
+inline void Position::loadFromFEN(const std::string& fen_position)
 {
     clear();
     auto rank{7};
