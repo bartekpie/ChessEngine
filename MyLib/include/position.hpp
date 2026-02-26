@@ -1,3 +1,4 @@
+#pragma once
 #include "bitboard.hpp"
 #include <array>
 #include <string>

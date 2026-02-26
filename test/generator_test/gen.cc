@@ -334,9 +334,9 @@ TEST(Precompiled_Test, checkingDiagonalDirectionsInCorners) {
 
 TEST(generate_knight_Test, cannotMoveOnYourPiece) {
     const std::string pos = "8/8/8/8/3p1P2/4B3/3P1P2/8 w";
-    const Position position(pos);
+    const Position position{pos};
     MoveList list;
-    
+
     generate_bishop_moves(position, list);
     Move move(Bitboard::e4, Bitboard::d4, capture);
     EXPECT_EQ(*list.begin(), move.data());
