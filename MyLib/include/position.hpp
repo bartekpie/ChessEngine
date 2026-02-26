@@ -99,8 +99,8 @@ inline void Position::loadFromFEN(const std::string& fen_position)
         index++;
         
     }
-    if( ++index < fen_position.length())
-      sideToMove = fen_position[index] == 'w' ? Color::white : Color::black;
+    assert(++index < fen_position.length());
+    sideToMove = fen_position[index] == 'w' ? Color::white : Color::black;
 
 }
 inline Position::Position(const std::string& fen_position)
@@ -115,7 +115,7 @@ inline Bitboard::bitboard Position::getOurs() const
 }
 template <PiecesType piece>
 Bitboard::bitboard Position::getOpponents() const {
-    constexpr int offset = sideToMove == Color::white ? 6 : 0;
+    int offset = sideToMove == Color::white ? 6 : 0;
     return board_[int(piece) + offset];
 }
 inline Bitboard::bitboard Position::getOpponents() const {
