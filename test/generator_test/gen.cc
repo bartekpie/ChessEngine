@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "generator.hpp"
+#include "position.hpp"
 TEST(MoveListTest, AddsMovesCorrectly) {
     MoveList list;
 
@@ -331,3 +332,12 @@ TEST(Precompiled_Test, checkingDiagonalDirectionsInCorners) {
     EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::a1][north_east]), 7);
 };
 
+TEST(generate_knight_Test, cannotMoveOnYourPiece) {
+    const std::string pos = "8/8/8/8/3p1P2/4B3/3P1P2/8 w";
+    const Position position(pos);
+    MoveList list;
+    
+    generate_bishop_moves(position, list);
+    Move move(Bitboard::e4, Bitboard::d4, capture);
+    EXPECT_EQ(*list.begin(), move.data());
+};
