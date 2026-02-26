@@ -339,5 +339,5 @@ TEST(generate_knight_Test, cannotMoveOnYourPiece) {
 
     generate_bishop_moves(position, list);
     Move move(Bitboard::e4, Bitboard::d4, capture);
-    EXPECT_EQ(*list.begin(), move.data());
+    EXPECT_EQ((*list.begin()).data(), move.data());
 };

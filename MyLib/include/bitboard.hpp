@@ -77,6 +77,24 @@ namespace Bitboard {
       return (b >> index) & 1ULL; 
   }
 
+  inline void print_bitboard(const bitboard& b){
+     for (int rank = 7; rank >= 0; --rank) {
+        std::cout << rank + 1 << " | ";
+        for (int file = 0; file < 8; ++file) {
+            Square sq = (Square)(rank * 8 + file);
+            if (get_bit(b, sq)) {
+                std::cout << "X ";
+            }
+            else {
+                std::cout << ". ";
+            }
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "   -----------------" << std::endl;
+    std::cout << "    A B C D E F G H" << std::endl << std::endl;
+  }
+
 }
 
 

@@ -87,7 +87,7 @@ inline void Position::loadFromFEN(const std::string& fen_position)
             file += piece - '0';
         }
         else {
-            assert(charToPiece.find(piece) == charToPiece.end());
+            assert(charToPiece.find(piece) != charToPiece.end());
             auto [piecetype, color] = charToPiece[piece];
             auto position = Bitboard::Square(rank*8 + file);
             Bitboard::set_bit(board_[int(piecetype)], position);
