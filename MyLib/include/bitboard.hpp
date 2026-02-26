@@ -30,8 +30,8 @@ namespace Bitboard {
       _BitScanForward64(&index, b);
       return static_cast<Square>(index);
     
-    #elif define(__GNUC__)
-      return(__builtint_ctzll(b))
+    #elif defined(__GNUC__)
+      return Square(__builtin_ctzll(b));
     #endif
   }
 
@@ -42,8 +42,8 @@ namespace Bitboard {
       _BitScanReverse64(&index, b);
       return static_cast<Square>(index);
     
-    #elif define(__GNUC__)
-      return(__builtint_clzll(b))
+    #elif defined(__GNUC__)
+      return Square(__builtin_clzll(b));
     #endif
   }
 
@@ -54,7 +54,7 @@ namespace Bitboard {
       return static_cast<Square>(__popcnt64(b));
     
     #elif defined(__GNUC__)
-      return(__builtin_popcountll(b))
+      return Square(__builtin_popcountll(b));
     #endif
   }
   

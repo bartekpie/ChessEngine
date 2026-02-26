@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+#include <algorithm>
 #include "generator.hpp"
 #include "position.hpp"
 TEST(MoveListTest, AddsMovesCorrectly) {
