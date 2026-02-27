@@ -15,6 +15,12 @@ struct MoveList {
         assert(index_ < 256);
         data_[index_++] = m;
       }
+      uint16_t size() const {
+        return index_;
+      }
+      inline bool empty() {
+        return (index_ == 0) ? true : false;
+      }
       inline Move* begin() noexcept { 
         return data_.data(); 
       }
@@ -41,7 +47,7 @@ struct MoveList {
       }
 
 };
-enum directions : uint8_t { north=0, south, west, east, north_east, north_west, south_east, south_west, knight};
+enum directions : uint8_t { north=0, west, south, east, north_east, north_west, south_east, south_west, knight};
 constexpr Bitboard::bitboard notAFile  = 0xfefefefefefefefeULL;
 constexpr Bitboard::bitboard notABFile = 0xfcfcfcfcfcfcfcfcULL;
 constexpr Bitboard::bitboard notHFile  = 0x7f7f7f7f7f7f7f7fULL;
@@ -234,7 +240,7 @@ alignas(64) static constexpr auto south_west_precompiled = []() constexpr {
 
 void generate_knight_moves(const Position& position, MoveList& list);
 void generate_bishop_moves(const Position& position, MoveList& list);
-//void generate_rook_moves(const Position& position, MoveList& list);
+void generate_rook_moves(const Position& position, MoveList& list);
 //void generate_queen_moves(const Position& position, MoveList& list);
 //void generate_king_moves(const Position& position, MoveList& list);
 

@@ -333,7 +333,24 @@ TEST(Precompiled_Test, checkingDiagonalDirectionsInCorners) {
     EXPECT_EQ(Bitboard::count_bits(precompiled_directions[Bitboard::a1][north_east]), 7);
 };
 
-TEST(generate_knight_Test, cannotMoveOnYourPiece) {
+
+
+
+TEST(generate_Bishop_Test, cannotMoveOnYourPiece) {
+    const std::string pos = "8/8/8/8/3P1P2/4B3/3P1P2/8 w";
+    const Position position{pos};
+    MoveList list;
+    generate_bishop_moves(position, list);
+    EXPECT_TRUE(list.empty()); 
+};
+TEST(generate_Bishop_Test, cannotMoveOnYourPieceBlack) {
+    const std::string pos = "8/8/8/8/3p1p2/4b3/3p1p2/8 b";
+    const Position position{pos};
+    MoveList list;
+    generate_bishop_moves(position, list);
+    EXPECT_TRUE(list.empty()); 
+};
+TEST(generate_Bishop_Test, captureWhite) {
     const std::string pos = "8/8/8/8/3p1P2/4B3/3P1P2/8 w";
     const Position position{pos};
     MoveList list;
@@ -341,4 +358,75 @@ TEST(generate_knight_Test, cannotMoveOnYourPiece) {
     Bitboard::print_bitboard(position.getEmptySpaces());
     Move move(Bitboard::e3, Bitboard::d4, capture);
     EXPECT_EQ((*list.begin()).data(), move.data());
+};
+
+TEST(generate_Bishop_Test, captureBlack) {
+    const std::string pos = "8/8/8/8/3P1p2/4b3/3p1p2/8 b";
+    const Position position{pos};
+    MoveList list;
+    generate_bishop_moves(position, list);
+    Bitboard::print_bitboard(position.getEmptySpaces());
+    Move move(Bitboard::e3, Bitboard::d4, capture);
+    EXPECT_EQ((*list.begin()).data(), move.data());
+};
+TEST(generate_Bishop_Test, freeMoves) {
+    const std::string pos = "8/8/8/8/5p2/4b3/3p1p2/8 b";
+    const Position position{pos};
+    MoveList list;
+    generate_bishop_moves(position, list);
+    Bitboard::print_bitboard(position.getEmptySpaces());
+    Move move(Bitboard::e3, Bitboard::d4, standard);
+    Move move2(Bitboard::e3, Bitboard::c5, standard);
+    Move move3(Bitboard::e3, Bitboard::b6, standard);
+    Move move4(Bitboard::e3, Bitboard::a7, standard);
+    EXPECT_EQ((*list.begin()).data(), move.data());
+    EXPECT_EQ((*(list.begin()+1)).data(), move2.data());
+    EXPECT_EQ((*(list.begin()+2)).data(), move3.data());
+    EXPECT_EQ((*(list.begin()+3)).data(), move4.data());
+    EXPECT_EQ(list.size(), 4);
+};
+TEST(generate_Bishop_Test, freeMoves4Dir) {
+    const std::string pos = "8/8/8/8/8/4b3/8/8 b"; 
+    const Position position{pos};
+    MoveList list;
+    generate_bishop_moves(position, list);
+    EXPECT_EQ(list.size(), 11);
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to) {
+        for (const auto& m : list) {
+            if (m.from() == from && m.to() == to) return true;
+        }
+        return false;
+    };
+
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::d4));
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::c5));
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::b6));
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::a7));
+
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::f4));
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::g5));
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::h6));
+
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::d2));
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::c1));
+
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::f2));
+    EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::g1));
+};
+TEST(generate_Rook_Test, freeMovesCenter) {
+    const std::string pos = "8/8/8/8/3R4/8/8/8 w"; 
+    const Position position{pos};
+    MoveList list;
+    generate_rook_moves(position, list);
+
+    EXPECT_EQ(list.size(), 14);
+
+    auto has_move = [&](Bitboard::Square to) {
+        for (const auto& m : list) if (m.to() == to) return true;
+        return false;
+    };
+    EXPECT_TRUE(has_move(Bitboard::d1));
+    EXPECT_TRUE(has_move(Bitboard::d8));
+    EXPECT_TRUE(has_move(Bitboard::a4));
+    EXPECT_TRUE(has_move(Bitboard::h4));
 };
