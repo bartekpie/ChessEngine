@@ -13,7 +13,6 @@ void generate_knight_moves(const Position& position, MoveList& list) {
 }
 void generate_bishop_moves(const Position& position, MoveList& list) {
   auto bishops = position.getOurs<PiecesType::bishop>();
-  while (bishops) {
      Bitboard::Square square = Bitboard::lsb(bishops);
      Bitboard::reset_bit(bishops, square); 
      Bitboard::bitboard quiets {};
@@ -25,7 +24,7 @@ void generate_bishop_moves(const Position& position, MoveList& list) {
           auto reduced = precompiled_directions[square][dir] ^ precompiled_directions[blocking_square][dir];
           auto is_opponent_blocking = Bitboard::get_bit(position.getOpponents(), blocking_square);
           assert(Bitboard::get_bit(position.getOurs(),blocking_square) != is_opponent_blocking);
-          auto moves = reduced | is_opponent_blocking << blocking_square ;
+          auto moves = reduced | Bitboard::bitboard(is_opponent_blocking) << blocking_square ;
           captures |= moves & position.getOpponents();
           quiets   |= moves & position.getEmptySpaces();
        } else {
@@ -36,5 +35,5 @@ void generate_bishop_moves(const Position& position, MoveList& list) {
     list.bitboardToMoves(square, quiets);
      
  }
-}
+
    
