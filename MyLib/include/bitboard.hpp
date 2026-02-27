@@ -95,7 +95,7 @@ namespace Bitboard {
     std::cout << "    A B C D E F G H" << std::endl << std::endl;
   }
 
-}
+};
 
 
 

@@ -91,8 +91,8 @@ inline void Position::loadFromFEN(const std::string& fen_position)
             auto [piecetype, color] = charToPiece[piece];
             auto position = Bitboard::Square(rank*8 + file);
             Bitboard::set_bit(board_[int(piecetype)], position);
-            whitePieces_ |= color == Color::white ? 1ULL << position : 0ULL;
-            blackPieces_ |= color == Color::black ? 1ULL << position : 0ULL;
+            whitePieces_ |= color == Color::white ? (1ULL << position) : 0ULL;
+            blackPieces_ |= color == Color::black ? (1ULL << position) : 0ULL;
             emptySpaces_ &= ~(1ULL << position);
             file++;
         }
