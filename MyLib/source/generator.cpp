@@ -31,7 +31,7 @@ void generate_bishop_moves(const Position& position, MoveList& list) {
           quiets |= precompiled_directions[square][dir];
        }
     }
-    list.bitboardToMoves(square, captures);
+    list.bitboardToMoves(square, captures, capture);
     list.bitboardToMoves(square, quiets);
      
  }

@@ -43,7 +43,7 @@ namespace Bitboard {
       return static_cast<Square>(index);
     
     #elif defined(__GNUC__)
-      return Square(__builtin_clzll(b));
+      return Square(63 - __builtin_clzll(b));
     #endif
   }
 
