@@ -47,7 +47,7 @@ struct MoveList {
       }
 
 };
-enum directions : uint8_t { north=0, west, south, east, north_east, north_west, south_east, south_west, knight};
+enum precompiledType : uint8_t { north=0, west, south, east, north_east, north_west, south_east, south_west, knight};
 constexpr Bitboard::bitboard notAFile  = 0xfefefefefefefefeULL;
 constexpr Bitboard::bitboard notABFile = 0xfcfcfcfcfcfcfcfcULL;
 constexpr Bitboard::bitboard notHFile  = 0x7f7f7f7f7f7f7f7fULL;
@@ -237,11 +237,22 @@ alignas(64) static constexpr auto south_west_precompiled = []() constexpr {
     }
     return moves;
 }();
+enum verticalType {up =0, down};
+template<verticalType dir> Bitboard::bitboard push(Bitboard::bitboard b);
+template<verticalType dir> Bitboard::bitboard double_push(Bitboard::bitboard b);
+template<verticalType dir> inline Bitboard::bitboard short_offset_attacks(Bitboard::bitboard b);
+template<verticalType dir> inline Bitboard::bitboard long_offset_attacks(Bitboard::bitboard b);
+template<verticalType dir> Bitboard::bitboard startingPawnsRow();
+template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square double_pushed);
+template<verticalType dir> Bitboard::bitboard right_en_passant(Bitboard::Square double_pushed);
+template<verticalType type, int offset> void from_push_to_moves(Bitboard::bitboard& push, MoveList& list);
 
+
+void generate_pawn_moves(const Position& position, MoveList& list);
 void generate_knight_moves(const Position& position, MoveList& list);
 void generate_bishop_moves(const Position& position, MoveList& list);
 void generate_rook_moves(const Position& position, MoveList& list);
-//void generate_queen_moves(const Position& position, MoveList& list);
+void generate_queen_moves(const Position& position, MoveList& list);
 //void generate_king_moves(const Position& position, MoveList& list);
 
 

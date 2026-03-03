@@ -62,5 +62,122 @@ void generate_rook_moves(const Position& position, MoveList& list) {
     list.bitboardToMoves(square, quiets);
   }
 }
- 
-   
+
+void generate_queen_moves(const Position& position, MoveList& list) {
+  auto queens = position.getOurs<PiecesType::queen>();
+  while (queens) {
+     Bitboard::Square square = Bitboard::lsb(queens);
+     Bitboard::reset_bit(queens, square); 
+     Bitboard::bitboard quiets {};
+     Bitboard::bitboard captures {};
+     for (int dir = int(north); dir < int(knight); dir++ ) {
+         auto blockers = precompiled_directions[square][dir] & ~position.getEmptySpaces();
+         if (blockers) {
+          auto blocking_square = (dir < int(south) || dir == north_east || dir == north_west ) ? Bitboard::lsb(blockers) : Bitboard::msb(blockers);
+          auto reduced = precompiled_directions[square][dir] ^ precompiled_directions[blocking_square][dir];
+          auto is_opponent_blocking = Bitboard::get_bit(position.getOpponents(), blocking_square);
+          assert(Bitboard::get_bit(position.getOurs(),blocking_square) != is_opponent_blocking);
+          auto moves = reduced | Bitboard::bitboard(is_opponent_blocking) << blocking_square ;
+          captures |= moves & position.getOpponents();
+          quiets   |= moves & position.getEmptySpaces();
+       } else {
+          quiets |= precompiled_directions[square][dir];
+       }
+    }
+    list.bitboardToMoves(square, captures, capture);
+    list.bitboardToMoves(square, quiets);
+  }
+}
+
+template<verticalType dir> inline Bitboard::bitboard push(Bitboard::bitboard b) {
+   if constexpr(dir == up)
+     return b << 8;
+   else {
+      return b >> 8;
+   }
+}
+template<verticalType dir> inline Bitboard::bitboard double_push(Bitboard::bitboard b) {
+   if constexpr(dir == up)
+      return b << 16;
+   else {
+      return b >> 16;
+   }
+}
+template<verticalType dir> inline Bitboard::bitboard short_offset_attacks(Bitboard::bitboard b) {
+   if constexpr(dir == up)
+     return b << 7;
+   else {
+      return b >> 7;
+   }
+}
+template<verticalType dir> inline Bitboard::bitboard long_offset_attacks(Bitboard::bitboard b) {
+   if constexpr(dir == up)
+      return b << 9;
+   else {
+      return b >> 9;
+   }
+}
+template<verticalType dir> Bitboard::bitboard startingPawnsRow() {
+   if constexpr(dir == up)
+      return uint64_t(0x000000000000FF00);  // F in binary 1111
+   else {
+      return 0x00FF000000000000;
+   }
+}
+template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square double_pushed) {
+   if constexpr (dir == up) {
+     if(double_pushed >> 1 & position.getOurs()) {
+       return double_pushed << 8 & position.getEmptySpaces();
+     }
+   }    
+   else {
+      if(double_pushed << 1 & position.getOurs()) {
+       return double_pushed >> 8 & position.getEmptySpaces();
+     }
+   }
+}
+template<verticalType dir> Bitboard::bitboard right_en_passant(Bitboard::Square double_pushed) {
+   if constexpr (dir == up) {
+     if(double_pushed << 1 & position.getOurs()) {
+       return double_pushed << 8 & position.getEmptySpaces();
+     }
+   }    
+   else {
+      if(double_pushed >> 1 & position.getOurs()) {
+       return double_pushed >> 8 & position.getEmptySpaces();
+     }
+   }
+}
+template<verticalType type, int offset, MoveType mtype = standard> void from_push_to_moves(Bitboard::bitboard& push, MoveList& list) {
+   if constexpr (type == up) {
+      while(push) {
+         auto to =Bitboard::lsb(push);
+         auto from = to - offset;
+         list+= Move::makeMove(from, to, mtype);
+         Bitboard::reset_bit(push)
+      }
+   }
+   else {
+      while(push) {
+         auto to =Bitboard::lsb(push);
+         auto from = to + offset;
+         list+= Move::makeMove(from, to, mtype);
+         Bitboard::reset_bit(push)
+      }
+   }
+}
+void generate_pawn_moves(const Position& position, MoveList& list) {
+   const verticalType type = position.getSideToMove() == Color::white ? up : down ;
+   Bitboard::bitboard push          = push<type>(position.getOurs<PiecesType::pawn>()) & position.getEmptySpaces();
+   Bitboard::bitboard double_push   = double_push<type>(position.getOurs<PiecesType::pawn>() & startingPawnsRow<type>()) & position.getEmptySpaces();
+   Bitboard::bitboard short_offset_attacks  = short_offset_attacks<type>(position.getOurs()) & position.getOpponents();
+   Bitboard::bitboard long_offset_attacks = long_offset_attacks<type>(position.getOurs()) & position.getOpponents();
+   if (position.getDoublePushedMove()) {
+      Bitboard::bitboard left_en_passant = left_en_passant<type>(position.getDoublePushedMove());
+      Bitboard::bitboard right_en_passant = right_en_passant<type>(position.getDoublePushedMove());
+   }
+   from_push_to_moves<type, 8>(push, list); 
+   from_push_to_moves<type, 16>(double_push, list); 
+   from_push_to_moves<type, 7, capture> (short_offset_attacks, list); 
+   from_push_to_moves<type, 9, capture> (long_offset_attacks, list); 
+}
