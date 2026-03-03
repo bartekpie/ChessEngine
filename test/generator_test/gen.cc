@@ -430,3 +430,157 @@ TEST(generate_Rook_Test, freeMovesCenter) {
     EXPECT_TRUE(has_move(Bitboard::a4));
     EXPECT_TRUE(has_move(Bitboard::h4));
 };
+TEST(generate_Rook_Test, captureCheck) {
+    const std::string pos = "8/8/8/3p4/2pRp3/3p4/8/8 w"; 
+    const Position position{pos};
+    MoveList list;
+    generate_rook_moves(position, list);
+    auto has_move = [&](Bitboard::Square to, MoveType type) {
+        for (const auto& m : list) if (m.to() == to && m.type() == type) return true;
+        return false;
+    };
+    EXPECT_EQ(list.size(), 4);
+    EXPECT_TRUE(has_move(Bitboard::Square::d5,MoveType::capture));
+    EXPECT_TRUE(has_move(Bitboard::Square::d3,MoveType::capture));
+    EXPECT_TRUE(has_move(Bitboard::Square::c4,MoveType::capture));
+    EXPECT_TRUE(has_move(Bitboard::Square::e4,MoveType::capture));
+};
+TEST(generate_Rook_Test, blockByOurPiece) {
+    const std::string pos = "8/8/8/3P4/2PRP3/3P4/8/8 w"; 
+    const Position position{pos};
+    MoveList list;
+    generate_rook_moves(position, list);
+    EXPECT_TRUE(list.empty());
+};
+TEST(generate_Rook_Test, noRookToMove) {
+    const std::string pos = "8/8/8/8/8/1B6/8/8 w"; 
+    const Position position{pos};
+    MoveList list;
+    generate_rook_moves(position, list);
+    EXPECT_TRUE(list.empty());
+};
+TEST(generate_Queen_Test, freeMovesCenter) {
+    const std::string pos = "8/8/8/8/3Q4/8/8/8 w";
+    const Position position{pos};
+    MoveList list;
+    generate_queen_moves(position, list);
+    ASSERT_EQ(list.size(), 27);
+}
+
+TEST(generate_Queen_Test, blockedByOwnPieces) {
+    const std::string pos = "8/8/8/3PPP2/3PQP2/3PPP2/8/8 w";
+    const Position position{pos};
+    MoveList list;
+    generate_queen_moves(position, list);
+    EXPECT_TRUE(list.empty());
+}
+
+TEST(generate_Queen_Test, captureAllDirections) {
+    const std::string pos = "8/1p1p1p1/8/1p1Q1p1/8/1p1p1p1/8/8 w";
+    const Position position{pos};
+    MoveList list;
+    generate_queen_moves(position, list);
+    int captures_count = 0;
+    for (const auto& m : list) {
+        if (m.type() == capture) captures_count++;
+    }
+    EXPECT_EQ(captures_count, 8);
+}
+
+TEST(generate_Queen_Test, queenInCorner) {
+    const std::string pos = "Q7/8/8/8/8/8/8/8 w";
+    const Position position{pos};
+    MoveList list;
+    generate_queen_moves(position, list);
+    EXPECT_EQ(list.size(), 21);
+}
+
+TEST(generate_Queen_Test, cannotGoThroughOpponent) {
+    const std::string pos = "8/8/8/8/8/8/4p3/4Q3 w";
+    const Position position{pos};
+    MoveList list;
+    generate_queen_moves(position, list);
+    auto has_move = [&](Bitboard::Square to) {
+        for (const auto& m : list) if (m.to() == to) return true;
+        return false;
+    };
+    EXPECT_TRUE(has_move(Bitboard::e2));
+    EXPECT_TRUE(has_move(Bitboard::a4));
+    EXPECT_TRUE(has_move(Bitboard::a6));
+    EXPECT_TRUE(has_move(Bitboard::b4));
+    EXPECT_TRUE(has_move(Bitboard::b6));
+    EXPECT_FALSE(has_move(Bitboard::e3));
+    EXPECT_FALSE(has_move(Bitboard::e4));
+}
+
+TEST(generate_Queen_Test, twoQueensSideBySide) {                          
+    const std::string pos = "8/8/8/8/3QQ3/8/8/8 w";
+    const Position position{pos};
+    MoveList list;
+    generate_queen_moves(position, list);
+    EXPECT_EQ(list.size(), 46);
+}
+TEST(generate_pawn_test, basicPushTest) {
+    const std::string pos = "8/8/8/8/8/8/pppppppp/8";
+    MoveList list;
+    generate_pawn_moves(pos, list);
+    auto has_move = [&](Bitboard::Square to) {
+        for (const auto& m : list) if (m.to() == to) return true;
+        return false;
+    };
+    
+    EXPECT_TRUE(has_move(Bitboard::c1));
+    EXPECT_TRUE(has_move(Bitboard::c2));
+    EXPECT_TRUE(has_move(Bitboard::c3));
+    EXPECT_TRUE(has_move(Bitboard::c4));
+    EXPECT_TRUE(has_move(Bitboard::c5));
+    EXPECT_TRUE(has_move(Bitboard::c6));
+    EXPECT_TRUE(has_move(Bitboard::c7));
+    EXPECT_TRUE(has_move(Bitboard::c8));
+
+    EXPECT_TRUE(has_move(Bitboard::d1));
+    EXPECT_TRUE(has_move(Bitboard::d2));
+    EXPECT_TRUE(has_move(Bitboard::d3));
+    EXPECT_TRUE(has_move(Bitboard::d4));
+    EXPECT_TRUE(has_move(Bitboard::d5));
+    EXPECT_TRUE(has_move(Bitboard::d6));
+    EXPECT_TRUE(has_move(Bitboard::d7));
+    EXPECT_TRUE(has_move(Bitboard::d8));
+    
+    EXPECT_EQ(list.size(), 16);
+
+};
+TEST(generate_pawn_moves, cannotDoublePushWhenInSinglePushisPiece) {
+   const std::string pos = "8/8/8/8/8/KKKKKKKK/pppppppp/8 w";
+   MoveList list;
+   generate_pawn_moves(pos, list);   
+   EXPECT_EQ(list.size(), 0);
+};
+TEST(generate_pawn_moves, basicLetfCaptureTest) {
+   const std::string pos = "8/8/8/8/8/3K4/4p3/8";
+   MoveList list;
+   generate_pawn_moves(pos, list);   
+   auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list) if (m.from() == from && m.to() == to&& m.type() == type) return true;
+        return false;
+    };
+    EXPECT_TRUE(has_move(Bitboard::b5,Bitboard::c4, capture));
+    EXPECT_TRUE(has_move(Bitboard::b5, Bitboard::c5, standard));
+    EXPECT_TRUE(has_move(Bitboard::b5, Bitboard::d5, standard));
+    EXPECT_EQ(list.size(), 3);
+
+};
+TEST(generate_pawn_moves, basicRightCaptureTest) {
+   const std::string pos = "8/8/8/8/8/5B1/4p3/8";
+   MoveList list;
+   generate_pawn_moves(pos, list);   
+   auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list) if (m.from() == from && m.to() == to&& m.type() == type) return true;
+        return false;
+    };
+    EXPECT_TRUE(has_move(Bitboard::b5,Bitboard::c6, capture));
+    EXPECT_TRUE(has_move(Bitboard::b5, Bitboard::c5, standard));
+    EXPECT_TRUE(has_move(Bitboard::b5, Bitboard::d5, standard));
+    EXPECT_EQ(list.size(), 3);
+
+};
