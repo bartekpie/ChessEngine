@@ -124,7 +124,7 @@ template<verticalType dir> Bitboard::bitboard startingPawnsRow() {
       return 0x00FF000000000000;
    }
 }
-template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square double_pushed) {
+/*template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square double_pushed) {
    if constexpr (dir == up) {
      if(double_pushed >> 1 & position.getOurs()) {
        return double_pushed << 8 & position.getEmptySpaces();
@@ -147,37 +147,37 @@ template<verticalType dir> Bitboard::bitboard right_en_passant(Bitboard::Square 
        return double_pushed >> 8 & position.getEmptySpaces();
      }
    }
+}*/
+template<verticalType type, int offset, MoveType mtype = standard> 
+void from_push_to_moves(Bitboard::bitboard& push, MoveList& list) {
+     Bitboard::Square from {};
+     while(push) {
+       auto to = Bitboard::lsb(push);
+       if constexpr(type == up)  from = Bitboard::Square(to - offset);
+       else { from = Bitboard::Square(to + offset);}
+       list += Move::makeMove(from, to, mtype);
+       Bitboard::reset_bit(push, to);
+    }
 }
-template<verticalType type, int offset, MoveType mtype = standard> void from_push_to_moves(Bitboard::bitboard& push, MoveList& list) {
-   if constexpr (type == up) {
-      while(push) {
-         auto to =Bitboard::lsb(push);
-         auto from = to - offset;
-         list+= Move::makeMove(from, to, mtype);
-         Bitboard::reset_bit(push)
-      }
-   }
-   else {
-      while(push) {
-         auto to =Bitboard::lsb(push);
-         auto from = to + offset;
-         list+= Move::makeMove(from, to, mtype);
-         Bitboard::reset_bit(push)
-      }
-   }
-}
-void generate_pawn_moves(const Position& position, MoveList& list) {
-   const verticalType type = position.getSideToMove() == Color::white ? up : down ;
-   Bitboard::bitboard push          = push<type>(position.getOurs<PiecesType::pawn>()) & position.getEmptySpaces();
-   Bitboard::bitboard double_push   = double_push<type>(position.getOurs<PiecesType::pawn>() & startingPawnsRow<type>()) & position.getEmptySpaces();
-   Bitboard::bitboard short_offset_attacks  = short_offset_attacks<type>(position.getOurs()) & position.getOpponents();
-   Bitboard::bitboard long_offset_attacks = long_offset_attacks<type>(position.getOurs()) & position.getOpponents();
-   if (position.getDoublePushedMove()) {
+
+template<verticalType type>
+void generate_pawn_moves_impl(const Position& position, MoveList& list) {
+   Bitboard::bitboard push_bb          = push<type>(position.getOurs<PiecesType::pawn>()) & position.getEmptySpaces();
+   Bitboard::bitboard double_push_bb   = push<type>(push_bb & startingPawnsRow<type>()) & position.getEmptySpaces();
+   Bitboard::bitboard short_offset_attacks_bb  = short_offset_attacks<type>(position.getOurs()) & position.getOpponents();
+   Bitboard::bitboard long_offset_attacks_bb = long_offset_attacks<type>(position.getOurs()) & position.getOpponents();
+   /*if (position.getDoublePushedMove()) {
       Bitboard::bitboard left_en_passant = left_en_passant<type>(position.getDoublePushedMove());
       Bitboard::bitboard right_en_passant = right_en_passant<type>(position.getDoublePushedMove());
-   }
-   from_push_to_moves<type, 8>(push, list); 
-   from_push_to_moves<type, 16>(double_push, list); 
-   from_push_to_moves<type, 7, capture> (short_offset_attacks, list); 
-   from_push_to_moves<type, 9, capture> (long_offset_attacks, list); 
+   }*/
+   from_push_to_moves<type, 8> (push_bb, list); 
+   from_push_to_moves<type, 16> (double_push_bb, list); 
+   from_push_to_moves<type, 7, capture> (short_offset_attacks_bb, list); 
+   from_push_to_moves<type, 9, capture> (long_offset_attacks_bb, list); 
+}
+void generate_pawn_moves(const Position& position, MoveList& list) {
+   position.getSideToMove() == Color::white 
+     ? generate_pawn_moves_impl<up> (position, list)
+     : generate_pawn_moves_impl<down> (position, list);
+   
 }

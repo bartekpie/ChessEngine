@@ -243,11 +243,12 @@ template<verticalType dir> Bitboard::bitboard double_push(Bitboard::bitboard b);
 template<verticalType dir> inline Bitboard::bitboard short_offset_attacks(Bitboard::bitboard b);
 template<verticalType dir> inline Bitboard::bitboard long_offset_attacks(Bitboard::bitboard b);
 template<verticalType dir> Bitboard::bitboard startingPawnsRow();
-template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square double_pushed);
-template<verticalType dir> Bitboard::bitboard right_en_passant(Bitboard::Square double_pushed);
-template<verticalType type, int offset> void from_push_to_moves(Bitboard::bitboard& push, MoveList& list);
+/*template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square double_pushed);
+template<verticalType dir> Bitboard::bitboard right_en_passant(Bitboard::Square double_pushed);*/
+template<verticalType type, int offset, MoveType mtype> void from_push_to_moves(Bitboard::bitboard& push, MoveList& list);
 
-
+template<verticalType type> void generate_pawn_moves_impl(const Position& position, MoveList& list);
+ 
 void generate_pawn_moves(const Position& position, MoveList& list);
 void generate_knight_moves(const Position& position, MoveList& list);
 void generate_bishop_moves(const Position& position, MoveList& list);

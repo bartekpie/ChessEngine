@@ -21,11 +21,14 @@ class Position {
       Bitboard::bitboard blackPieces_;
       Bitboard::bitboard emptySpaces_;
       Color sideToMove ;
+      Bitboard::Square doublePushedMove;
     public :
       Position(): board_{}, whitePieces_{}, blackPieces_{}, emptySpaces_{~0ULL} {}
       Position(const std::string& fen_position);
       void loadFromFEN(const std::string& fen_position);
       void clear();
+      Color getSideToMove() const{return sideToMove;}
+      Bitboard::Square getDoublePushedMove() const {return doublePushedMove;}
       Bitboard::bitboard getPieces(Pieces piece) const {return board_[int(piece)];}
       template <Color color> Bitboard::bitboard getPiecesByColor(PiecesType piece) const;
       template <PiecesType piece> Bitboard::bitboard getOurs() const;

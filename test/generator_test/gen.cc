@@ -505,10 +505,8 @@ TEST(generate_Queen_Test, cannotGoThroughOpponent) {
         return false;
     };
     EXPECT_TRUE(has_move(Bitboard::e2));
-    EXPECT_TRUE(has_move(Bitboard::a4));
-    EXPECT_TRUE(has_move(Bitboard::a6));
+    EXPECT_TRUE(has_move(Bitboard::a5));
     EXPECT_TRUE(has_move(Bitboard::b4));
-    EXPECT_TRUE(has_move(Bitboard::b6));
     EXPECT_FALSE(has_move(Bitboard::e3));
     EXPECT_FALSE(has_move(Bitboard::e4));
 }
@@ -521,7 +519,7 @@ TEST(generate_Queen_Test, twoQueensSideBySide) {
     EXPECT_EQ(list.size(), 46);
 }
 TEST(generate_pawn_test, basicPushTest) {
-    const std::string pos = "8/8/8/8/8/8/pppppppp/8";
+    const std::string pos = "8/8/8/8/8/8/PPPPPPPP/8 w";
     MoveList list;
     generate_pawn_moves(pos, list);
     auto has_move = [&](Bitboard::Square to) {
@@ -529,35 +527,35 @@ TEST(generate_pawn_test, basicPushTest) {
         return false;
     };
     
-    EXPECT_TRUE(has_move(Bitboard::c1));
-    EXPECT_TRUE(has_move(Bitboard::c2));
+    EXPECT_TRUE(has_move(Bitboard::a3));
+    EXPECT_TRUE(has_move(Bitboard::b3));
     EXPECT_TRUE(has_move(Bitboard::c3));
-    EXPECT_TRUE(has_move(Bitboard::c4));
-    EXPECT_TRUE(has_move(Bitboard::c5));
-    EXPECT_TRUE(has_move(Bitboard::c6));
-    EXPECT_TRUE(has_move(Bitboard::c7));
-    EXPECT_TRUE(has_move(Bitboard::c8));
-
-    EXPECT_TRUE(has_move(Bitboard::d1));
-    EXPECT_TRUE(has_move(Bitboard::d2));
     EXPECT_TRUE(has_move(Bitboard::d3));
+    EXPECT_TRUE(has_move(Bitboard::e3));
+    EXPECT_TRUE(has_move(Bitboard::f3));
+    EXPECT_TRUE(has_move(Bitboard::g3));
+    EXPECT_TRUE(has_move(Bitboard::h3));
+
+    EXPECT_TRUE(has_move(Bitboard::a4));
+    EXPECT_TRUE(has_move(Bitboard::b4));
+    EXPECT_TRUE(has_move(Bitboard::c4));
     EXPECT_TRUE(has_move(Bitboard::d4));
-    EXPECT_TRUE(has_move(Bitboard::d5));
-    EXPECT_TRUE(has_move(Bitboard::d6));
-    EXPECT_TRUE(has_move(Bitboard::d7));
-    EXPECT_TRUE(has_move(Bitboard::d8));
+    EXPECT_TRUE(has_move(Bitboard::e4));
+    EXPECT_TRUE(has_move(Bitboard::f4));
+    EXPECT_TRUE(has_move(Bitboard::g4));
+    EXPECT_TRUE(has_move(Bitboard::h4));
     
     EXPECT_EQ(list.size(), 16);
 
 };
 TEST(generate_pawn_moves, cannotDoublePushWhenInSinglePushisPiece) {
-   const std::string pos = "8/8/8/8/8/KKKKKKKK/pppppppp/8 w";
+   const std::string pos = "8/8/8/8/8/bbbbbbbb/PPPPPPPP/8 w";
    MoveList list;
    generate_pawn_moves(pos, list);   
    EXPECT_EQ(list.size(), 0);
 };
 TEST(generate_pawn_moves, basicLetfCaptureTest) {
-   const std::string pos = "8/8/8/8/8/3K4/4p3/8";
+   const std::string pos = "8/8/8/8/8/3b4/4P3/8 w";
    MoveList list;
    generate_pawn_moves(pos, list);   
    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
@@ -571,7 +569,7 @@ TEST(generate_pawn_moves, basicLetfCaptureTest) {
 
 };
 TEST(generate_pawn_moves, basicRightCaptureTest) {
-   const std::string pos = "8/8/8/8/8/5B1/4p3/8";
+   const std::string pos = "8/8/8/8/8/5b1/4P3/8 w";
    MoveList list;
    generate_pawn_moves(pos, list);   
    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
@@ -583,4 +581,38 @@ TEST(generate_pawn_moves, basicRightCaptureTest) {
     EXPECT_TRUE(has_move(Bitboard::b5, Bitboard::d5, standard));
     EXPECT_EQ(list.size(), 3);
 
+};
+TEST(generate_pawn_moves, whitePawnPromotion) {
+    const std::string pos = "8/4P3/8/8/8/8/8/8 w ";
+    MoveList list;
+    generate_pawn_moves(pos, list);   
+
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list) if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionQueen));
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionRook));
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionBishop));
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionKnight));
+    
+    EXPECT_EQ(list.size(), 4);
+};
+TEST(generate_pawn_moves, blackPawnPromotion) {
+    const std::string pos = "8/8/8/8/8/8/4p3/8 b ";
+    MoveList list;
+    generate_pawn_moves(pos, list);   
+
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list) if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, promotionQueen));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, promotionRook));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, promotionBishop));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, promotionKnight));
+    
+    EXPECT_EQ(list.size(), 4);
 };
