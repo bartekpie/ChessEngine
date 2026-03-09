@@ -549,7 +549,7 @@ TEST(generate_pawn_test, basicPushTest) {
 
 };
 TEST(generate_pawn_moves, cannotDoublePushWhenInSinglePushisPiece) {
-   const std::string pos = "8/8/8/8/8/bbbbbbbb/PPPPPPPP/8 w";
+   const std::string pos = "8/8/8/8/8/4b3/4P3/8 w";
    MoveList list;
    generate_pawn_moves(pos, list);   
    EXPECT_EQ(list.size(), 0);
@@ -562,9 +562,9 @@ TEST(generate_pawn_moves, basicLetfCaptureTest) {
         for (const auto& m : list) if (m.from() == from && m.to() == to&& m.type() == type) return true;
         return false;
     };
-    EXPECT_TRUE(has_move(Bitboard::b5,Bitboard::c4, capture));
-    EXPECT_TRUE(has_move(Bitboard::b5, Bitboard::c5, standard));
-    EXPECT_TRUE(has_move(Bitboard::b5, Bitboard::d5, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2,Bitboard::d3, capture));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e3, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e4, standard));
     EXPECT_EQ(list.size(), 3);
 
 };
@@ -576,9 +576,9 @@ TEST(generate_pawn_moves, basicRightCaptureTest) {
         for (const auto& m : list) if (m.from() == from && m.to() == to&& m.type() == type) return true;
         return false;
     };
-    EXPECT_TRUE(has_move(Bitboard::b5,Bitboard::c6, capture));
-    EXPECT_TRUE(has_move(Bitboard::b5, Bitboard::c5, standard));
-    EXPECT_TRUE(has_move(Bitboard::b5, Bitboard::d5, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2,Bitboard::f3, capture));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e3, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e4, standard));
     EXPECT_EQ(list.size(), 3);
 
 };

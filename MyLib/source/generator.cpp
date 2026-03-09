@@ -117,11 +117,11 @@ template<verticalType dir> inline Bitboard::bitboard long_offset_attacks(Bitboar
       return b >> 9;
    }
 }
-template<verticalType dir> Bitboard::bitboard startingPawnsRow() {
+template<verticalType dir> Bitboard::bitboard can_be_double_pushed() {
    if constexpr(dir == up)
-      return uint64_t(0x000000000000FF00);  // F in binary 1111
+      return uint64_t(0x0000000000FF0000);  // F in binary 1111
    else {
-      return 0x00FF000000000000;
+      return 0x0000FF0000000000;
    }
 }
 /*template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square double_pushed) {
@@ -163,7 +163,7 @@ void from_push_to_moves(Bitboard::bitboard& push, MoveList& list) {
 template<verticalType type>
 void generate_pawn_moves_impl(const Position& position, MoveList& list) {
    Bitboard::bitboard push_bb          = push<type>(position.getOurs<PiecesType::pawn>()) & position.getEmptySpaces();
-   Bitboard::bitboard double_push_bb   = push<type>(push_bb & startingPawnsRow<type>()) & position.getEmptySpaces();
+   Bitboard::bitboard double_push_bb   = push<type>(push_bb & can_be_double_pushed<type>()) & position.getEmptySpaces();
    Bitboard::bitboard short_offset_attacks_bb  = short_offset_attacks<type>(position.getOurs()) & position.getOpponents();
    Bitboard::bitboard long_offset_attacks_bb = long_offset_attacks<type>(position.getOurs()) & position.getOpponents();
    /*if (position.getDoublePushedMove()) {
