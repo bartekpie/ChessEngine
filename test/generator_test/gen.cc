@@ -595,7 +595,7 @@ TEST(generate_pawn_moves, whitePawnPromotion) {
     EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionQueen));
     EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionRook));
     EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionBishop));
-    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionKnight));
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionKnight));l
     
     EXPECT_EQ(list.size(), 4);
 };
