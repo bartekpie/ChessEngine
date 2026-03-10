@@ -47,7 +47,7 @@ struct MoveList {
       }
 
 };
-enum precompiledType : uint8_t { north=0, west, south, east, north_east, north_west, south_east, south_west, knight};
+enum precompiledType : uint8_t { north=0, west, south, east, north_east, north_west, south_east, south_west, knight, king};
 constexpr Bitboard::bitboard notAFile  = 0xfefefefefefefefeULL;
 constexpr Bitboard::bitboard notABFile = 0xfcfcfcfcfcfcfcfcULL;
 constexpr Bitboard::bitboard notHFile  = 0x7f7f7f7f7f7f7f7fULL;
@@ -56,9 +56,9 @@ constexpr Bitboard::bitboard notGHFile = 0x3f3f3f3f3f3f3f3fULL;
 /*template<Pieces p>
 void generate_moves(const Position& position, MoveList& list);*/
 
-alignas(64) static constexpr std::array<std::array<Bitboard::bitboard,9>, 64> precompiled_directions = []()constexpr
+alignas(64) static constexpr std::array<std::array<Bitboard::bitboard,10>, 64> precompiled_directions = []()constexpr
 {
-  std::array<std::array<Bitboard::bitboard,9>, 64> table{};
+  std::array<std::array<Bitboard::bitboard,10>, 64> table{};
 
   //knights 
   Bitboard::bitboard current {};
@@ -93,6 +93,16 @@ alignas(64) static constexpr std::array<std::array<Bitboard::bitboard,9>, 64> pr
     for (int r{rank - 1}, f{file - 1}; r>=0 && f >= 0; r--, f--)
       table[square][south_west] |= 1ULL << (r * 8 + f) ;
 	}
+  for (int square{0}; square < 64; square++) { 
+      if (int curr = square - 1; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square + 1; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr);  
+      if (int curr = square + 7; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square + 8; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square + 9; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square - 7; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square - 8; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square - 9; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
+  }
   return table;
 }();
 
@@ -224,18 +234,32 @@ alignas(64) static constexpr auto south_east_precompiled = []() constexpr {
 alignas(64) static constexpr auto south_west_precompiled = []() constexpr {
     std::array<Bitboard::bitboard, 64> moves {};
     for (auto square {0}; square < 64; square++) {
-		int rank = square / 8;
-		int file = square % 8;
-		Bitboard::bitboard N = 0ULL;
-		Bitboard::bitboard S = 0ULL;
-		Bitboard::bitboard E = 0ULL;
-		Bitboard::bitboard W = 0ULL;
-    for (int r{rank-1}; r >= 0; r--) {
-      for (int f{file-1}; f >= 0; f--)
-			  moves[square] |= 1ULL << (r * 8 + f);
-		  }
+		  int rank = square / 8;
+		  int file = square % 8;
+		  Bitboard::bitboard N = 0ULL;
+		  Bitboard::bitboard S = 0ULL;
+		  Bitboard::bitboard E = 0ULL;
+		  Bitboard::bitboard W = 0ULL;
+      for (int r{rank-1}; r >= 0; r--) {
+        for (int f{file-1}; f >= 0; f--)
+		  	  moves[square] |= 1ULL << (r * 8 + f);
+		    }
     }
     return moves;
+}();
+alignas(64) static constexpr auto king_precompiled = []() constexpr {
+   std::array<Bitboard::bitboard, 64> moves {};
+   for (int square{0}; square < 64; square++) { 
+      if (int curr = square - 1; curr > 0 && curr < 64) moves[square] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square + 1; curr > 0 && curr < 64) moves[square] |= 1ULL << Bitboard::Square(curr);  
+      if (int curr = square + 7; curr > 0 && curr < 64) moves[square] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square + 8; curr > 0 && curr < 64) moves[square] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square + 9; curr > 0 && curr < 64) moves[square] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square - 7; curr > 0 && curr < 64) moves[square] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square - 8; curr > 0 && curr < 64) moves[square] |= 1ULL << Bitboard::Square(curr); 
+      if (int curr = square - 9; curr > 0 && curr < 64) moves[square] |= 1ULL << Bitboard::Square(curr); 
+   }
+   return moves;
 }();
 enum verticalType {up =0, down};
 template<verticalType dir> Bitboard::bitboard push(Bitboard::bitboard b);
@@ -249,11 +273,11 @@ template<verticalType type, int offset, MoveType mtype> void from_push_to_moves(
 
 template<verticalType type> void generate_pawn_moves_impl(const Position& position, MoveList& list);
  
-void generate_pawn_moves(const Position& position, MoveList& list);
+void generate_pawn_moves  (const Position& position, MoveList& list);
 void generate_knight_moves(const Position& position, MoveList& list);
 void generate_bishop_moves(const Position& position, MoveList& list);
-void generate_rook_moves(const Position& position, MoveList& list);
-void generate_queen_moves(const Position& position, MoveList& list);
-//void generate_king_moves(const Position& position, MoveList& list);
+void generate_rook_moves  (const Position& position, MoveList& list);
+void generate_queen_moves (const Position& position, MoveList& list);
+void generate_king_moves  (const Position& position, MoveList& list);
 
 

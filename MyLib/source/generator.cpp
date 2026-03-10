@@ -159,6 +159,10 @@ void from_push_to_moves(Bitboard::bitboard& push, MoveList& list) {
        Bitboard::reset_bit(push, to);
     }
 }
+constexpr uint8_t push_offset = 8;
+constexpr uint8_t double_push_offset = 16;
+constexpr uint8_t attacks_short_offset = 7;
+constexpr uint8_t attacks_long_offset = 9;
 
 template<verticalType type>
 void generate_pawn_moves_impl(const Position& position, MoveList& list) {
@@ -170,14 +174,30 @@ void generate_pawn_moves_impl(const Position& position, MoveList& list) {
       Bitboard::bitboard left_en_passant = left_en_passant<type>(position.getDoublePushedMove());
       Bitboard::bitboard right_en_passant = right_en_passant<type>(position.getDoublePushedMove());
    }*/
-   from_push_to_moves<type, 8> (push_bb, list); 
-   from_push_to_moves<type, 16> (double_push_bb, list); 
-   from_push_to_moves<type, 7, capture> (short_offset_attacks_bb, list); 
-   from_push_to_moves<type, 9, capture> (long_offset_attacks_bb, list); 
+   from_push_to_moves<type, push_offset> (push_bb, list); 
+   from_push_to_moves<type, double_push_offset> (double_push_bb, list); 
+   from_push_to_moves<type, attacks_short_offset, capture> (short_offset_attacks_bb, list); 
+   from_push_to_moves<type, attacks_long_offset, capture> (long_offset_attacks_bb, list); 
 }
 void generate_pawn_moves(const Position& position, MoveList& list) {
    position.getSideToMove() == Color::white 
      ? generate_pawn_moves_impl<up> (position, list)
      : generate_pawn_moves_impl<down> (position, list);
    
+}
+void generate_king_moves(const Position& position, MoveList& list) {
+   Bitboard::Square our_king = Bitboard::lsb(position.getOurs<PiecesType::king>());
+   Bitboard::Square their_king = Bitboard::lsb(position.getOpponents<PiecesType::king>());
+   auto quiet = precompiled_directions[our_king][king] & position.getEmptySpaces() & ~precompiled_directions[their_king][king];
+   auto captures = precompiled_directions[our_king][king] & position.getOpponents() & ~precompiled_directions[their_king][king];
+   list.bitboardToMoves(our_king, quiet);
+   list.bitboardToMoves(our_king, captures, capture);
+}
+void generate_all_moves(const Position& position, MoveList& list) {
+   generate_pawn_moves  (position, list);
+   generate_knight_moves(position, list);
+   generate_bishop_moves(position, list);
+   generate_rook_moves  (position, list);
+   generate_queen_moves (position, list);
+   generate_king_moves  (position, list);
 }
