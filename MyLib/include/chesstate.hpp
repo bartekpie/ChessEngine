@@ -58,11 +58,11 @@ namespace Chess {
 		U64 pieces[sizePieces];
 		bool white_move;
 		
-		/// struktura do szybkiego zapisywania ruchów
+		/// struktura do szybkiego zapisywania ruchï¿½w
 		MoveList moves;
 		MoveList checkhelper;
 
-		/// tablice do szybkiego generowania ruchów
+		/// tablice do szybkiego generowania ruchï¿½w
 		U64 NE[64];
 		U64 SE[64];
 		U64 NW[64];

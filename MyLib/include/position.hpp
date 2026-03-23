@@ -1,5 +1,6 @@
 #pragma once
 #include "bitboard.hpp"
+#include "move.hpp"
 #include <array>
 #include <string>
 #include <cassert>
@@ -8,8 +9,11 @@ enum class PiecesType {
     pawn= 0 , knight, bishop, rook, queen, king
 };
 enum class Pieces {
-    white_pawn = 0, white_knight, white_bishop,white_rook, white_queen, white_king,
-    black_pawn, black_knight, black_bishop,black_rook, black_queen, black_king, size_of_pieces
+    white_pawn = 0, white_knight, white_bishop, white_rook, white_queen, white_king,
+    black_pawn    , black_knight, black_bishop, black_rook, black_queen, black_king, size_of_pieces
+};
+enum class CastilingRights {
+    white_king_side, white_queen_side, black_king_side, black_queen_side
 };
 enum class Color {
     black = 0, white
@@ -18,32 +22,38 @@ struct MoreInfo {
     Bitboard::Square doublePushedMove_;
     Pieces capturedPiece_;
     Bitboard::Square capturedSquare_;
-    
-
+    bool castlingRights[4];    
 };
+// for heap alocated information
 class MoreInfoManager {
-    public:
-      MoreInfoManager(size_t max_depth) {
-        data_.reserve(max_depth);
-      }
     private:
       std::vector<MoreInfo> data_;
-      size_t current = 0;
-}
+      size_t current {0};
+    public:
+      explicit MoreInfoManager(size_t max_depth) {
+        data_.reserve(max_depth);
+      }
+      void add(MoreInfo moreinfo) {
+        data_[current] = moreinfo;
+        current++;
+      }
+      MoreInfo& pop() {
+        return data_[current--];
+      }
+};
 class Position { 
     private:
       std::array<Bitboard::bitboard, int(Pieces::size_of_pieces)> board_;
       std::array<Bitboard::bitboard, 2> colorBoard_;
       Bitboard::bitboard emptySpaces_;
       Color sideToMove ;
-      Bitboard::Square doublePushedMove;
+      MoreInfoManager moreInfoManager_;
     public :
       Position(): board_{}, colorBoard_{}, emptySpaces_{~0ULL} {}
-      Position(const std::string& fen_position);
+      explicit Position(const std::string& fen_position);
       void loadFromFEN(const std::string& fen_position);
       void clear();
       Color getSideToMove() const {return sideToMove;}
-      Bitboard::Square getDoublePushedMove() const {return doublePushedMove;}
       Bitboard::bitboard getPieces(Pieces piece) const {return board_[int(piece)];}
       template <Color color> Bitboard::bitboard getPiecesByColor(PiecesType piece) const;
       template <PiecesType piece> Bitboard::bitboard getOurs() const;
@@ -51,6 +61,9 @@ class Position {
       template <PiecesType piece> Bitboard::bitboard getOpponents() const;
       inline Bitboard::bitboard getOpponents() const;
       inline Bitboard::bitboard getEmptySpaces() const;
+      Pieces getCurrPiece(Bitboard::Square from);
+      void simulate_move(Move move);
+      void undo_move();
 
 };
 template <Color color>
