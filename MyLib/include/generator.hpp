@@ -1,5 +1,6 @@
 #pragma once
 #include <cassert>
+#include <utility>
 #include <array>
 #include "bitboard.hpp"
 #include "position.hpp"
@@ -93,15 +94,17 @@ alignas(64) static constexpr std::array<std::array<Bitboard::bitboard,10>, 64> p
     for (int r{rank - 1}, f{file - 1}; r>=0 && f >= 0; r--, f--)
       table[square][south_west] |= 1ULL << (r * 8 + f) ;
 	}
+  std::array<std::pair<int,int>, 8> king_helper {{{0, 1}, {1,0}, {0, -1}, {-1, 0}, {1, 1}, {1, -1}, {-1, -1}, {-1, 1}}};
   for (int square{0}; square < 64; square++) { 
-      if (int curr = square - 1; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
-      if (int curr = square + 1; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr);  
-      if (int curr = square + 7; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
-      if (int curr = square + 8; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
-      if (int curr = square + 9; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
-      if (int curr = square - 7; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
-      if (int curr = square - 8; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
-      if (int curr = square - 9; curr > 0 && curr < 64) table[square][king] |= 1ULL << Bitboard::Square(curr); 
+    int rank = square / 8;
+    int file = square % 8;
+    for (auto [rank_off, file_off] : king_helper) {
+      auto new_rank = rank + rank_off;
+      auto new_file = file + file_off;
+      if (new_rank < 8 && new_rank >= 0 && new_file < 8 && new_file >=0 ) {
+        table[square][king] |= 1ULL << (new_rank * 8 + new_file);
+      }
+    }
   }
   return table;
 }();

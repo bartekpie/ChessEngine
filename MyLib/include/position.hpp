@@ -14,20 +14,35 @@ enum class Pieces {
 enum class Color {
     black = 0, white
 };
+struct MoreInfo {
+    Bitboard::Square doublePushedMove_;
+    Pieces capturedPiece_;
+    Bitboard::Square capturedSquare_;
+    
+
+};
+class MoreInfoManager {
+    public:
+      MoreInfoManager(size_t max_depth) {
+        data_.reserve(max_depth);
+      }
+    private:
+      std::vector<MoreInfo> data_;
+      size_t current = 0;
+}
 class Position { 
     private:
       std::array<Bitboard::bitboard, int(Pieces::size_of_pieces)> board_;
-      Bitboard::bitboard whitePieces_;
-      Bitboard::bitboard blackPieces_;
+      std::array<Bitboard::bitboard, 2> colorBoard_;
       Bitboard::bitboard emptySpaces_;
       Color sideToMove ;
       Bitboard::Square doublePushedMove;
     public :
-      Position(): board_{}, whitePieces_{}, blackPieces_{}, emptySpaces_{~0ULL} {}
+      Position(): board_{}, colorBoard_{}, emptySpaces_{~0ULL} {}
       Position(const std::string& fen_position);
       void loadFromFEN(const std::string& fen_position);
       void clear();
-      Color getSideToMove() const{return sideToMove;}
+      Color getSideToMove() const {return sideToMove;}
       Bitboard::Square getDoublePushedMove() const {return doublePushedMove;}
       Bitboard::bitboard getPieces(Pieces piece) const {return board_[int(piece)];}
       template <Color color> Bitboard::bitboard getPiecesByColor(PiecesType piece) const;
@@ -53,10 +68,10 @@ Bitboard::bitboard Position::getOurs() const {
 }
 inline void Position::clear()
 {
-    whitePieces_ = 0ULL;
-    blackPieces_ = 0ULL;
-    emptySpaces_ = ~0ULL;
     board_.fill(0ULL);
+    colorBoard_.fill(0ULL);
+    emptySpaces_ = ~0ULL;
+    
 }
 inline void Position::loadFromFEN(const std::string& fen_position)
 {
@@ -94,8 +109,8 @@ inline void Position::loadFromFEN(const std::string& fen_position)
             auto [piecetype, color] = charToPiece[piece];
             auto position = Bitboard::Square(rank*8 + file);
             Bitboard::set_bit(board_[int(piecetype)], position);
-            whitePieces_ |= color == Color::white ? (1ULL << position) : 0ULL;
-            blackPieces_ |= color == Color::black ? (1ULL << position) : 0ULL;
+            colorBoard_[int(Color::white)] |= color == Color::white ? (1ULL << position) : 0ULL;
+            colorBoard_[int(Color::black)] |= color == Color::black ? (1ULL << position) : 0ULL;
             emptySpaces_ &= ~(1ULL << position);
             file++;
         }
@@ -113,7 +128,7 @@ inline Position::Position(const std::string& fen_position)
 }
 inline Bitboard::bitboard Position::getOurs() const
 {
-    auto r = sideToMove == Color::white ? whitePieces_ : blackPieces_;
+    auto r = sideToMove == Color::white ? colorBoard_[int(Color::white)] : colorBoard_[int(Color::black)];
     return r;
 }
 template <PiecesType piece>
@@ -122,7 +137,7 @@ Bitboard::bitboard Position::getOpponents() const {
     return board_[int(piece) + offset];
 }
 inline Bitboard::bitboard Position::getOpponents() const {
-  auto r = sideToMove == Color::white ? blackPieces_ : whitePieces_;
+  auto r = sideToMove == Color::white ? colorBoard_[int(Color::black)] : colorBoard_[int(Color::white)];
   return r;
 }
 inline Bitboard::bitboard Position::getEmptySpaces() const {

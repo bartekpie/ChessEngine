@@ -595,7 +595,7 @@ TEST(generate_pawn_moves, whitePawnPromotion) {
     EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionQueen));
     EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionRook));
     EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionBishop));
-    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionKnight));l
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionKnight));
     
     EXPECT_EQ(list.size(), 4);
 };
@@ -615,4 +615,64 @@ TEST(generate_pawn_moves, blackPawnPromotion) {
     EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, promotionKnight));
     
     EXPECT_EQ(list.size(), 4);
+};
+TEST(generate_king_moves, basicKingMoves) {
+    const std::string pos = "4k3/8/8/8/8/8/4K3/8 w ";
+    MoveList list;
+    generate_king_moves(pos, list);    
+
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list) if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d1, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::f1, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::f2, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d2, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e3, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d3, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::f3, standard));
+    
+    EXPECT_EQ(list.size(), 8);
+};
+TEST(generate_king_moves, captureByKingTest) {
+    const std::string pos = "4k3/8/8/8/8/3ppp2/4K3/8 w ";
+    MoveList list;
+    generate_king_moves(pos, list);    
+
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list) if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d1, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::f1, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::f2, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d2, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e3, capture));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d3, capture));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::f3, capture));
+    
+    EXPECT_EQ(list.size(), 8);
+};
+TEST(generate_king_moves, cannotContactOtherKing) {
+    const std::string pos = "8/8/8/8/4k3/8/4K3/8 w ";
+    MoveList list;
+    generate_king_moves(pos, list);    
+
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list) if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d1, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::f1, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::f2, standard));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d2, standard));
+    
+    EXPECT_EQ(list.size(), 5);
 };
