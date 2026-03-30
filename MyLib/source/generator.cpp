@@ -173,12 +173,29 @@ void left_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list) {
 template<verticalType type, int offset, MoveType mtype = standard> 
 void from_push_to_moves(Bitboard::bitboard& push, MoveList& list) {
      Bitboard::Square from {};
+     bool promotion = false;
      while(push) {
        auto to = Bitboard::lsb(push);
-       if constexpr(type == up)  from = Bitboard::Square(to - offset);
-       else { from = Bitboard::Square(to + offset);}
-       list += Move::makeMove(from, to, mtype);
-       Bitboard::reset_bit(push, to);
+       if constexpr (type == up) { 
+           from = Bitboard::Square(to - offset);
+           if (to > 55) 
+             promotion = true;
+       }
+       else {
+          from = Bitboard::Square(to + offset);
+          if (to < 8)
+            promotion = true;
+      }
+      if (promotion!) 
+         list += Move::makeMove(from, to, mtype);
+      else {
+         list += Move::makeMove(from, to, MoveType::promotionBishop);
+         list += Move::makeMove(from, to, MoveType::promotionKnight);
+         list += Move::makeMove(from, to, MoveType::promotionQueen);
+         list += Move::makeMove(from, to, MoveType::promotionBishop);
+      }
+      Bitboard::reset_bit(push, to);
+      promotion = false;
     }
 }
 constexpr uint8_t push_offset = 8;
@@ -218,6 +235,37 @@ void generate_king_moves(const Position& position, MoveList& list) {
    auto captures = precompiled_directions[our_king][king] & position.getOpponents() & ~precompiled_directions[their_king][king];
    list.bitboardToMoves(our_king, quiet);
    list.bitboardToMoves(our_king, captures, capture);
+}
+template<verticalType dir>
+void generate_castling_moves(const Position& position, MoveList& list) {
+   if constexpr (dir == up) {
+      bool whiteCanShortCastle = whiteShortCastleRight &&
+      Bitboard::count_bits(position.getEmptySpaces() & 0x60) == 2 &&
+      enemy_attacking_king ;
+      if (whiteCanShortCastle)
+         list += Move::makeMove(Bitboard::e1, Bitboard::h1, MoveType::castle)
+      bool whiteCanLongCastle = 
+      whiteShortCastleRight && 
+      Bitboard::count_bits(position.getEmptySpaces() & 0xE ) == 3 &&
+      enemy_not_attacking_king ;
+      if (whiteCanLongCastle)
+        list += Move::makeMove(Bitboard::e1, Bitboard::a1, MoveType::castle)
+   }
+   else{
+      bool blackCanShortCastle = blackShortCastleRight &&
+      Bitboard::count_bits(position.getEmptySpaces() & 0x6000000000000000 ) == 2 &&
+      enemy_attacking_king ;
+      if (blackCanShortCastle)
+        list += Move::makeMove(Bitboard::e8, Bitboard::h8, MoveType::castle)
+      bool whiteCanLongCastle = 
+      blackShortCastleRight && 
+      Bitboard::count_bits(position.getEmptySpaces() & 0xE00000000000000 ) == 3 &&
+      enemy_not_attacking_king ;
+      if (blackCanShortCastle)
+        list += Move::makeMove(Bitboard::e8, Bitboard::a8, MoveType::castle)
+   }
+  
+
 }
 void generate_all_moves(const Position& position, MoveList& list) {
    generate_pawn_moves  (position, list);
