@@ -38,7 +38,11 @@ class MoreInfoManager {
         current++;
       }
       MoreInfo& pop() {
+        assert(data_.size() > 0);
         return data_[current--];
+      }
+      int size() {
+        return data_.size();
       }
 };
 class Position { 
@@ -62,6 +66,8 @@ class Position {
       inline Bitboard::bitboard getOpponents() const;
       inline Bitboard::bitboard getEmptySpaces() const;
       Pieces getCurrPiece(Bitboard::Square from);
+      MoreInfo popMoreInfo();
+      void addMoreInfo(MoreInfo info);
       void simulate_move(Move move);
       void undo_move();
 
@@ -155,4 +161,11 @@ inline Bitboard::bitboard Position::getOpponents() const {
 }
 inline Bitboard::bitboard Position::getEmptySpaces() const {
   return emptySpaces_;
+}
+inline MoreInfo Position::popMoreInfo() {
+    return moreInfoManager_.pop();
+}
+inline void Position::addMoreInfo(MoreInfo info) {
+    moreInfoManager_.add(info);
+
 }
