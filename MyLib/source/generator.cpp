@@ -148,6 +148,28 @@ template<verticalType dir> Bitboard::bitboard right_en_passant(Bitboard::Square 
      }
    }
 }
+template<verticalType dir> 
+void right_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list) { 
+   if (to_bb) {
+      auto to = int(Bitboard::lsb(to_bb));
+      auto offset = 7;
+      if constexpr (dir == up) offset = -7;
+      auto from = to + offset;
+      list += Move::makeMove(from, to, MoveType::passant);
+   }
+   
+}
+template<verticalType dir> 
+void left_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list) { 
+   if (to_bb) {
+      auto to = int(Bitboard::lsb(to_bb));
+      auto offset = 9;
+      if constexpr (dir == up) offset = -9;
+      auto from = to + offset;
+      list += Move::makeMove(from, to, MoveType::passant);
+   }
+   
+}
 template<verticalType type, int offset, MoveType mtype = standard> 
 void from_push_to_moves(Bitboard::bitboard& push, MoveList& list) {
      Bitboard::Square from {};
@@ -174,11 +196,14 @@ void generate_pawn_moves_impl(const Position& position, MoveList& list) {
    if (double_pushed_move != Bitboard::a1) {
       Bitboard::bitboard left_en_passant = left_en_passant<type>(double_pushed_move);
       Bitboard::bitboard right_en_passant = right_en_passant<type>(double_pushed_move);
+      left_en_passant_to_moves(left_en_passant, list);
+      right_en_passant_to_moves(right_en_passant, list);
    }
    from_push_to_moves<type, push_offset> (push_bb, list); 
    from_push_to_moves<type, double_push_offset> (double_push_bb, list); 
    from_push_to_moves<type, attacks_short_offset, capture> (short_offset_attacks_bb, list); 
    from_push_to_moves<type, attacks_long_offset, capture> (long_offset_attacks_bb, list); 
+   
 }
 void generate_pawn_moves(const Position& position, MoveList& list) {
    position.getSideToMove() == Color::white 
