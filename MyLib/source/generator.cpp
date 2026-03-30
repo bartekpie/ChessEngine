@@ -124,7 +124,7 @@ template<verticalType dir> Bitboard::bitboard can_be_double_pushed() {
       return 0x0000FF0000000000;
    }
 }
-/*template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square double_pushed) {
+template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square double_pushed) {
    if constexpr (dir == up) {
      if(double_pushed >> 1 & position.getOurs()) {
        return double_pushed << 8 & position.getEmptySpaces();
@@ -147,7 +147,7 @@ template<verticalType dir> Bitboard::bitboard right_en_passant(Bitboard::Square 
        return double_pushed >> 8 & position.getEmptySpaces();
      }
    }
-}*/
+}
 template<verticalType type, int offset, MoveType mtype = standard> 
 void from_push_to_moves(Bitboard::bitboard& push, MoveList& list) {
      Bitboard::Square from {};
@@ -170,10 +170,11 @@ void generate_pawn_moves_impl(const Position& position, MoveList& list) {
    Bitboard::bitboard double_push_bb   = push<type>(push_bb & can_be_double_pushed<type>()) & position.getEmptySpaces();
    Bitboard::bitboard short_offset_attacks_bb  = short_offset_attacks<type>(position.getOurs()) & position.getOpponents();
    Bitboard::bitboard long_offset_attacks_bb = long_offset_attacks<type>(position.getOurs()) & position.getOpponents();
-   /*if (position.getDoublePushedMove()) {
-      Bitboard::bitboard left_en_passant = left_en_passant<type>(position.getDoublePushedMove());
-      Bitboard::bitboard right_en_passant = right_en_passant<type>(position.getDoublePushedMove());
-   }*/
+   auto double_pushed_move = position.popMoreInfo().doublePushedMove_;
+   if (double_pushed_move != Bitboard::a1) {
+      Bitboard::bitboard left_en_passant = left_en_passant<type>(double_pushed_move);
+      Bitboard::bitboard right_en_passant = right_en_passant<type>(double_pushed_move);
+   }
    from_push_to_moves<type, push_offset> (push_bb, list); 
    from_push_to_moves<type, double_push_offset> (double_push_bb, list); 
    from_push_to_moves<type, attacks_short_offset, capture> (short_offset_attacks_bb, list); 
