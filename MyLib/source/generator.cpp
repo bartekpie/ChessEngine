@@ -124,7 +124,7 @@ template<verticalType dir> Bitboard::bitboard can_be_double_pushed() {
       return 0x0000FF0000000000;
    }
 }
-template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square double_pushed) {
+template<verticalType dir> Bitboard::bitboard left_en_passant(const Position& position, Bitboard::Square double_pushed) {
    if constexpr (dir == up) {
      if(double_pushed >> 1 & position.getOurs()) {
        return double_pushed << 8 & position.getEmptySpaces();
@@ -136,7 +136,7 @@ template<verticalType dir> Bitboard::bitboard left_en_passant(Bitboard::Square d
      }
    }
 }
-template<verticalType dir> Bitboard::bitboard right_en_passant(Bitboard::Square double_pushed) {
+template<verticalType dir> Bitboard::bitboard right_en_passant(const Position& position, Bitboard::Square double_pushed) {
    if constexpr (dir == up) {
      if(double_pushed << 1 & position.getOurs()) {
        return double_pushed << 8 & position.getEmptySpaces();
@@ -155,9 +155,8 @@ void right_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list) {
       auto offset = 7;
       if constexpr (dir == up) offset = -7;
       auto from = to + offset;
-      list += Move::makeMove(from, to, MoveType::passant);
+      list += Move::makeMove(Bitboard::Square(from), Bitboard::Square(to), MoveType::passant);
    }
-   
 }
 template<verticalType dir> 
 void left_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list) { 
@@ -166,9 +165,8 @@ void left_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list) {
       auto offset = 9;
       if constexpr (dir == up) offset = -9;
       auto from = to + offset;
-      list += Move::makeMove(from, to, MoveType::passant);
-   }
-   
+      list += Move::makeMove(Bitboard::Square(from), Bitboard::Square(to), MoveType::passant);
+   } 
 }
 template<verticalType type, int offset, MoveType mtype = standard> 
 void from_push_to_moves(Bitboard::bitboard& push, MoveList& list) {
@@ -186,13 +184,13 @@ void from_push_to_moves(Bitboard::bitboard& push, MoveList& list) {
           if (to < 8)
             promotion = true;
       }
-      if (promotion!) 
+      if (!promotion) 
          list += Move::makeMove(from, to, mtype);
       else {
          list += Move::makeMove(from, to, MoveType::promotionBishop);
          list += Move::makeMove(from, to, MoveType::promotionKnight);
          list += Move::makeMove(from, to, MoveType::promotionQueen);
-         list += Move::makeMove(from, to, MoveType::promotionBishop);
+         list += Move::makeMove(from, to, MoveType::promotionRook);
       }
       Bitboard::reset_bit(push, to);
       promotion = false;
@@ -209,12 +207,12 @@ void generate_pawn_moves_impl(const Position& position, MoveList& list) {
    Bitboard::bitboard double_push_bb   = push<type>(push_bb & can_be_double_pushed<type>()) & position.getEmptySpaces();
    Bitboard::bitboard short_offset_attacks_bb  = short_offset_attacks<type>(position.getOurs()) & position.getOpponents();
    Bitboard::bitboard long_offset_attacks_bb = long_offset_attacks<type>(position.getOurs()) & position.getOpponents();
-   auto double_pushed_move = position.popMoreInfo().doublePushedMove_;
+   auto double_pushed_move = position.getMoreInfo().doublePushedMove_;
    if (double_pushed_move != Bitboard::a1) {
-      Bitboard::bitboard left_en_passant = left_en_passant<type>(double_pushed_move);
-      Bitboard::bitboard right_en_passant = right_en_passant<type>(double_pushed_move);
-      left_en_passant_to_moves(left_en_passant, list);
-      right_en_passant_to_moves(right_en_passant, list);
+      Bitboard::bitboard left_en_passant = left_en_passant<type>(position, double_pushed_move);
+      Bitboard::bitboard right_en_passant = right_en_passant<type>(position, double_pushed_move);
+      left_en_passant_to_moves<type>(left_en_passant, list);
+      right_en_passant_to_moves<type>(right_en_passant, list);
    }
    from_push_to_moves<type, push_offset> (push_bb, list); 
    from_push_to_moves<type, double_push_offset> (double_push_bb, list); 
@@ -236,18 +234,19 @@ void generate_king_moves(const Position& position, MoveList& list) {
    list.bitboardToMoves(our_king, quiet);
    list.bitboardToMoves(our_king, captures, capture);
 }
-template<verticalType dir>
+/*template<verticalType dir>
 void generate_castling_moves(const Position& position, MoveList& list) {
    if constexpr (dir == up) {
-      bool whiteCanShortCastle = whiteShortCastleRight &&
-      Bitboard::count_bits(position.getEmptySpaces() & 0x60) == 2 &&
-      enemy_attacking_king ;
+      bool whiteCanShortCastle = 
+         whiteShortCastleRight &&
+         Bitboard::count_bits(position.getEmptySpaces() & 0x60) == 2 &&
+         enemy_attacking_king ;
       if (whiteCanShortCastle)
          list += Move::makeMove(Bitboard::e1, Bitboard::h1, MoveType::castle)
       bool whiteCanLongCastle = 
-      whiteShortCastleRight && 
-      Bitboard::count_bits(position.getEmptySpaces() & 0xE ) == 3 &&
-      enemy_not_attacking_king ;
+         whiteShortCastleRight && 
+         Bitboard::count_bits(position.getEmptySpaces() & 0xE ) == 3 &&
+         enemy_not_attacking_king ;
       if (whiteCanLongCastle)
         list += Move::makeMove(Bitboard::e1, Bitboard::a1, MoveType::castle)
    }
@@ -266,7 +265,7 @@ void generate_castling_moves(const Position& position, MoveList& list) {
    }
   
 
-}
+}*/
 void generate_all_moves(const Position& position, MoveList& list) {
    generate_pawn_moves  (position, list);
    generate_knight_moves(position, list);

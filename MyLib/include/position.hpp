@@ -5,6 +5,7 @@
 #include <string>
 #include <cassert>
 #include <unordered_map>
+#include <vector>
 enum class PiecesType {
     pawn= 0 , knight, bishop, rook, queen, king
 };
@@ -22,7 +23,11 @@ struct MoreInfo {
     Bitboard::Square doublePushedMove_;
     Pieces capturedPiece_;
     Bitboard::Square capturedSquare_;
-    bool castlingRights[4];    
+    bool castlingRights[4];  
+    MoreInfo() : 
+      doublePushedMove_(Bitboard::a1),
+      capturedPiece_(Pieces::size_of_pieces),
+      capturedSquare_(Bitboard::a1) {}
 };
 // for heap alocated information
 class MoreInfoManager {
@@ -37,9 +42,13 @@ class MoreInfoManager {
         data_[current] = moreinfo;
         current++;
       }
-      MoreInfo& pop() {
+      MoreInfo pop() {
         assert(data_.size() > 0);
         return data_[current--];
+      }
+      MoreInfo last() const {
+        //assert(data_.size() > 0);
+        return data_[current];
       }
       int size() {
         return data_.size();
@@ -53,8 +62,8 @@ class Position {
       Color sideToMove ;
       MoreInfoManager moreInfoManager_;
     public :
-      Position(): board_{}, colorBoard_{}, emptySpaces_{~0ULL} {}
-      explicit Position(const std::string& fen_position);
+      Position(): board_{}, colorBoard_{}, emptySpaces_{~0ULL}, moreInfoManager_{100} {}
+      Position(const std::string& fen_position);
       void loadFromFEN(const std::string& fen_position);
       void clear();
       Color getSideToMove() const {return sideToMove;}
@@ -66,7 +75,7 @@ class Position {
       inline Bitboard::bitboard getOpponents() const;
       inline Bitboard::bitboard getEmptySpaces() const;
       Pieces getCurrPiece(Bitboard::Square from);
-      MoreInfo popMoreInfo();
+      MoreInfo getMoreInfo() const;
       void addMoreInfo(MoreInfo info);
       void simulate_move(Move move);
       void undo_move();
@@ -140,7 +149,7 @@ inline void Position::loadFromFEN(const std::string& fen_position)
     sideToMove = fen_position[index] == 'w' ? Color::white : Color::black;
 
 }
-inline Position::Position(const std::string& fen_position)
+inline Position::Position(const std::string& fen_position) : moreInfoManager_(100)
 {
     loadFromFEN(fen_position);
 
@@ -162,8 +171,8 @@ inline Bitboard::bitboard Position::getOpponents() const {
 inline Bitboard::bitboard Position::getEmptySpaces() const {
   return emptySpaces_;
 }
-inline MoreInfo Position::popMoreInfo() {
-    return moreInfoManager_.pop();
+inline MoreInfo Position::getMoreInfo() const {
+    return moreInfoManager_.last();
 }
 inline void Position::addMoreInfo(MoreInfo info) {
     moreInfoManager_.add(info);
