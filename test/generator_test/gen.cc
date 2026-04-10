@@ -616,6 +616,50 @@ TEST(generate_pawn_moves, blackPawnPromotion) {
     
     EXPECT_EQ(list.size(), 4);
 };
+TEST(generate_pawn_moves, whitePawnPromotion) {
+    const std::string pos = "3b4/4P3/8/8/8/8/8/8 w ";
+    MoveList list;
+    generate_pawn_moves(pos, list);   
+
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list) if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionQueen));
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionRook));
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionBishop));
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::e8, promotionKnight));
+
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::d8, promotionQueen));
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::d8, promotionRook));
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::d8, promotionBishop));
+    EXPECT_TRUE(has_move(Bitboard::e7, Bitboard::d8, promotionKnight));
+    
+    EXPECT_EQ(list.size(), 8);
+};
+TEST(generate_pawn_moves, blackPawnPromotionCapture) {
+    const std::string pos = "8/8/8/8/8/8/4p3/3B4 b ";
+    MoveList list;
+    generate_pawn_moves(pos, list);   
+
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list) if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, promotionQueen));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, promotionRook));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, promotionBishop));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::e1, promotionKnight));
+    // even though its capture move should be a promotion 
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d1, promotionQueen));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d1, promotionRook));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d1, promotionBishop));
+    EXPECT_TRUE(has_move(Bitboard::e2, Bitboard::d1, promotionKnight));
+    
+    EXPECT_EQ(list.size(), 8);
+};
 TEST(generate_king_moves, basicKingMoves) {
     const std::string pos = "4k3/8/8/8/8/8/4K3/8 w ";
     MoveList list;
