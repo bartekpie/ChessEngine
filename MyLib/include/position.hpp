@@ -62,7 +62,7 @@ class Position {
       Color sideToMove ;
       MoreInfoManager moreInfoManager_;
     public :
-      Position(): board_{}, colorBoard_{}, emptySpaces_{~0ULL}, moreInfoManager_{100} {}
+      Position();
       Position(const std::string& fen_position);
       void loadFromFEN(const std::string& fen_position);
       void clear();
@@ -149,7 +149,11 @@ inline void Position::loadFromFEN(const std::string& fen_position)
     sideToMove = fen_position[index] == 'w' ? Color::white : Color::black;
 
 }
-inline Position::Position(const std::string& fen_position) : moreInfoManager_(100)
+inline Position::Position() : moreInfoManager_(100)
+{
+    loadFromFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w");
+}
+inline Position::Position(const std::string &fen_position) : moreInfoManager_(100)
 {
     loadFromFEN(fen_position);
 

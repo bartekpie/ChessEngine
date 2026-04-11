@@ -2,9 +2,10 @@
 Pieces Position::getCurrPiece(Bitboard::Square from) {
     Bitboard::bitboard from_bb = 1ULL << from ; 
     for (int piece{0}; piece < int(Pieces::size_of_pieces); piece++) {
-       if (Bitboard::lsb(from_bb & board_[piece]) == from)
+       if (from_bb & board_[piece])
          return Pieces(piece);
     } 
+    return Pieces::size_of_pieces;
     
 }
 
@@ -12,7 +13,7 @@ void Position::simulate_move(Move move) {
     auto from = move.from();
     auto to = move.to();
     auto to_be_moved = getCurrPiece(from);
-    auto doubledPushedMove = moreInfoManager_.pop().doublePushedMove_;
+    auto doubledPushedMove = moreInfoManager_.last().doublePushedMove_;
     bool wasDoublePushed = false;
     Pieces captured {};
     switch (move.type()){
@@ -127,9 +128,10 @@ void Position::simulate_move(Move move) {
             break;
 
         }
-        default : {
+        default : { // promotion
             break;
         }
 
     }
+    sideToMove = sideToMove == Color::white ? Color::black : Color::white ;
 }
