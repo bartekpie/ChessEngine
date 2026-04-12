@@ -29,7 +29,7 @@ TEST (simulate_move, simulate_standard_move) {
   
 };
 TEST (simulate_move, simulate_capture_move) {
-  std::string fen_position = "8/p7/8/8/8/8/8/R7 w";
+  std::string fen_position = "8/p7/8/8/8/8/8/R7 w - - 0 1";
   Position basics;
   Position pos(fen_position);
   pos.simulate_move(Move::makeMove(Bitboard::a1, Bitboard::a7, MoveType::capture));
@@ -46,7 +46,7 @@ TEST (simulate_move, simulate_capture_move) {
   for (int i = 0; i <= static_cast<int>(PiecesType::king); i++) 
     EXPECT_EQ(pos.getPiecesByColor<Color::black>(static_cast<PiecesType>(i)), 0ULL);  
   
-}
+};
 TEST (simulate_move, simulate_passant_move) {
-    
-}
+
+};

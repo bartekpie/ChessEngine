@@ -337,21 +337,21 @@ TEST(Precompiled_Test, checkingDiagonalDirectionsInCorners) {
 
 
 TEST(generate_Bishop_Test, cannotMoveOnYourPiece) {
-    const std::string pos = "8/8/8/8/3P1P2/4B3/3P1P2/8 w";
+    const std::string pos = "8/8/8/8/3P1P2/4B3/3P1P2/8 w - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_bishop_moves(position, list);
     EXPECT_TRUE(list.empty()); 
 };
 TEST(generate_Bishop_Test, cannotMoveOnYourPieceBlack) {
-    const std::string pos = "8/8/8/8/3p1p2/4b3/3p1p2/8 b";
+    const std::string pos = "8/8/8/8/3p1p2/4b3/3p1p2/8 b - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_bishop_moves(position, list);
     EXPECT_TRUE(list.empty()); 
 };
 TEST(generate_Bishop_Test, captureWhite) {
-    const std::string pos = "8/8/8/8/3p1P2/4B3/3P1P2/8 w";
+    const std::string pos = "8/8/8/8/3p1P2/4B3/3P1P2/8 w - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_bishop_moves(position, list);
@@ -361,7 +361,7 @@ TEST(generate_Bishop_Test, captureWhite) {
 };
 
 TEST(generate_Bishop_Test, captureBlack) {
-    const std::string pos = "8/8/8/8/3P1p2/4b3/3p1p2/8 b";
+    const std::string pos = "8/8/8/8/3P1p2/4b3/3p1p2/8 b - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_bishop_moves(position, list);
@@ -370,7 +370,7 @@ TEST(generate_Bishop_Test, captureBlack) {
     EXPECT_EQ((*list.begin()).data(), move.data());
 };
 TEST(generate_Bishop_Test, freeMoves) {
-    const std::string pos = "8/8/8/8/5p2/4b3/3p1p2/8 b";
+    const std::string pos = "8/8/8/8/5p2/4b3/3p1p2/8 b - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_bishop_moves(position, list);
@@ -386,7 +386,7 @@ TEST(generate_Bishop_Test, freeMoves) {
     EXPECT_EQ(list.size(), 4);
 };
 TEST(generate_Bishop_Test, freeMoves4Dir) {
-    const std::string pos = "8/8/8/8/8/4b3/8/8 b"; 
+    const std::string pos = "8/8/8/8/8/4b3/8/8 b - - 0 1"; 
     const Position position{pos};
     MoveList list;
     generate_bishop_moves(position, list);
@@ -414,7 +414,7 @@ TEST(generate_Bishop_Test, freeMoves4Dir) {
     EXPECT_TRUE(has_move(Bitboard::e3, Bitboard::g1));
 };
 TEST(generate_Rook_Test, freeMovesCenter) {
-    const std::string pos = "8/8/8/8/3R4/8/8/8 w"; 
+    const std::string pos = "8/8/8/8/3R4/8/8/8 w - - 0 1"; 
     const Position position{pos};
     MoveList list;
     generate_rook_moves(position, list);
@@ -431,7 +431,7 @@ TEST(generate_Rook_Test, freeMovesCenter) {
     EXPECT_TRUE(has_move(Bitboard::h4));
 };
 TEST(generate_Rook_Test, captureCheck) {
-    const std::string pos = "8/8/8/3p4/2pRp3/3p4/8/8 w"; 
+    const std::string pos = "8/8/8/3p4/2pRp3/3p4/8/8 w - - 0 1"; 
     const Position position{pos};
     MoveList list;
     generate_rook_moves(position, list);
@@ -446,21 +446,21 @@ TEST(generate_Rook_Test, captureCheck) {
     EXPECT_TRUE(has_move(Bitboard::Square::e4,MoveType::capture));
 };
 TEST(generate_Rook_Test, blockByOurPiece) {
-    const std::string pos = "8/8/8/3P4/2PRP3/3P4/8/8 w"; 
+    const std::string pos = "8/8/8/3P4/2PRP3/3P4/8/8 w - - 0 1"; 
     const Position position{pos};
     MoveList list;
     generate_rook_moves(position, list);
     EXPECT_TRUE(list.empty());
 };
 TEST(generate_Rook_Test, noRookToMove) {
-    const std::string pos = "8/8/8/8/8/1B6/8/8 w"; 
+    const std::string pos = "8/8/8/8/8/1B6/8/8 w - - 0 1"; 
     const Position position{pos};
     MoveList list;
     generate_rook_moves(position, list);
     EXPECT_TRUE(list.empty());
 };
 TEST(generate_Queen_Test, freeMovesCenter) {
-    const std::string pos = "8/8/8/8/3Q4/8/8/8 w";
+    const std::string pos = "8/8/8/8/3Q4/8/8/8 w - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_queen_moves(position, list);
@@ -468,7 +468,7 @@ TEST(generate_Queen_Test, freeMovesCenter) {
 }
 
 TEST(generate_Queen_Test, blockedByOwnPieces) {
-    const std::string pos = "8/8/8/3PPP2/3PQP2/3PPP2/8/8 w";
+    const std::string pos = "8/8/8/3PPP2/3PQP2/3PPP2/8/8 w - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_queen_moves(position, list);
@@ -476,7 +476,7 @@ TEST(generate_Queen_Test, blockedByOwnPieces) {
 }
 
 TEST(generate_Queen_Test, captureAllDirections) {
-    const std::string pos = "8/1p1p1p1/8/1p1Q1p1/8/1p1p1p1/8/8 w";
+    const std::string pos = "8/1p1p1p1/8/1p1Q1p1/8/1p1p1p1/8/8 w - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_queen_moves(position, list);
@@ -488,7 +488,7 @@ TEST(generate_Queen_Test, captureAllDirections) {
 }
 
 TEST(generate_Queen_Test, queenInCorner) {
-    const std::string pos = "Q7/8/8/8/8/8/8/8 w";
+    const std::string pos = "Q7/8/8/8/8/8/8/8 w - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_queen_moves(position, list);
@@ -496,7 +496,7 @@ TEST(generate_Queen_Test, queenInCorner) {
 }
 
 TEST(generate_Queen_Test, cannotGoThroughOpponent) {
-    const std::string pos = "8/8/8/8/8/8/4p3/4Q3 w";
+    const std::string pos = "8/8/8/8/8/8/4p3/4Q3 w - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_queen_moves(position, list);
@@ -512,14 +512,14 @@ TEST(generate_Queen_Test, cannotGoThroughOpponent) {
 }
 
 TEST(generate_Queen_Test, twoQueensSideBySide) {                          
-    const std::string pos = "8/8/8/8/3QQ3/8/8/8 w";
+    const std::string pos = "8/8/8/8/3QQ3/8/8/8 w - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_queen_moves(position, list);
     EXPECT_EQ(list.size(), 46);
 }
 TEST(generate_pawn_test, basicPushTest) {
-    const std::string pos = "8/8/8/8/8/8/PPPPPPPP/8 w";
+    const std::string pos = "8/8/8/8/8/8/PPPPPPPP/8 w - - 0 1";
     MoveList list;
     generate_pawn_moves(pos, list);
     auto has_move = [&](Bitboard::Square to) {
@@ -549,13 +549,13 @@ TEST(generate_pawn_test, basicPushTest) {
 
 };
 TEST(generate_pawn_moves, cannotDoublePushWhenInSinglePushisPiece) {
-   const std::string pos = "8/8/8/8/8/4b3/4P3/8 w";
+   const std::string pos = "8/8/8/8/8/4b3/4P3/8 w - - 0 1";
    MoveList list;
    generate_pawn_moves(pos, list);   
    EXPECT_EQ(list.size(), 0);
 };
 TEST(generate_pawn_moves, basicLetfCaptureTest) {
-   const std::string pos = "8/8/8/8/8/3b4/4P3/8 w";
+   const std::string pos = "8/8/8/8/8/3b4/4P3/8 w - - 0 1";
    MoveList list;
    generate_pawn_moves(pos, list);   
    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
@@ -569,7 +569,7 @@ TEST(generate_pawn_moves, basicLetfCaptureTest) {
 
 };
 TEST(generate_pawn_moves, basicRightCaptureTest) {
-   const std::string pos = "8/8/8/8/8/5b1/4P3/8 w";
+   const std::string pos = "8/8/8/8/8/5b1/4P3/8 w - - 0 1";
    MoveList list;
    generate_pawn_moves(pos, list);   
    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
@@ -583,7 +583,7 @@ TEST(generate_pawn_moves, basicRightCaptureTest) {
 
 };
 TEST(generate_pawn_moves, whitePawnPromotion) {
-    const std::string pos = "8/4P3/8/8/8/8/8/8 w ";
+    const std::string pos = "8/4P3/8/8/8/8/8/8 w - - 0 1";
     MoveList list;
     generate_pawn_moves(pos, list);   
 
@@ -600,7 +600,7 @@ TEST(generate_pawn_moves, whitePawnPromotion) {
     EXPECT_EQ(list.size(), 4);
 };
 TEST(generate_pawn_moves, blackPawnPromotion) {
-    const std::string pos = "8/8/8/8/8/8/4p3/8 b ";
+    const std::string pos = "8/8/8/8/8/8/4p3/8 b - - 0 1";
     MoveList list;
     generate_pawn_moves(pos, list);   
 
@@ -617,7 +617,7 @@ TEST(generate_pawn_moves, blackPawnPromotion) {
     EXPECT_EQ(list.size(), 4);
 };
 TEST(generate_pawn_moves, whitePawnPromotion) {
-    const std::string pos = "3b4/4P3/8/8/8/8/8/8 w ";
+    const std::string pos = "3b4/4P3/8/8/8/8/8/8 w - - 0 1";
     MoveList list;
     generate_pawn_moves(pos, list);   
 
@@ -639,7 +639,7 @@ TEST(generate_pawn_moves, whitePawnPromotion) {
     EXPECT_EQ(list.size(), 8);
 };
 TEST(generate_pawn_moves, blackPawnPromotionCapture) {
-    const std::string pos = "8/8/8/8/8/8/4p3/3B4 b ";
+    const std::string pos = "8/8/8/8/8/8/4p3/3B4 b - - 0 1";
     MoveList list;
     generate_pawn_moves(pos, list);   
 
@@ -661,7 +661,7 @@ TEST(generate_pawn_moves, blackPawnPromotionCapture) {
     EXPECT_EQ(list.size(), 8);
 };
 TEST(generate_king_moves, basicKingMoves) {
-    const std::string pos = "4k3/8/8/8/8/8/4K3/8 w ";
+    const std::string pos = "4k3/8/8/8/8/8/4K3/8 w - - 0 1";
     MoveList list;
     generate_king_moves(pos, list);    
 
@@ -682,7 +682,7 @@ TEST(generate_king_moves, basicKingMoves) {
     EXPECT_EQ(list.size(), 8);
 };
 TEST(generate_king_moves, captureByKingTest) {
-    const std::string pos = "4k3/8/8/8/8/3ppp2/4K3/8 w ";
+    const std::string pos = "4k3/8/8/8/8/3ppp2/4K3/8 w - - 0 1";
     MoveList list;
     generate_king_moves(pos, list);    
 
@@ -703,7 +703,7 @@ TEST(generate_king_moves, captureByKingTest) {
     EXPECT_EQ(list.size(), 8);
 };
 TEST(generate_king_moves, cannotContactOtherKing) {
-    const std::string pos = "8/8/8/8/4k3/8/4K3/8 w ";
+    const std::string pos = "8/8/8/8/4k3/8/4K3/8 w - - 0 1";
     MoveList list;
     generate_king_moves(pos, list);    
 
