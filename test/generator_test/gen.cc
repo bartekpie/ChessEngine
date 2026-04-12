@@ -476,7 +476,7 @@ TEST(generate_Queen_Test, blockedByOwnPieces) {
 }
 
 TEST(generate_Queen_Test, captureAllDirections) {
-    const std::string pos = "8/1p1p1p1/8/1p1Q1p1/8/1p1p1p1/8/8 w - - 0 1";
+    const std::string pos = "8/2p1p1p1/8/2p1Q1p1/8/2p1p1p1/8/8 w - - 0 1";
     const Position position{pos};
     MoveList list;
     generate_queen_moves(position, list);
@@ -569,7 +569,7 @@ TEST(generate_pawn_moves, basicLetfCaptureTest) {
 
 };
 TEST(generate_pawn_moves, basicRightCaptureTest) {
-   const std::string pos = "8/8/8/8/8/5b1/4P3/8 w - - 0 1";
+   const std::string pos = "8/8/8/8/8/5b2/4P3/8 w - - 0 1";
    MoveList list;
    generate_pawn_moves(pos, list);   
    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
@@ -616,7 +616,7 @@ TEST(generate_pawn_moves, blackPawnPromotion) {
     
     EXPECT_EQ(list.size(), 4);
 };
-TEST(generate_pawn_moves, whitePawnPromotion) {
+TEST(generate_pawn_moves, whitePawnPromotionCapture) {
     const std::string pos = "3b4/4P3/8/8/8/8/8/8 w - - 0 1";
     MoveList list;
     generate_pawn_moves(pos, list);   
