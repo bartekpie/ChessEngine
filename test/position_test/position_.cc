@@ -49,4 +49,20 @@ TEST (simulate_move, simulate_capture_move) {
 };
 TEST (simulate_move, simulate_passant_move) {
 
+    std::string fen_position = "8/8/8/8/3pP3/8/8/8 b - e4 0 1";
+    Position basics;
+    Position pos(fen_position);
+
+    pos.simulate_move(Move::makeMove(Bitboard::d4, Bitboard::e3,MoveType::passant));
+
+    EXPECT_EQ(pos.getEmptySpaces(), ~(1ULL << int(Bitboard::e3)));
+
+    EXPECT_EQ(pos.getOpponents<PiecesType::pawn>(), 1ULL << int(Bitboard::e3));
+    EXPECT_EQ(pos.getOurs(), 0ULL);
+    
+    for (int i = 0; i <= static_cast<int>(PiecesType::king); i++) 
+        EXPECT_EQ(pos.getPiecesByColor<Color::white>(static_cast<PiecesType>(i)), 0ULL);
+    for (int i = 1; i <= static_cast<int>(PiecesType::king); i++) 
+        EXPECT_EQ(pos.getPiecesByColor<Color::black>(static_cast<PiecesType>(i)), 0ULL);
+    
 };
