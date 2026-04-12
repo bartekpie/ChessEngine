@@ -119,17 +119,18 @@ inline void Position::clear()
 inline int Position::loadFromFEN(const std::string& fen_position)
 {
     clear();
+
+    auto failed = [&](){clear(); return 0;};
+    
     std::istringstream i(fen_position);
     std::vector<std::string> seperated;
     std::string current;
     while (i >> current)
       seperated.push_back(current);
     if (seperated.size() != 6) {
-        return 0;
+        failed();
     }
-    auto rank{7};
-    auto file{0};
-    auto index{0};
+
     std::unordered_map<char, std::pair<Pieces, Color>> charToPiece {
         {'P', {Pieces::white_pawn,   Color::white}},
         {'N', {Pieces::white_knight, Color::white}},
@@ -144,19 +145,22 @@ inline int Position::loadFromFEN(const std::string& fen_position)
         {'q', {Pieces::black_queen,  Color::black}},
         {'k', {Pieces::black_king,   Color::black}}
     };
+    auto rank{7};
+    auto file{0};
+    auto index{0};
     for (char piece: seperated[0]) {
         
         if (piece == '/'){
-            if (file != 8) return 0; 
+            if (file != 8) {clear(); return 0;}
             rank--;
             file = 0;
         } 
         else if(std::isdigit(static_cast<unsigned char>(piece))){
             file += piece - '0';
-            if (file > 8) return 0;
+            if (file > 8) failed();
         }
         else {
-            if (charToPiece.find(piece) == charToPiece.end()) return 0;
+            if (charToPiece.find(piece) == charToPiece.end()) failed();
             auto [piecetype, color] = charToPiece[piece];
             auto position = Bitboard::Square(rank*8 + file);
             Bitboard::set_bit(board_[int(piecetype)], position);
@@ -182,19 +186,19 @@ inline int Position::loadFromFEN(const std::string& fen_position)
     
     if (seperated[3].size() == 2) {
        if (!isdigit(seperated[3][1]))
-         return 0;
+          failed();
        seperated[3][0] = std::tolower(seperated[3][0]);
        if (!(seperated[3][0] >= 'a' && seperated[3][0] <='h'))
-         return 0;
+          failed();
        int file = seperated[3][0] - 'a';
        int rank = seperated[3][1] - '1';
-       if (rank > 7) return 0;
+       if (rank > 7) failed();
        moreinfo.doublePushedMove_ = Bitboard::Square(rank * 8 + file);
     }
     else if (seperated[3] == "-")
     {}
     else {
-        return 0;
+       failed();
     }
      
     if (std::all_of(seperated[4].begin(), seperated[4].end(), [](unsigned char c){ return std::isdigit(c); })) {
@@ -204,6 +208,7 @@ inline int Position::loadFromFEN(const std::string& fen_position)
     if (std::all_of(seperated[5].begin(), seperated[5].end(), [](unsigned char c){ return std::isdigit(c); })) {
         moreinfo.moveCount_ = std::stoi(seperated[5]);
     }
+
     this->moreInfoManager_.add(moreinfo);
 
     return 1;
