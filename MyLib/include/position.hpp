@@ -6,6 +6,8 @@
 #include <cassert>
 #include <unordered_map>
 #include <vector>
+#include <sstream>
+#include <algorithm>
 enum class PiecesType {
     pawn= 0 , knight, bishop, rook, queen, king
 };
@@ -13,8 +15,11 @@ enum class Pieces {
     white_pawn = 0, white_knight, white_bishop, white_rook, white_queen, white_king,
     black_pawn    , black_knight, black_bishop, black_rook, black_queen, black_king, size_of_pieces
 };
-enum class CastilingRights {
-    white_king_side, white_queen_side, black_king_side, black_queen_side
+enum CastilingRights : uint8_t {
+    white_king_side = 1,
+    white_queen_side = 1 << 1,
+    black_king_side = 1 << 2,
+    black_queen_side = 1 << 3
 };
 enum class Color {
     black = 0, white
@@ -23,11 +28,17 @@ struct MoreInfo {
     Bitboard::Square doublePushedMove_;
     Pieces capturedPiece_;
     Bitboard::Square capturedSquare_;
-    bool castlingRights[4];  
+    uint8_t castlingRights_;  
+    uint8_t nonCaptureMoveCount_;
+    uint8_t moveCount_;
     MoreInfo() : 
       doublePushedMove_(Bitboard::a1),
       capturedPiece_(Pieces::size_of_pieces),
-      capturedSquare_(Bitboard::a1) {}
+      capturedSquare_(Bitboard::a1),
+      castlingRights_(0),
+      nonCaptureMoveCount_(0),
+      moveCount_(0) {}
+
 };
 // for heap alocated information
 class MoreInfoManager {
@@ -53,6 +64,9 @@ class MoreInfoManager {
       int size() {
         return data_.size();
       }
+      void clear() {
+         current = 0;
+      }
 };
 class Position { 
     private:
@@ -64,7 +78,7 @@ class Position {
     public :
       Position();
       Position(const std::string& fen_position);
-      void loadFromFEN(const std::string& fen_position);
+      int loadFromFEN(const std::string& fen_position);
       void clear();
       Color getSideToMove() const {return sideToMove;}
       Bitboard::bitboard getPieces(Pieces piece) const {return board_[int(piece)];}
@@ -99,11 +113,20 @@ inline void Position::clear()
     board_.fill(0ULL);
     colorBoard_.fill(0ULL);
     emptySpaces_ = ~0ULL;
+    moreInfoManager_.clear();
     
 }
-inline void Position::loadFromFEN(const std::string& fen_position)
+inline int Position::loadFromFEN(const std::string& fen_position)
 {
     clear();
+    std::istringstream i(fen_position);
+    std::vector<std::string> seperated;
+    std::string current;
+    while (i >> current)
+      seperated.push_back(current);
+    if (seperated.size() != 6) {
+        return 0;
+    }
     auto rank{7};
     auto file{0};
     auto index{0};
@@ -121,19 +144,19 @@ inline void Position::loadFromFEN(const std::string& fen_position)
         {'q', {Pieces::black_queen,  Color::black}},
         {'k', {Pieces::black_king,   Color::black}}
     };
-    for (char piece: fen_position) {
-        if (piece == ' '){
-            break;
-        }
-        else if (piece == '/'){
+    for (char piece: seperated[0]) {
+        
+        if (piece == '/'){
+            if (file != 8) return 0; 
             rank--;
             file = 0;
         } 
-        else if(isdigit(piece)){
+        else if(std::isdigit(static_cast<unsigned char>(piece))){
             file += piece - '0';
+            if (file > 8) return 0;
         }
         else {
-            assert(charToPiece.find(piece) != charToPiece.end());
+            if (charToPiece.find(piece) == charToPiece.end()) return 0;
             auto [piecetype, color] = charToPiece[piece];
             auto position = Bitboard::Square(rank*8 + file);
             Bitboard::set_bit(board_[int(piecetype)], position);
@@ -142,12 +165,48 @@ inline void Position::loadFromFEN(const std::string& fen_position)
             emptySpaces_ &= ~(1ULL << position);
             file++;
         }
-        index++;
-        
     }
-    assert(++index < fen_position.length());
-    sideToMove = fen_position[index] == 'w' ? Color::white : Color::black;
 
+    sideToMove = seperated[1] == "w" ? Color::white : Color::black;
+
+    MoreInfo moreinfo;
+
+    if (std::find(seperated[2].begin(), seperated[2].end(), 'Q') != seperated[2].end()) 
+       moreinfo.castlingRights_ |= CastilingRights::white_queen_side;
+    if (std::find(seperated[2].begin(), seperated[2].end(), 'q') != seperated[2].end()) 
+       moreinfo.castlingRights_ |= CastilingRights::black_queen_side;
+    if (std::find(seperated[2].begin(), seperated[2].end(), 'K') != seperated[2].end()) 
+       moreinfo.castlingRights_ |= CastilingRights::white_king_side;
+    if (std::find(seperated[2].begin(), seperated[2].end(), 'k') != seperated[2].end()) 
+       moreinfo.castlingRights_ |= CastilingRights::black_king_side;
+    
+    if (seperated[3].size() == 2) {
+       if (!isdigit(seperated[3][1]))
+         return 0;
+       seperated[3][0] = std::tolower(seperated[3][0]);
+       if (!(seperated[3][0] >= 'a' && seperated[3][0] <='h'))
+         return 0;
+       int file = seperated[3][0] - 'a';
+       int rank = seperated[3][1] - '1';
+       if (rank > 7) return 0;
+       moreinfo.doublePushedMove_ = Bitboard::Square(rank * 8 + file);
+    }
+    else if (seperated[3] == "-")
+    {}
+    else {
+        return 0;
+    }
+     
+    if (std::all_of(seperated[4].begin(), seperated[4].end(), [](unsigned char c){ return std::isdigit(c); })) {
+        moreinfo.nonCaptureMoveCount_ = std::stoi(seperated[4]);
+    }
+
+    if (std::all_of(seperated[5].begin(), seperated[5].end(), [](unsigned char c){ return std::isdigit(c); })) {
+        moreinfo.moveCount_ = std::stoi(seperated[5]);
+    }
+    this->moreInfoManager_.add(moreinfo);
+
+    return 1;
 }
 inline Position::Position() : moreInfoManager_(100)
 {
