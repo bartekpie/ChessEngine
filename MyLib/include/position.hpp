@@ -26,18 +26,23 @@ enum class Color {
 };
 struct MoreInfo {
     Bitboard::Square doublePushedMove_;
+    Bitboard::Square afterPassantSquare_;
     Pieces capturedPiece_;
+    Pieces movedPiece_;
     Bitboard::Square capturedSquare_;
     uint8_t castlingRights_;  
     uint8_t nonCaptureMoveCount_;
     uint8_t moveCount_;
+    Move lastMove_;
     MoreInfo() : 
       doublePushedMove_(Bitboard::a1),
       capturedPiece_(Pieces::size_of_pieces),
+      afterPassantSquare_(Bitboard::a1),
       capturedSquare_(Bitboard::a1),
       castlingRights_(0),
       nonCaptureMoveCount_(0),
-      moveCount_(0) {}
+      moveCount_(0),
+      lastMove_(0) {}
 
 };
 // for heap alocated information
@@ -46,23 +51,21 @@ class MoreInfoManager {
       std::vector<MoreInfo> data_;
       size_t current {0};
     public:
-      explicit MoreInfoManager(size_t max_depth) {
-        data_.reserve(max_depth);
-      }
+      explicit MoreInfoManager(size_t max_depth) : data_(max_depth) {}
       void add(MoreInfo moreinfo) {
         current++;
         data_[current] = moreinfo;
       }
       MoreInfo pop() {
-        assert(data_.size() > 0);
+        assert(current > 0);
         return data_[current--];
       }
       MoreInfo last() const {
         //assert(data_.size() > 0);
         return data_[current];
       }
-      int size() {
-        return data_.size();
+      size_t size() {
+        return current;
       }
       void clear() {
          current = 0;
