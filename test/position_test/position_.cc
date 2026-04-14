@@ -86,3 +86,13 @@ TEST (simulate_move, simulate_and_undo_capture_move) {
   EXPECT_TRUE(f == pos);
 
 };
+TEST(simulate_move, simulate_and_undo_promotion_move) {
+  std::string fen_position = "8/P7/8/8/8/8/8/8 w - - 0 1";
+  Position pos(fen_position);
+  Position original(fen_position);
+
+  pos.simulate_move(Move::makeMove(Bitboard::a7, Bitboard::a8, MoveType::promotionQueen));
+  pos.undo_move();
+
+  EXPECT_TRUE(original == pos);
+}

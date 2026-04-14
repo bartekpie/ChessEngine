@@ -323,16 +323,16 @@ void Position::undo_move()
             Pieces promoted = Pieces::size_of_pieces;
             switch(type) {
                 case MoveType::promotionBishop :
-                    promoted = sideToMove == Color::white ? Pieces::white_bishop : Pieces::black_bishop;
+                    promoted = right_side == Color::white ? Pieces::white_bishop : Pieces::black_bishop;
                     break;
                 case MoveType::promotionKnight :
-                    promoted = sideToMove == Color::white ? Pieces::white_knight : Pieces::black_knight;
+                    promoted = right_side == Color::white ? Pieces::white_knight : Pieces::black_knight;
                     break;
                 case MoveType::promotionRook :
-                    promoted = sideToMove == Color::white ? Pieces::white_rook : Pieces::black_rook;
+                    promoted = right_side == Color::white ? Pieces::white_rook : Pieces::black_rook;
                     break;
                 case MoveType::promotionQueen :
-                    promoted = sideToMove == Color::white ? Pieces::white_queen : Pieces::black_queen;
+                    promoted = right_side == Color::white ? Pieces::white_queen : Pieces::black_queen;
                     break;     
             }
             
