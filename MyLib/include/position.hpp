@@ -43,6 +43,18 @@ struct MoreInfo {
       nonCaptureMoveCount_(0),
       moveCount_(0),
       lastMove_(0) {}
+    bool operator== (const MoreInfo& m) const {
+       if (doublePushedMove_    == m.doublePushedMove_ &&
+           afterPassantSquare_  == m.afterPassantSquare_ &&
+           capturedPiece_       == m.capturedPiece_ &&
+           movedPiece_          == m.movedPiece_ &&
+           capturedSquare_      == m.capturedSquare_ &&
+           castlingRights_      == m.castlingRights_ &&
+           nonCaptureMoveCount_ == m.nonCaptureMoveCount_ &&
+           moveCount_           == m.moveCount_ &&
+           lastMove_            == m.lastMove_) return true;
+           return false;
+    }
 
 };
 // for heap alocated information
@@ -55,6 +67,10 @@ class MoreInfoManager {
       void add(MoreInfo moreinfo) {
         current++;
         data_[current] = moreinfo;
+      }
+      bool operator==(const MoreInfoManager& m) const {
+        if (data_[current] == m.data_[m.current]) return true;
+        return false;
       }
       MoreInfo pop() {
         assert(current > 0);
@@ -81,6 +97,7 @@ class Position {
     public :
       Position();
       Position(const std::string& fen_position);
+      bool operator==(const Position& p) const;
       int loadFromFEN(const std::string& fen_position);
       void clear();
       Color getSideToMove() const {return sideToMove;}
@@ -224,6 +241,15 @@ inline Position::Position(const std::string &fen_position) : moreInfoManager_(10
 {
     loadFromFEN(fen_position);
 
+}
+inline bool Position::operator==(const Position &p) const
+{
+    if (board_           == p.board_ &&
+        colorBoard_      == p.colorBoard_ &&
+        emptySpaces_     == p.emptySpaces_ &&
+        sideToMove       == p.sideToMove &&
+        moreInfoManager_ == p.moreInfoManager_) return true;
+        return false;
 }
 inline Bitboard::bitboard Position::getOurs() const
 {

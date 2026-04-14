@@ -27,7 +27,7 @@ class Move {
       Move(): data_(0){};
       constexpr Move(uint16_t move);
       constexpr Move(Bitboard::Square from, Bitboard::Square to, MoveType type = standard); 
-        
+      bool operator==(const Move& move) const;
       constexpr MoveType type() const;
       constexpr Bitboard::Square from() const;
       constexpr Bitboard::Square to() const;
@@ -45,8 +45,13 @@ constexpr Move::Move(Bitboard::Square from, Bitboard::Square to, MoveType type) 
   assert(type == MoveType::standard||   // values not one by one diifrent aproach than above nessesary
     (type >= MoveType::capture && type <= MoveType::promotionQueen)); 
 }
-
-constexpr MoveType Move::type() const{
+inline bool Move::operator==(const Move &move) const
+{
+    if (data_ == move.data_) return true;
+    return false;
+}
+constexpr MoveType Move::type() const
+{
     return( MoveType(data_  & 0x7000) );
 }
 constexpr uint16_t Move::data() const {

@@ -214,6 +214,7 @@ void Position::undo_move()
 
             Bitboard::set_bit(colorBoard_[int(sideToMove)], to);
             Bitboard::set_bit(colorBoard_[int(right_side)], from);
+            Bitboard::reset_bit(colorBoard_[int(right_side)], to);
 
             assert(captured_piece != Pieces::size_of_pieces);
 
@@ -353,6 +354,7 @@ void Position::undo_move()
                 Bitboard::set_bit(emptySpaces_, to);
             }
         } 
-        sideToMove = sideToMove == Color::white ? Color::black : Color::white;  
+         
     }
+    sideToMove = sideToMove == Color::white ? Color::black : Color::white; 
 }

@@ -73,9 +73,7 @@ TEST (simulate_move, simulate_and_undo_standard_move) {
   Position f(fen_position);
   pos.simulate_move(Move::makeMove(Bitboard::a2, Bitboard::a3));
   pos.undo_move();
-  EXPECT_EQ(pos.getEmptySpaces(), f.getEmptySpaces());
-  EXPECT_EQ(pos.getPiecesByColor<Color::white>(PiecesType::pawn), f.getPiecesByColor<Color::white>(PiecesType::pawn));
-  EXPECT_EQ(pos.getOurs(), f.getOpponents());
+  EXPECT_TRUE(f == pos);
 
 };
 TEST (simulate_move, simulate_and_undo_capture_move) {
@@ -85,8 +83,6 @@ TEST (simulate_move, simulate_and_undo_capture_move) {
   Position f(fen_position);
   pos.simulate_move(Move::makeMove(Bitboard::a2, Bitboard::b3,MoveType::capture));
   pos.undo_move();
-  EXPECT_EQ(pos.getEmptySpaces(), f.getEmptySpaces());
-  EXPECT_EQ(pos.getPiecesByColor<Color::white>(PiecesType::pawn), f.getPiecesByColor<Color::white>(PiecesType::pawn));
-  EXPECT_EQ(pos.getOurs(), f.getOpponents());
+  EXPECT_TRUE(f == pos);
 
 };
