@@ -70,6 +70,7 @@ void Position::simulate_move(Move move) {
             Bitboard::set_bit(emptySpaces_, doubledPushedMove);
 
             moreinfo.afterPassantSquare_ = doubledPushedMove;
+            moreinfo.capturedPiece_ = captured;
 
             break;
             

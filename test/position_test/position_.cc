@@ -66,6 +66,35 @@ TEST (simulate_move, simulate_passant_move) {
         EXPECT_EQ(pos.getPiecesByColor<Color::black>(static_cast<PiecesType>(i)), 0ULL);
     
 };
+TEST(simulate_move, simulate_castling_move) {
+  std::string fen_position = "8/8/8/8/8/8/8/4K2R w KQkq - 0 1";
+  Position pos(fen_position);
+
+  pos.simulate_move(Move::makeMove(Bitboard::e1, Bitboard::h1, MoveType::castle));
+ 
+  EXPECT_TRUE(Bitboard::get_bit(pos.getPieces(Pieces::white_rook), Bitboard::f1));
+  EXPECT_EQ(Bitboard::count_bits(pos.getPieces(Pieces::white_rook)), 1);
+
+  EXPECT_TRUE(Bitboard::get_bit(pos.getPieces(Pieces::white_king), Bitboard::g1));
+  EXPECT_EQ(Bitboard::count_bits(pos.getPieces(Pieces::white_king)), 1);
+
+  EXPECT_TRUE(Bitboard::get_bit(pos.getOpponents(), Bitboard::f1));
+  EXPECT_EQ(Bitboard::count_bits(pos.getOpponents()), 2);
+
+  EXPECT_TRUE(Bitboard::get_bit(pos.getOpponents(), Bitboard::g1));
+
+  Bitboard::bitboard b = 1ULL << Bitboard::f1 | 1ULL << Bitboard::g1;
+
+  EXPECT_EQ(pos.getEmptySpaces(), ~b);
+
+  for (int i = 0; i <= static_cast<int>(PiecesType::king); i++) 
+        EXPECT_EQ(pos.getPiecesByColor<Color::black>(static_cast<PiecesType>(i)), 0ULL);
+
+  std::vector<int> pom {0,1,2,4};
+  for (auto i : pom)
+    EXPECT_EQ(pos.getPiecesByColor<Color::white>(static_cast<PiecesType>(i)), 0ULL);
+
+};
 TEST (simulate_move, simulate_and_undo_standard_move) {
   Bitboard::print_bitboard(12);
   std::string fen_position = "8/8/8/8/8/8/P7/8 w - - 0 1";
@@ -95,4 +124,24 @@ TEST(simulate_move, simulate_and_undo_promotion_move) {
   pos.undo_move();
 
   EXPECT_TRUE(original == pos);
+};
+TEST(simulate_move, simulate_and_undo_en_passant_move) {
+  std::string fen_position = "8/8/8/3pP3/8/8/8/8 w - d5 0 1";
+  Position pos(fen_position);
+  Position original(fen_position);
+
+  pos.simulate_move(Move::makeMove(Bitboard::e5, Bitboard::d6, MoveType::passant));
+  pos.undo_move();
+
+  EXPECT_TRUE(original == pos);
 }
+TEST(simulate_move, simulate_and_undo_castling_move) {
+  std::string fen_position = "r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1";
+  Position pos(fen_position);
+  Position original(fen_position);
+
+  pos.simulate_move(Move::makeMove(Bitboard::e1, Bitboard::h1, MoveType::castle));
+  pos.undo_move();
+
+  EXPECT_TRUE(original == pos);
+};
