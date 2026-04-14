@@ -66,3 +66,27 @@ TEST (simulate_move, simulate_passant_move) {
         EXPECT_EQ(pos.getPiecesByColor<Color::black>(static_cast<PiecesType>(i)), 0ULL);
     
 };
+TEST (simulate_move, simulate_and_undo_standard_move) {
+  Bitboard::print_bitboard(12);
+  std::string fen_position = "8/8/8/8/8/8/P7/8 w - - 0 1";
+  Position pos(fen_position);
+  Position f(fen_position);
+  pos.simulate_move(Move::makeMove(Bitboard::a2, Bitboard::a3));
+  pos.undo_move();
+  EXPECT_EQ(pos.getEmptySpaces(), f.getEmptySpaces());
+  EXPECT_EQ(pos.getPiecesByColor<Color::white>(PiecesType::pawn), f.getPiecesByColor<Color::white>(PiecesType::pawn));
+  EXPECT_EQ(pos.getOurs(), f.getOpponents());
+
+};
+TEST (simulate_move, simulate_and_undo_capture_move) {
+  Bitboard::print_bitboard(12);
+  std::string fen_position = "8/8/8/8/8/1p6/P7/8 w - - 0 1";
+  Position pos(fen_position);
+  Position f(fen_position);
+  pos.simulate_move(Move::makeMove(Bitboard::a2, Bitboard::b3,MoveType::capture));
+  pos.undo_move();
+  EXPECT_EQ(pos.getEmptySpaces(), f.getEmptySpaces());
+  EXPECT_EQ(pos.getPiecesByColor<Color::white>(PiecesType::pawn), f.getPiecesByColor<Color::white>(PiecesType::pawn));
+  EXPECT_EQ(pos.getOurs(), f.getOpponents());
+
+};
