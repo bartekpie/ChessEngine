@@ -47,11 +47,11 @@ namespace Bitboard {
     #endif
   }
 
-  inline Square count_bits(bitboard b) {
+  inline int count_bits(bitboard b) {
     assert(b);
     #if defined(_MSC_VER)
       unsigned long index;
-      return static_cast<Square>(__popcnt64(b));
+      return __popcnt64(b);
     
     #elif defined(__GNUC__)
       return Square(__builtin_popcountll(b));
