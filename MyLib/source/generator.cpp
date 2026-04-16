@@ -11,17 +11,27 @@ void generate_knight_moves(const Position& position, MoveList& list) {
       Bitboard::reset_bit(b, current);
     }
 }
-void generate_bishop_moves(const Position& position, MoveList& list) {
-  auto bishops = position.getOurs<PiecesType::bishop>();
-  while (bishops) {
-     Bitboard::Square square = Bitboard::lsb(bishops);
-     Bitboard::reset_bit(bishops, square); 
-     Bitboard::bitboard quiets {};
-     Bitboard::bitboard captures {};
-     for (int dir = int(north_east); dir < int(knight); dir++ ) {
-         auto blockers = precompiled_directions[square][dir] & ~position.getEmptySpaces();
+
+Bitboard::Square get_blocking_square(precompiledType dir, Bitboard::bitboard b) {
+   auto num_of_dir = int(dir);
+   if ( (dir == north) || (dir == west) || (dir == north_east) || (dir == north_west)) {
+      return Bitboard::lsb(b);
+   } else {
+      return Bitboard::msb(b);
+   }
+}
+template <PiecesType piece> 
+std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Position& position, Bitboard::Square) {
+   precompiledType starting_dir, ending_dir {};
+   Bitboard::bitboard quiets, captures {};
+   if constexpr (piece == PiecesType::rook)   {starting_dir = north; ending_dir = south;}
+   if constexpr (piece == PiecesType::bishop) {starting_dir = north_east; ending_dir = south_west;}
+   if constexpr (piece == PiecesType::queen)  {starting_dir = north; ending_dir = south_west;}
+   auto occupancy = ~ position.getEmptySpaces();
+   for (int dir = int(starting_dir); dir <= int(ending_dir); dir++ ) {
+         auto blockers = precompiled_directions[square][dir] & occupancy;
          if (blockers) {
-          auto blocking_square = dir < int(south_east) ? Bitboard::lsb(blockers) : Bitboard::msb(blockers);
+          auto blocking_square = get_blocking_square(dir, blockers);
           auto reduced = precompiled_directions[square][dir] ^ precompiled_directions[blocking_square][dir];
           auto is_opponent_blocking = Bitboard::get_bit(position.getOpponents(), blocking_square);
           assert(Bitboard::get_bit(position.getOurs(),blocking_square) != is_opponent_blocking);
@@ -31,9 +41,17 @@ void generate_bishop_moves(const Position& position, MoveList& list) {
        } else {
           quiets |= precompiled_directions[square][dir];
        }
-    }
-    list.bitboardToMoves(square, captures, capture);
-    list.bitboardToMoves(square, quiets);
+   }
+   return {quiets, captures};
+}
+void generate_bishop_moves(const Position& position, MoveList& list) {
+  auto bishops = position.getOurs<PiecesType::bishop>();
+  while (bishops) {
+     Bitboard::Square square = Bitboard::lsb(bishops);
+     Bitboard::reset_bit(bishops, square); 
+     auto [quiets, captures] = generate_sliders_bb<PiecesType::bishop>(position, square);
+     list.bitboardToMoves(square, captures, capture);
+     list.bitboardToMoves(square, quiets);
   }  
 }
 
@@ -42,24 +60,9 @@ void generate_rook_moves(const Position& position, MoveList& list) {
   while (rooks) {
      Bitboard::Square square = Bitboard::lsb(rooks);
      Bitboard::reset_bit(rooks, square); 
-     Bitboard::bitboard quiets {};
-     Bitboard::bitboard captures {};
-     for (int dir = int(north); dir < int(north_east); dir++ ) {
-         auto blockers = precompiled_directions[square][dir] & ~position.getEmptySpaces();
-         if (blockers) {
-          auto blocking_square = dir < int(south) ? Bitboard::lsb(blockers) : Bitboard::msb(blockers);
-          auto reduced = precompiled_directions[square][dir] ^ precompiled_directions[blocking_square][dir];
-          auto is_opponent_blocking = Bitboard::get_bit(position.getOpponents(), blocking_square);
-          assert(Bitboard::get_bit(position.getOurs(),blocking_square) != is_opponent_blocking);
-          auto moves = reduced | Bitboard::bitboard(is_opponent_blocking) << blocking_square ;
-          captures |= moves & position.getOpponents();
-          quiets   |= moves & position.getEmptySpaces();
-       } else {
-          quiets |= precompiled_directions[square][dir];
-       }
-    }
-    list.bitboardToMoves(square, captures, capture);
-    list.bitboardToMoves(square, quiets);
+     auto [quiets, captures] = generate_sliders_bb<PiecesType::rook>(position, square);
+     list.bitboardToMoves(square, captures, capture);
+     list.bitboardToMoves(square, quiets);
   }
 }
 
@@ -68,24 +71,9 @@ void generate_queen_moves(const Position& position, MoveList& list) {
   while (queens) {
      Bitboard::Square square = Bitboard::lsb(queens);
      Bitboard::reset_bit(queens, square); 
-     Bitboard::bitboard quiets {};
-     Bitboard::bitboard captures {};
-     for (int dir = int(north); dir < int(knight); dir++ ) {
-         auto blockers = precompiled_directions[square][dir] & ~position.getEmptySpaces();
-         if (blockers) {
-          auto blocking_square = (dir < int(south) || dir == north_east || dir == north_west ) ? Bitboard::lsb(blockers) : Bitboard::msb(blockers);
-          auto reduced = precompiled_directions[square][dir] ^ precompiled_directions[blocking_square][dir];
-          auto is_opponent_blocking = Bitboard::get_bit(position.getOpponents(), blocking_square);
-          assert(Bitboard::get_bit(position.getOurs(),blocking_square) != is_opponent_blocking);
-          auto moves = reduced | Bitboard::bitboard(is_opponent_blocking) << blocking_square ;
-          captures |= moves & position.getOpponents();
-          quiets   |= moves & position.getEmptySpaces();
-       } else {
-          quiets |= precompiled_directions[square][dir];
-       }
-    }
-    list.bitboardToMoves(square, captures, capture);
-    list.bitboardToMoves(square, quiets);
+     auto [quiets, captures] = generate_sliders_bb<PiecesType::queen>(position, square);
+     list.bitboardToMoves(square, captures, capture);
+     list.bitboardToMoves(square, quiets);
   }
 }
 
@@ -266,7 +254,61 @@ void generate_castling_moves(const Position& position, MoveList& list) {
   
 
 }*/
+/*void generate_all_moves(const Position& position, MoveList& list) {
+   generate_pawn_moves  (position, list);
+   generate_knight_moves(position, list);
+   generate_bishop_moves(position, list);
+   generate_rook_moves  (position, list);
+   generate_queen_moves (position, list);
+   generate_king_moves  (position, list);
+}*/
+
+std::pair<Bitboard::bitboard, Bitboard::bitboard> find_pinned_and_attacking_pieces(const Position& position) {
+    Bitboard::Square king_square = Bitboard::lsb(position.getOurs<PiecesType::king>());
+    Bitboard::bitboard opponents = position.getOpponents();
+    Bitboard::bitboard ours = position.getOurs();
+    Bitboard::bitboard occupied = ~ position.getEmptySpaces();
+    Bitboard::bitboard checks, pinns = 0ULL;
+    
+    for (int dir = int(north); dir < int(knight); dir++) {
+        Bitboard::bitboard ray = precompiled_directions[king_square][dir];
+        Bitboard::bitboard blockers = ray & occupied;
+
+        if (!blockers) continue;
+
+        Bitboard::Square first_sq = (dir == north || dir == north_east || dir == north_west || dir == east) 
+                                    ? Bitboard::lsb(blockers) 
+                                    : Bitboard::msb(blockers);
+        if (Bitboard::get_bit(ours, first_sq)) {
+            Bitboard::reset_bit(blockers, first_sq);
+            if (!blockers) continue;
+            Bitboard::Square second_sq = (dir == north || dir == north_east || dir == north_west || dir == east) 
+                                    ? Bitboard::lsb(blockers) 
+                                    : Bitboard::msb(blockers);
+            if (Bitboard::get_bit(blockers, second_sq)) {
+               pinns |= 1ULL << first_sq;
+            }
+        }
+        else {
+            assert(Bitboard::get_bit(opponents, first_sq));
+            checks |= 1ULL << first_sq;
+
+        }
+    }
+    checks |= position.getOpponents<PiecesType::knight>() & precompiled_directions[king_square][knight];
+    //checks |= position.getOpponents<PiecesType::pawn> & precompiled[position.getSideToMove][pawns]
+    return {checks, pinns};
+}
+
 void generate_all_moves(const Position& position, MoveList& list) {
+   auto [checks, pinns] = find_pinned_and_attacking_pieces(position);
+   auto opponents_attacks = find_opponents_attack(position);
+   auto num_of_checks = 0;
+   if (checks)
+     num_of_checks = Bitboard::count_bits(checks);
+   if (num_of_checks == 2) {
+      generate_king_moves(pos, list, opponents_attacks)
+   }
    generate_pawn_moves  (position, list);
    generate_knight_moves(position, list);
    generate_bishop_moves(position, list);
