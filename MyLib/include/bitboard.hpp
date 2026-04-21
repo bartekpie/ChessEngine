@@ -68,10 +68,6 @@ namespace Bitboard {
       b &= ~(1ULL << index);
   }
 
-  inline bool get_bit(bitboard& b, Square index) {
-  
-      return (b >> index) & 1ULL; 
-  }
   inline bool get_bit(bitboard b, Square index) {
   
       return (b >> index) & 1ULL; 

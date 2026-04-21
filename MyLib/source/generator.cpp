@@ -21,9 +21,11 @@ Bitboard::Square get_blocking_square(precompiledType dir, Bitboard::bitboard b) 
    }
 }
 template <PiecesType piece> 
-std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Position& position, Bitboard::Square) {
+std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Position& position, Bitboard::Square square, Color color, bool a = false) {
    precompiledType starting_dir, ending_dir {};
    Bitboard::bitboard quiets, captures {};
+   auto our_color = color;
+   auto their_color = color == Color::white ? Color::black : Color::white;
    if constexpr (piece == PiecesType::rook)   {starting_dir = north; ending_dir = south;}
    if constexpr (piece == PiecesType::bishop) {starting_dir = north_east; ending_dir = south_west;}
    if constexpr (piece == PiecesType::queen)  {starting_dir = north; ending_dir = south_west;}
@@ -33,9 +35,11 @@ std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Posi
          if (blockers) {
           auto blocking_square = get_blocking_square(dir, blockers);
           auto reduced = precompiled_directions[square][dir] ^ precompiled_directions[blocking_square][dir];
-          auto is_opponent_blocking = Bitboard::get_bit(position.getOpponents(), blocking_square);
-          assert(Bitboard::get_bit(position.getOurs(),blocking_square) != is_opponent_blocking);
+          auto is_opponent_blocking = Bitboard::get_bit(position.getPiecesByColor<their_color>(), blocking_square);
+          if (a) is_opponent_blocking = true;
+          assert(Bitboard::get_bit(position.getPiecesByColor<our_color>(),blocking_square) != is_opponent_blocking);
           auto moves = reduced | Bitboard::bitboard(is_opponent_blocking) << blocking_square ;
+          
           captures |= moves & position.getOpponents();
           quiets   |= moves & position.getEmptySpaces();
        } else {
@@ -44,36 +48,40 @@ std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Posi
    }
    return {quiets, captures};
 }
-void generate_bishop_moves(const Position& position, MoveList& list) {
+
+void generate_bishop_moves(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL) {
   auto bishops = position.getOurs<PiecesType::bishop>();
+  auto side_to_move = position.getSideToMove();
   while (bishops) {
      Bitboard::Square square = Bitboard::lsb(bishops);
      Bitboard::reset_bit(bishops, square); 
-     auto [quiets, captures] = generate_sliders_bb<PiecesType::bishop>(position, square);
-     list.bitboardToMoves(square, captures, capture);
-     list.bitboardToMoves(square, quiets);
+     auto [quiets, captures] = generate_sliders_bb<PiecesType::bishop>(position, square, side_to_move);
+     list.bitboardToMoves(square, captures & limitedMoves, capture);
+     list.bitboardToMoves(square, quiets & limitedMoves);
   }  
 }
 
-void generate_rook_moves(const Position& position, MoveList& list) {
+void generate_rook_moves(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL) {
   auto rooks = position.getOurs<PiecesType::rook>();
+  auto side_to_move = position.getSideToMove();
   while (rooks) {
      Bitboard::Square square = Bitboard::lsb(rooks);
      Bitboard::reset_bit(rooks, square); 
-     auto [quiets, captures] = generate_sliders_bb<PiecesType::rook>(position, square);
-     list.bitboardToMoves(square, captures, capture);
-     list.bitboardToMoves(square, quiets);
+     auto [quiets, captures] = generate_sliders_bb<PiecesType::rook>(position, square, side_to_move);
+     list.bitboardToMoves(square, captures & limitedMoves, capture);
+     list.bitboardToMoves(square, quiets & limitedMoves);
   }
 }
 
-void generate_queen_moves(const Position& position, MoveList& list) {
+void generate_queen_moves(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL) {
   auto queens = position.getOurs<PiecesType::queen>();
+  auto side_to_move = position.getSideToMove();
   while (queens) {
      Bitboard::Square square = Bitboard::lsb(queens);
      Bitboard::reset_bit(queens, square); 
-     auto [quiets, captures] = generate_sliders_bb<PiecesType::queen>(position, square);
-     list.bitboardToMoves(square, captures, capture);
-     list.bitboardToMoves(square, quiets);
+     auto [quiets, captures] = generate_sliders_bb<PiecesType::queen>(position, square, side_to_move);
+     list.bitboardToMoves(square, captures & limitedMoves, capture);
+     list.bitboardToMoves(square, quiets & limitedMoves);
   }
 }
 
@@ -188,13 +196,25 @@ constexpr uint8_t push_offset = 8;
 constexpr uint8_t double_push_offset = 16;
 constexpr uint8_t attacks_short_offset = 7;
 constexpr uint8_t attacks_long_offset = 9;
+template<verticalType type>
+std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_pawn_capture_bb(const Position& position) {
+   if constexpr (type == up){
+      auto ours = position.getPiecesByColor<Color::white>();
+      auto opponents = position.getPiecesByColor<Color::black>();
+   } else {
+      auto ours = position.getPiecesByColor<Color::black>();
+      auto opponents = position.getPiecesByColor<Color::white>();
+   }
+   
+   Bitboard::bitboard short_offset_attacks_bb  = short_offset_attacks<type>(ours) & opponents;
+   Bitboard::bitboard long_offset_attacks_bb = long_offset_attacks<type>(ours) & opponents;
 
+}
 template<verticalType type>
 void generate_pawn_moves_impl(const Position& position, MoveList& list) {
    Bitboard::bitboard push_bb          = push<type>(position.getOurs<PiecesType::pawn>()) & position.getEmptySpaces();
    Bitboard::bitboard double_push_bb   = push<type>(push_bb & can_be_double_pushed<type>()) & position.getEmptySpaces();
-   Bitboard::bitboard short_offset_attacks_bb  = short_offset_attacks<type>(position.getOurs()) & position.getOpponents();
-   Bitboard::bitboard long_offset_attacks_bb = long_offset_attacks<type>(position.getOurs()) & position.getOpponents();
+   auto [short_offset_attacks_bb, long_offset_attacks_bb] = generate_pawn_capture_bb<type>(position);
    auto double_pushed_move = position.getMoreInfo().doublePushedMove_;
    if (double_pushed_move != Bitboard::a1) {
       Bitboard::bitboard left_en_passant = left_en_passant<type>(position, double_pushed_move);
@@ -214,7 +234,7 @@ void generate_pawn_moves(const Position& position, MoveList& list) {
      : generate_pawn_moves_impl<down> (position, list);
    
 }
-void generate_king_moves(const Position& position, MoveList& list) {
+void generate_king_moves(const Position& position, MoveList& list, const MoveGenContext& cntx = MoveGenContext()) {
    Bitboard::Square our_king = Bitboard::lsb(position.getOurs<PiecesType::king>());
    Bitboard::Square their_king = Bitboard::lsb(position.getOpponents<PiecesType::king>());
    auto quiet = precompiled_directions[our_king][king] & position.getEmptySpaces() & ~precompiled_directions[their_king][king];
@@ -262,57 +282,165 @@ void generate_castling_moves(const Position& position, MoveList& list) {
    generate_queen_moves (position, list);
    generate_king_moves  (position, list);
 }*/
+struct MoveGenContext {
+    Bitboard::bitboard checkers;     
+    Bitboard::bitboard pinned;    
+    Bitboard::bitboard opponent_attacks;
+    Bitboard::bitboard check_mask; 
+    int num_checks;
+};
+void find_pinned_and_attacking_pieces(const Position& position, MoveGenContext& ctx)
+{
+    auto king_sq  = Bitboard::lsb(position.getOurs<PiecesType::king>());
+    auto ours     = position.getOurs();
+    auto opponents= position.getOpponents();
+    auto occupied = ~position.getEmptySpaces();
 
-std::pair<Bitboard::bitboard, Bitboard::bitboard> find_pinned_and_attacking_pieces(const Position& position) {
-    Bitboard::Square king_square = Bitboard::lsb(position.getOurs<PiecesType::king>());
-    Bitboard::bitboard opponents = position.getOpponents();
-    Bitboard::bitboard ours = position.getOurs();
-    Bitboard::bitboard occupied = ~ position.getEmptySpaces();
-    Bitboard::bitboard checks, pinns = 0ULL;
-    
+    auto rooks   = position.getOpponents<PiecesType::rook>();
+    auto bishops = position.getOpponents<PiecesType::bishop>();
+    auto queens  = position.getOpponents<PiecesType::queen>();
+
     for (int dir = int(north); dir < int(knight); dir++) {
-        Bitboard::bitboard ray = precompiled_directions[king_square][dir];
-        Bitboard::bitboard blockers = ray & occupied;
-
+        auto ray = precompiled_directions[king_sq][dir];
+        auto blockers = ray & occupied;
         if (!blockers) continue;
 
-        Bitboard::Square first_sq = (dir == north || dir == north_east || dir == north_west || dir == east) 
-                                    ? Bitboard::lsb(blockers) 
-                                    : Bitboard::msb(blockers);
+        bool forward =
+            (dir == north || dir == north_east ||
+             dir == north_west || dir == east);
+
+        auto first_sq = forward ? Bitboard::lsb(blockers)
+                                : Bitboard::msb(blockers);
+
+        
         if (Bitboard::get_bit(ours, first_sq)) {
             Bitboard::reset_bit(blockers, first_sq);
+
             if (!blockers) continue;
-            Bitboard::Square second_sq = (dir == north || dir == north_east || dir == north_west || dir == east) 
-                                    ? Bitboard::lsb(blockers) 
-                                    : Bitboard::msb(blockers);
-            if (Bitboard::get_bit(blockers, second_sq)) {
-               pinns |= 1ULL << first_sq;
+
+            auto second_sq = forward ? Bitboard::lsb(blockers)
+                                     : Bitboard::msb(blockers);
+            bool is_straight =
+                (dir == north || dir == south || dir == east || dir == west);
+            bool is_slider =
+                is_straight
+                ? (Bitboard::get_bit(rooks, second_sq) ||
+                   Bitboard::get_bit(queens, second_sq))
+                : (Bitboard::get_bit(bishops, second_sq) ||
+                   Bitboard::get_bit(queens, second_sq));
+
+            if (is_slider) {
+                ctx.pinned |= (1ULL << first_sq);
             }
         }
         else {
-            assert(Bitboard::get_bit(opponents, first_sq));
-            checks |= 1ULL << first_sq;
-
+            bool is_straight =
+                (dir == north || dir == south || dir == east || dir == west);
+            bool is_slider =
+                is_straight
+                ? (Bitboard::get_bit(rooks, first_sq) ||
+                   Bitboard::get_bit(queens, first_sq))
+                : (Bitboard::get_bit(bishops, first_sq) ||
+                   Bitboard::get_bit(queens, first_sq));
+            if (is_slider) {
+                ctx.checkers |= (1ULL << first_sq);
+                ctx.check_mask = ray ^ precompiled_directions[first_sq][dir];
+            }
         }
     }
-    checks |= position.getOpponents<PiecesType::knight>() & precompiled_directions[king_square][knight];
-    //checks |= position.getOpponents<PiecesType::pawn> & precompiled[position.getSideToMove][pawns]
-    return {checks, pinns};
 }
+void find_opponents_possible_attacks(const Position& position,
+                                     MoveGenContext& ctx)
+{
+    ctx.opponent_attacks = 0ULL;
 
+    auto bishops = position.getOpponents<PiecesType::bishop>();
+    auto rooks   = position.getOpponents<PiecesType::rook>();
+    auto queens  = position.getOpponents<PiecesType::queen>();
+    auto knights = position.getOpponents<PiecesType::knight>();
+    auto pawns   = position.getOpponents<PiecesType::pawn>();
+
+    auto opposite_color =
+        position.getSideToMove() == Color::white ? Color::black : Color::white;
+    auto vertical_type = 
+        opposite_color == Color::white ? up : down;
+
+    while (queens) {
+        auto sq = Bitboard::lsb(queens);
+        Bitboard::reset_bit(queens, sq);
+
+        auto [q, c] =
+            generate_sliders_bb<PiecesType::queen>(position, sq, opposite_color, true);
+
+        ctx.opponent_attacks |= (q | c);
+    }
+
+    while (rooks) {
+        auto sq = Bitboard::lsb(rooks);
+        Bitboard::reset_bit(rooks, sq);
+
+        auto [q, c] =
+            generate_sliders_bb<PiecesType::rook>(position, sq, opposite_color, true);
+
+        ctx.opponent_attacks |= (q | c);
+    }
+
+    while (bishops) {
+        auto sq = Bitboard::lsb(bishops);
+        Bitboard::reset_bit(bishops, sq);
+
+        auto [q, c] =
+            generate_sliders_bb<PiecesType::bishop>(position, sq, opposite_color, true);
+
+        ctx.opponent_attacks |= (q | c);
+    }
+
+    while (knights) {
+        auto sq = Bitboard::lsb(knights);
+        Bitboard::reset_bit(knights, sq);
+
+        ctx.opponent_attacks |= precompiled_directions[sq][knight];
+    }
+    
+    while (pawns) {
+        auto sq = Bitboard::lsb(pawns);
+        Bitboard::reset_bit(pawns, sq);
+
+        auto[l, r] = opposite_color == Color::white ? generate_pawn_capture_bb<up>(position) : generate_pawn_capture_bb<down>(position);
+        ctx.opponent_attacks |= l | r;
+            
+    }
+}
+MoveGenContext build_context(const Position& position) {
+    MoveGenContext ctx{};
+
+    find_pinned_and_attacking_pieces(position, ctx);
+    find_opponents_possible_attacks(position, ctx);
+    ctx.num_checks = ctx.checkers ? Bitboard::count_bits(ctx.checkers) : 0;
+    return ctx;
+}
 void generate_all_moves(const Position& position, MoveList& list) {
-   auto [checks, pinns] = find_pinned_and_attacking_pieces(position);
-   auto opponents_attacks = find_opponents_attack(position);
-   auto num_of_checks = 0;
-   if (checks)
-     num_of_checks = Bitboard::count_bits(checks);
-   if (num_of_checks == 2) {
-      generate_king_moves(pos, list, opponents_attacks)
-   }
-   generate_pawn_moves  (position, list);
-   generate_knight_moves(position, list);
-   generate_bishop_moves(position, list);
-   generate_rook_moves  (position, list);
-   generate_queen_moves (position, list);
-   generate_king_moves  (position, list);
+    auto ctx = build_context(position);
+
+    if (ctx.num_checks == 2) {
+        generate_king_moves(position, list, ctx);
+        return;
+    }
+
+    if (ctx.num_checks == 1) {
+        generate_pawn_moves  (position, list, ctx);
+        generate_knight_moves(position, list, ctx);
+        generate_bishop_moves(position, list, ctx);
+        generate_rook_moves  (position, list, ctx);
+        generate_queen_moves (position, list, ctx);
+        generate_king_moves  (position, list, ctx);
+        return;
+    }
+
+    generate_pawn_moves  (position, list, ctx);
+    generate_knight_moves(position, list, ctx);
+    generate_bishop_moves(position, list, ctx);
+    generate_rook_moves  (position, list, ctx);
+    generate_queen_moves (position, list, ctx);
+    generate_king_moves  (position, list, ctx);
 }

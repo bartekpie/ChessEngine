@@ -265,6 +265,7 @@ alignas(64) static constexpr auto king_precompiled = []() constexpr {
    return moves;
 }();
 enum verticalType {up =0, down};
+template <PiecesType piece, Color color> std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Position& position, Bitboard::Square square)
 template<verticalType dir> Bitboard::bitboard push(Bitboard::bitboard b);
 template<verticalType dir> Bitboard::bitboard double_push(Bitboard::bitboard b);
 template<verticalType dir> inline Bitboard::bitboard short_offset_attacks(Bitboard::bitboard b);
