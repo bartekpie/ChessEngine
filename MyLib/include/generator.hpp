@@ -279,11 +279,11 @@ template<verticalType type, int offset, MoveType mtype> void from_push_to_moves(
 //template<verticalType dir> void generate_castling_moves(const Position& position, MoveList& list);
 template<verticalType type> void generate_pawn_moves_impl(const Position& position, MoveList& list);
  
-void generate_pawn_moves  (const Position& position, MoveList& list);
-void generate_knight_moves(const Position& position, MoveList& list);
-void generate_bishop_moves(const Position& position, MoveList& list);
-void generate_rook_moves  (const Position& position, MoveList& list);
-void generate_queen_moves (const Position& position, MoveList& list);
-void generate_king_moves  (const Position& position, MoveList& list);
+void generate_pawn_moves  (const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
+void generate_knight_moves(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
+void generate_bishop_moves(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
+void generate_rook_moves  (const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
+void generate_queen_moves (const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
+void generate_king_moves  (const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
 
 

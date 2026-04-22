@@ -2,12 +2,12 @@
 
 
 
-void generate_knight_moves(const Position& position, MoveList& list) {
+void generate_knight_moves(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL) {
     auto b = position.getOurs<PiecesType::knight>();
     while(b) {
       auto current = Bitboard::lsb(b);
-      list.bitboardToMoves(current, knight_precompiled[current] & ~ position.getOurs() & ~ position.getOpponents());
-      list.bitboardToMoves(current, knight_precompiled[current] & ~ position.getOurs() & position.getOpponents(), capture);
+      list.bitboardToMoves(current, limitedMoves & knight_precompiled[current] & ~ position.getOurs() & ~ position.getOpponents());
+      list.bitboardToMoves(current, limitedMoves & knight_precompiled[current] & ~ position.getOurs() & position.getOpponents(), capture);
       Bitboard::reset_bit(b, current);
     }
 }
@@ -211,7 +211,7 @@ std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_pawn_capture_bb(const
 
 }
 template<verticalType type>
-void generate_pawn_moves_impl(const Position& position, MoveList& list) {
+void generate_pawn_moves_impl(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves) {
    Bitboard::bitboard push_bb          = push<type>(position.getOurs<PiecesType::pawn>()) & position.getEmptySpaces();
    Bitboard::bitboard double_push_bb   = push<type>(push_bb & can_be_double_pushed<type>()) & position.getEmptySpaces();
    auto [short_offset_attacks_bb, long_offset_attacks_bb] = generate_pawn_capture_bb<type>(position);
@@ -219,26 +219,26 @@ void generate_pawn_moves_impl(const Position& position, MoveList& list) {
    if (double_pushed_move != Bitboard::a1) {
       Bitboard::bitboard left_en_passant = left_en_passant<type>(position, double_pushed_move);
       Bitboard::bitboard right_en_passant = right_en_passant<type>(position, double_pushed_move);
-      left_en_passant_to_moves<type>(left_en_passant, list);
-      right_en_passant_to_moves<type>(right_en_passant, list);
+      left_en_passant_to_moves<type>(left_en_passant & limitedMoves, list);
+      right_en_passant_to_moves<type>(right_en_passant & limitedMoves, list);
    }
-   from_push_to_moves<type, push_offset> (push_bb, list); 
-   from_push_to_moves<type, double_push_offset> (double_push_bb, list); 
-   from_push_to_moves<type, attacks_short_offset, capture> (short_offset_attacks_bb, list); 
-   from_push_to_moves<type, attacks_long_offset, capture> (long_offset_attacks_bb, list); 
+   from_push_to_moves<type, push_offset> (push_bb & limitedMoves, list); 
+   from_push_to_moves<type, double_push_offset> (double_push_bb & limitedMoves, list); 
+   from_push_to_moves<type, attacks_short_offset, capture> (short_offset_attacks_bb & limitedMoves, list); 
+   from_push_to_moves<type, attacks_long_offset, capture> (long_offset_attacks_bb & limitedMoves, list); 
    
 }
-void generate_pawn_moves(const Position& position, MoveList& list) {
+void generate_pawn_moves(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL) {
    position.getSideToMove() == Color::white 
-     ? generate_pawn_moves_impl<up> (position, list)
-     : generate_pawn_moves_impl<down> (position, list);
+     ? generate_pawn_moves_impl<up> (position, list, limitedMoves)
+     : generate_pawn_moves_impl<down> (position, list, limitedMoves);
    
 }
-void generate_king_moves(const Position& position, MoveList& list, const MoveGenContext& cntx = MoveGenContext()) {
+void generate_king_moves(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL) {
    Bitboard::Square our_king = Bitboard::lsb(position.getOurs<PiecesType::king>());
    Bitboard::Square their_king = Bitboard::lsb(position.getOpponents<PiecesType::king>());
-   auto quiet = precompiled_directions[our_king][king] & position.getEmptySpaces() & ~precompiled_directions[their_king][king];
-   auto captures = precompiled_directions[our_king][king] & position.getOpponents() & ~precompiled_directions[their_king][king];
+   auto quiet = limitedMoves & precompiled_directions[our_king][king] & position.getEmptySpaces() & ~precompiled_directions[their_king][king];
+   auto captures = limitedMoves & precompiled_directions[our_king][king] & position.getOpponents() & ~precompiled_directions[their_king][king];
    list.bitboardToMoves(our_king, quiet);
    list.bitboardToMoves(our_king, captures, capture);
 }
@@ -258,7 +258,7 @@ void generate_castling_moves(const Position& position, MoveList& list) {
       if (whiteCanLongCastle)
         list += Move::makeMove(Bitboard::e1, Bitboard::a1, MoveType::castle)
    }
-   else{
+   else {
       bool blackCanShortCastle = blackShortCastleRight &&
       Bitboard::count_bits(position.getEmptySpaces() & 0x6000000000000000 ) == 2 &&
       enemy_attacking_king ;
@@ -312,7 +312,6 @@ void find_pinned_and_attacking_pieces(const Position& position, MoveGenContext& 
         auto first_sq = forward ? Bitboard::lsb(blockers)
                                 : Bitboard::msb(blockers);
 
-        
         if (Bitboard::get_bit(ours, first_sq)) {
             Bitboard::reset_bit(blockers, first_sq);
 
@@ -349,8 +348,7 @@ void find_pinned_and_attacking_pieces(const Position& position, MoveGenContext& 
         }
     }
 }
-void find_opponents_possible_attacks(const Position& position,
-                                     MoveGenContext& ctx)
+void find_opponents_possible_attacks(const Position& position, MoveGenContext& ctx)
 {
     ctx.opponent_attacks = 0ULL;
 
@@ -423,24 +421,24 @@ void generate_all_moves(const Position& position, MoveList& list) {
     auto ctx = build_context(position);
 
     if (ctx.num_checks == 2) {
-        generate_king_moves(position, list, ctx);
+        generate_king_moves(position, list, ctx.opponent_attacks);
         return;
     }
 
     if (ctx.num_checks == 1) {
-        generate_pawn_moves  (position, list, ctx);
-        generate_knight_moves(position, list, ctx);
-        generate_bishop_moves(position, list, ctx);
-        generate_rook_moves  (position, list, ctx);
-        generate_queen_moves (position, list, ctx);
-        generate_king_moves  (position, list, ctx);
+        generate_pawn_moves  (position, list, ctx.check_mask & ctx.checkers);
+        generate_knight_moves(position, list, ctx.check_mask & ctx.checkers);
+        generate_bishop_moves(position, list, ctx.check_mask & ctx.checkers);
+        generate_rook_moves  (position, list, ctx.check_mask & ctx.checkers);
+        generate_queen_moves (position, list, ctx.check_mask & ctx.checkers);
+        generate_king_moves  (position, list, ctx.check_mask & ctx.checkers);
         return;
     }
 
-    generate_pawn_moves  (position, list, ctx);
-    generate_knight_moves(position, list, ctx);
-    generate_bishop_moves(position, list, ctx);
-    generate_rook_moves  (position, list, ctx);
-    generate_queen_moves (position, list, ctx);
-    generate_king_moves  (position, list, ctx);
+    generate_pawn_moves  (position, list);
+    generate_knight_moves(position, list);
+    generate_bishop_moves(position, list);
+    generate_rook_moves  (position, list);
+    generate_queen_moves (position, list);
+    generate_king_moves  (position, list);
 }
