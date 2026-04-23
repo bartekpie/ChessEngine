@@ -267,7 +267,7 @@ alignas(64) static constexpr auto king_precompiled = []() constexpr {
 enum verticalType {up =0, down};
 enum slideType : bool {includeOurPieces = 0, legal = 1};
 struct MoveGenContext {
-    Bitboard::bitboard checkers{};     
+    Bitboard::bitboard checkers{~0ULL};     
     Bitboard::bitboard pinned{0ULL};    
     Bitboard::bitboard opponent_attacks{};
     Bitboard::bitboard check_mask{}; 
@@ -286,13 +286,14 @@ template<verticalType dir> void left_en_passant_to_moves(Bitboard::bitboard& to_
 template<verticalType dir> void right_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list);
 template<verticalType type, int offset, MoveType mtype> void from_push_to_moves(Bitboard::bitboard& push, MoveList& list);
 //template<verticalType dir> void generate_castling_moves(const Position& position, MoveList& list);
+std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_pawn_capture_bb(const Position& position, const MoveGenContext& ctx);
 template<verticalType type> void generate_pawn_moves_impl(const Position& position, MoveList& list);
  
-void generate_pawn_moves  (const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation);
-void generate_knight_moves(const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation);
-void generate_bishop_moves(const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation);
-void generate_rook_moves  (const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation);
-void generate_queen_moves (const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation);
-void generate_king_moves  (const Position& position, MoveList& list, const Bitboard::bitboard& limitedMovesKing = noLimitation);
+void generate_pawn_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx);
+void generate_knight_moves(const Position& position, MoveList& list, const MoveGenContext& ctx);
+void generate_bishop_moves(const Position& position, MoveList& list, const MoveGenContext& ctx);
+void generate_rook_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx);
+void generate_queen_moves (const Position& position, MoveList& list, const MoveGenContext& ctx);
+void generate_king_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx);
 
 
