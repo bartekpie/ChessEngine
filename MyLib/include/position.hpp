@@ -103,7 +103,7 @@ class Position {
       Color getSideToMove() const {return sideToMove;}
       Bitboard::bitboard getPieces(Pieces piece) const {return board_[int(piece)];}
       template <Color color> Bitboard::bitboard getPiecesByColor(PiecesType piece) const;
-      template <Color color> Bitboard::bitboard getPiecesByColor() const;
+      Bitboard::bitboard getPiecesByColor(Color color) const;
       template <PiecesType piece> Bitboard::bitboard getOurs() const;
       inline Bitboard::bitboard getOurs() const;
       template <PiecesType piece> Bitboard::bitboard getOpponents() const;
@@ -124,8 +124,8 @@ Bitboard::bitboard Position::getPiecesByColor(PiecesType piece) const {
         return board_[int(piece) + 6];
     }
 }
-template <Color color>
-Bitboard::bitboard Position::getPiecesByColor() const {
+
+Bitboard::bitboard Position::getPiecesByColor(Color color) const {
     return colorBoard_[int(color)];
 }
 template <PiecesType piece>
