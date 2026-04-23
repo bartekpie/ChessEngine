@@ -274,6 +274,44 @@ struct MoveGenContext {
     Bitboard::bitboard pinMask[64]{};
     int num_checks{0};
 };
+template<verticalType type, int offset, MoveType mtype = standard> 
+void from_push_to_moves(Bitboard::bitboard& push, MoveList& list, const MoveGenContext& ctx = {}) {
+     Bitboard::Square from {};
+     bool promotion = false;
+     while(push) {
+       auto to = Bitboard::lsb(push);
+       Bitboard::reset_bit(push, to);
+       promotion = false;
+       if constexpr (type == up) { 
+           from = Bitboard::Square(to - offset);
+           if (to > 55) 
+             promotion = true;
+           if (ctx.pinned) {
+              if (!Bitboard::get_bit(ctx.pinMask[from], to)) {
+                 continue;
+              }
+           }
+       }
+       else {
+          from = Bitboard::Square(to + offset);
+          if (to < 8)
+            promotion = true;
+          if (ctx.pinned) {
+             if (!Bitboard::get_bit(ctx.pinMask[from], to)) {
+                continue;
+             }
+      }
+      if (!promotion) 
+         list += Move::makeMove(from, to, mtype);
+      else {
+         list += Move::makeMove(from, to, MoveType::promotionBishop);
+         list += Move::makeMove(from, to, MoveType::promotionKnight);
+         list += Move::makeMove(from, to, MoveType::promotionQueen);
+         list += Move::makeMove(from, to, MoveType::promotionRook);
+      }
+    }
+  }
+}
 template <PiecesType piece, Color color> std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Position& position, Bitboard::Square square, bool is_legal = legal);
 template<verticalType dir> Bitboard::bitboard push(Bitboard::bitboard b);
 template<verticalType dir> Bitboard::bitboard double_push(Bitboard::bitboard b);
@@ -284,16 +322,15 @@ template<verticalType dir> Bitboard::bitboard left_en_passant(const Position& po
 template<verticalType dir> Bitboard::bitboard right_en_passant(const Position& position, Bitboard::Square double_pushed);
 template<verticalType dir> void left_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list);
 template<verticalType dir> void right_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list);
-template<verticalType type, int offset, MoveType mtype> void from_push_to_moves(Bitboard::bitboard& push, MoveList& list);
 //template<verticalType dir> void generate_castling_moves(const Position& position, MoveList& list);
-std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_pawn_capture_bb(const Position& position, const MoveGenContext& ctx);
+template<verticalType type> std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_pawn_capture_bb(const Position& position, const Bitboard::bitboard& current = ~0ULL);
 template<verticalType type> void generate_pawn_moves_impl(const Position& position, MoveList& list);
  
-void generate_pawn_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx);
-void generate_knight_moves(const Position& position, MoveList& list, const MoveGenContext& ctx);
-void generate_bishop_moves(const Position& position, MoveList& list, const MoveGenContext& ctx);
-void generate_rook_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx);
-void generate_queen_moves (const Position& position, MoveList& list, const MoveGenContext& ctx);
-void generate_king_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx);
+void generate_pawn_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx = {});
+void generate_knight_moves(const Position& position, MoveList& list, const MoveGenContext& ctx = {});
+void generate_bishop_moves(const Position& position, MoveList& list, const MoveGenContext& ctx = {});
+void generate_rook_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx = {});
+void generate_queen_moves (const Position& position, MoveList& list, const MoveGenContext& ctx = {});
+void generate_king_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx = {});
 
 
