@@ -44,9 +44,9 @@ std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Posi
          if (blockers) {
           auto blocking_square = get_blocking_square(dir, blockers);
           auto reduced = precompiled_directions[square][dir] ^ precompiled_directions[blocking_square][dir];
-          auto is_opponent_blocking = Bitboard::get_bit(position.getPiecesByColor<their_color>(), blocking_square);
+          auto is_opponent_blocking = Bitboard::get_bit(position.getPiecesByColor(their_color), blocking_square);
           if (!is_legal) is_opponent_blocking = true;
-          assert(Bitboard::get_bit(position.getPiecesByColor<our_color>(),blocking_square) != is_opponent_blocking);
+          assert(Bitboard::get_bit(position.getPiecesByColor(our_color),blocking_square) != is_opponent_blocking);
           auto moves = reduced | Bitboard::bitboard(is_opponent_blocking) << blocking_square ;
           
           captures |= moves & position.getOpponents();
