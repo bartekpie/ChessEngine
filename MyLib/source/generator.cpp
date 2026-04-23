@@ -2,13 +2,22 @@
 
 
 
-void generate_knight_moves(const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation) {
-    auto b = position.getOurs<PiecesType::knight>();
-    while(b) {
-      auto current = Bitboard::lsb(b);
+void generate_knight_moves(const Position& position, MoveList& list, const MoveGenContext& ctx = {}) {
+    auto pinned_knights = position.getOurs<PiecesType::knight>() & ctx.pinned;
+    auto free_knights = position.getOurs<PiecesType::knight>() & ~pinned_knights;
+    auto side_to_move = position.getSideToMove();
+    auto limitedMoves = ctx.check_mask | ctx.checkers;
+    while(pinned_knights) {
+      auto current = Bitboard::lsb(pinned_knights);
+      list.bitboardToMoves(current, limitedMoves & ctx.pinMask[current] & knight_precompiled[current] & ~ position.getOurs() & ~ position.getOpponents());
+      list.bitboardToMoves(current, limitedMoves & ctx.pinMask[current] & knight_precompiled[current] & ~ position.getOurs() & position.getOpponents(), capture);
+      Bitboard::reset_bit(pinned_knights, current);
+    }
+    while(free_knights) {
+      auto current = Bitboard::lsb(free_knights);
       list.bitboardToMoves(current, limitedMoves & knight_precompiled[current] & ~ position.getOurs() & ~ position.getOpponents());
       list.bitboardToMoves(current, limitedMoves & knight_precompiled[current] & ~ position.getOurs() & position.getOpponents(), capture);
-      Bitboard::reset_bit(b, current);
+      Bitboard::reset_bit(free_knights, current);
     }
 }
 
@@ -55,8 +64,8 @@ void generate_bishop_moves(const Position& position, MoveList& list, const MoveG
   auto side_to_move = position.getSideToMove();
   auto limitedMoves = ctx.check_mask | ctx.checkers;
   while (pinned_bishops) {
-     Bitboard::Square square = Bitboard::lsb(free_bishops);
-     Bitboard::reset_bit(free_bishops, square); 
+     Bitboard::Square square = Bitboard::lsb(pinned_bishops);
+     Bitboard::reset_bit(pinned_bishops, square); 
      auto [quiets, captures] = generate_sliders_bb<PiecesType::bishop>(position, square, side_to_move);
      assert(ctx.pinMask[square]);
      list.bitboardToMoves(square, captures & limitedMoves & ctx.pinMask[square], capture);
@@ -71,28 +80,48 @@ void generate_bishop_moves(const Position& position, MoveList& list, const MoveG
   }  
 }
 
-void generate_rook_moves(const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = ~noLimitation) {
-  auto rooks = position.getOurs<PiecesType::rook>();
+void generate_rook_moves(const Position& position, MoveList& list, const MoveGenContext& ctx = {}) {
+  auto pinned_rooks = position.getOurs<PiecesType::rook>() & ctx.pinned;
+  auto free_rooks = position.getOurs<PiecesType::rook>() & ~pinned_rooks;
   auto side_to_move = position.getSideToMove();
-  while (rooks) {
-     Bitboard::Square square = Bitboard::lsb(rooks);
-     Bitboard::reset_bit(rooks, square); 
+  auto limitedMoves = ctx.check_mask | ctx.checkers;
+   while (pinned_rooks) {
+     Bitboard::Square square = Bitboard::lsb(pinned_rooks);
+     Bitboard::reset_bit(pinned_rooks, square); 
+     auto [quiets, captures] = generate_sliders_bb<PiecesType::rook>(position, square, side_to_move);
+     assert(ctx.pinMask[square]);
+     list.bitboardToMoves(square, captures & limitedMoves & ctx.pinMask[square], capture);
+     list.bitboardToMoves(square, quiets & limitedMoves & ctx.pinMask[square]);
+  } 
+  while (free_rooks) {
+     Bitboard::Square square = Bitboard::lsb(free_rooks);
+     Bitboard::reset_bit(free_rooks, square); 
      auto [quiets, captures] = generate_sliders_bb<PiecesType::rook>(position, square, side_to_move);
      list.bitboardToMoves(square, captures & limitedMoves, capture);
      list.bitboardToMoves(square, quiets & limitedMoves);
-  }
+  } 
 }
 
-void generate_queen_moves(const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation) {
-  auto queens = position.getOurs<PiecesType::queen>();
+void generate_queen_moves(const Position& position, MoveList& list, const MoveGenContext& ctx = {}) {
+  auto pinned_queen = position.getOurs<PiecesType::rook>() & ctx.pinned;
+  auto free_queen = position.getOurs<PiecesType::rook>() & ~pinned_queen;
   auto side_to_move = position.getSideToMove();
-  while (queens) {
-     Bitboard::Square square = Bitboard::lsb(queens);
-     Bitboard::reset_bit(queens, square); 
+  auto limitedMoves = ctx.check_mask | ctx.checkers;
+   while (pinned_queen) {
+     Bitboard::Square square = Bitboard::lsb(pinned_queen);
+     Bitboard::reset_bit(pinned_queen, square); 
+     auto [quiets, captures] = generate_sliders_bb<PiecesType::queen>(position, square, side_to_move);
+     assert(ctx.pinMask[square]);
+     list.bitboardToMoves(square, captures & limitedMoves & ctx.pinMask[square], capture);
+     list.bitboardToMoves(square, quiets & limitedMoves & ctx.pinMask[square]);
+  } 
+  while (free_queen) {
+     Bitboard::Square square = Bitboard::lsb(free_queen);
+     Bitboard::reset_bit(free_queen, square); 
      auto [quiets, captures] = generate_sliders_bb<PiecesType::queen>(position, square, side_to_move);
      list.bitboardToMoves(square, captures & limitedMoves, capture);
      list.bitboardToMoves(square, quiets & limitedMoves);
-  }
+  } 
 }
 
 template<verticalType dir> inline Bitboard::bitboard push(Bitboard::bitboard b) {
@@ -218,7 +247,7 @@ constexpr uint8_t attacks_short_offset = 7;
 constexpr uint8_t attacks_long_offset = 9;
 constexpr Bitboard::bitboard noPinns = ~0ULL;
 template<verticalType type>
-std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_pawn_capture_bb(const Position& position, const MoveGenContext& ctx) {
+std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_pawn_capture_bb(const Position& position, const MoveGenContext& ctx = {}) {
    if constexpr (type == up){
       auto ours = position.getPiecesByColor<Color::white>(PiecesType::pawn) & ctx.pinned;
       auto opponents = position.getPiecesByColor<Color::black>();
@@ -456,12 +485,12 @@ void generate_all_moves(const Position& position, MoveList& list) {
     }
     const auto move_limits = ctx.check_mask | ctx.checkers;
     if (ctx.num_checks == 1) {
-        generate_pawn_moves  (position, list, move_limits);
-        generate_knight_moves(position, list, move_limits);
-        generate_bishop_moves(position, list, move_limits);
-        generate_rook_moves  (position, list, move_limits);
-        generate_queen_moves (position, list, move_limits);
-        generate_king_moves  (position, list, king_limits);
+        generate_pawn_moves  (position, list, ctx);
+        generate_knight_moves(position, list, ctx);
+        generate_bishop_moves(position, list, ctx);
+        generate_rook_moves  (position, list, ctx);
+        generate_queen_moves (position, list, ctx);
+        generate_king_moves  (position, list, ctx);
         return;
     }
 
@@ -470,5 +499,5 @@ void generate_all_moves(const Position& position, MoveList& list) {
     generate_bishop_moves(position, list);
     generate_rook_moves  (position, list);
     generate_queen_moves (position, list);
-    generate_king_moves  (position, list, king_limits);
+    generate_king_moves  (position, list, ctx);
 }

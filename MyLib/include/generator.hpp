@@ -53,9 +53,9 @@ constexpr Bitboard::bitboard notAFile  = 0xfefefefefefefefeULL;
 constexpr Bitboard::bitboard notABFile = 0xfcfcfcfcfcfcfcfcULL;
 constexpr Bitboard::bitboard notHFile  = 0x7f7f7f7f7f7f7f7fULL;
 constexpr Bitboard::bitboard notGHFile = 0x3f3f3f3f3f3f3f3fULL;
+constexpr Bitboard::bitboard noLimitation = ~0ULL;
 
-/*template<Pieces p>
-void generate_moves(const Position& position, MoveList& list);*/
+
 
 alignas(64) static constexpr std::array<std::array<Bitboard::bitboard,10>, 64> precompiled_directions = []()constexpr
 {
@@ -265,7 +265,16 @@ alignas(64) static constexpr auto king_precompiled = []() constexpr {
    return moves;
 }();
 enum verticalType {up =0, down};
-template <PiecesType piece, Color color> std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Position& position, Bitboard::Square square)
+enum slideType : bool {includeOurPieces = 0, legal = 1};
+struct MoveGenContext {
+    Bitboard::bitboard checkers{};     
+    Bitboard::bitboard pinned{0ULL};    
+    Bitboard::bitboard opponent_attacks{};
+    Bitboard::bitboard check_mask{}; 
+    Bitboard::bitboard pinMask[64]{};
+    int num_checks{0};
+};
+template <PiecesType piece, Color color> std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Position& position, Bitboard::Square square, bool is_legal = legal);
 template<verticalType dir> Bitboard::bitboard push(Bitboard::bitboard b);
 template<verticalType dir> Bitboard::bitboard double_push(Bitboard::bitboard b);
 template<verticalType dir> inline Bitboard::bitboard short_offset_attacks(Bitboard::bitboard b);
@@ -279,11 +288,11 @@ template<verticalType type, int offset, MoveType mtype> void from_push_to_moves(
 //template<verticalType dir> void generate_castling_moves(const Position& position, MoveList& list);
 template<verticalType type> void generate_pawn_moves_impl(const Position& position, MoveList& list);
  
-void generate_pawn_moves  (const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
-void generate_knight_moves(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
-void generate_bishop_moves(const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
-void generate_rook_moves  (const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
-void generate_queen_moves (const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
-void generate_king_moves  (const Position& position, MoveList& list, Bitboard::bitboard limitedMoves = ~0ULL);
+void generate_pawn_moves  (const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation);
+void generate_knight_moves(const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation);
+void generate_bishop_moves(const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation);
+void generate_rook_moves  (const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation);
+void generate_queen_moves (const Position& position, MoveList& list, const Bitboard::bitboard& limitedMoves = noLimitation);
+void generate_king_moves  (const Position& position, MoveList& list, const Bitboard::bitboard& limitedMovesKing = noLimitation);
 
 
