@@ -125,7 +125,7 @@ Bitboard::bitboard Position::getPiecesByColor(PiecesType piece) const {
     }
 }
 
-Bitboard::bitboard Position::getPiecesByColor(Color color) const {
+inline Bitboard::bitboard Position::getPiecesByColor(Color color) const {
     return colorBoard_[int(color)];
 }
 template <PiecesType piece>

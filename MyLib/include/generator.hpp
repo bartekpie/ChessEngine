@@ -300,7 +300,8 @@ void from_push_to_moves(Bitboard::bitboard& push, MoveList& list, const MoveGenC
              if (!Bitboard::get_bit(ctx.pinMask[from], to)) {
                 continue;
              }
-      }
+          }
+        }
       if (!promotion) 
          list += Move::makeMove(from, to, mtype);
       else {
@@ -310,8 +311,8 @@ void from_push_to_moves(Bitboard::bitboard& push, MoveList& list, const MoveGenC
          list += Move::makeMove(from, to, MoveType::promotionRook);
       }
     }
-  }
 }
+
 template <PiecesType piece, Color color> std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Position& position, Bitboard::Square square, bool is_legal = legal);
 template<verticalType dir> Bitboard::bitboard push(Bitboard::bitboard b);
 template<verticalType dir> Bitboard::bitboard double_push(Bitboard::bitboard b);
@@ -332,5 +333,5 @@ void generate_bishop_moves(const Position& position, MoveList& list, const MoveG
 void generate_rook_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx = {});
 void generate_queen_moves (const Position& position, MoveList& list, const MoveGenContext& ctx = {});
 void generate_king_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx = {});
-
+void generate_all_moves   (const Position& position, MoveList& list);
 

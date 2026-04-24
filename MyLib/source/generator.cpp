@@ -31,11 +31,11 @@ Bitboard::Square get_blocking_square(int dir, Bitboard::bitboard b) {
 }
 template <PiecesType piece> 
 std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Position& position, Bitboard::Square square, Color color, bool is_legal = legal) {
-   precompiledType starting_dir, ending_dir {};
-   Bitboard::bitboard quiets, captures {};
+   precompiledType starting_dir {}, ending_dir {};
+   Bitboard::bitboard quiets {}, captures {};
    auto our_color = color;
    auto their_color = color == Color::white ? Color::black : Color::white;
-   if constexpr (piece == PiecesType::rook)   {starting_dir = north; ending_dir = south;}
+   if constexpr (piece == PiecesType::rook)   {starting_dir = north; ending_dir = east;}
    if constexpr (piece == PiecesType::bishop) {starting_dir = north_east; ending_dir = south_west;}
    if constexpr (piece == PiecesType::queen)  {starting_dir = north; ending_dir = south_west;}
    auto occupancy = ~ position.getEmptySpaces();
@@ -103,8 +103,8 @@ void generate_rook_moves(const Position& position, MoveList& list, const MoveGen
 }
 
 void generate_queen_moves(const Position& position, MoveList& list, const MoveGenContext& ctx ) {
-  auto pinned_queen = position.getOurs<PiecesType::rook>() & ctx.pinned;
-  auto free_queen = position.getOurs<PiecesType::rook>() & ~pinned_queen;
+  auto pinned_queen = position.getOurs<PiecesType::queen>() & ctx.pinned;
+  auto free_queen = position.getOurs<PiecesType::queen>() & ~pinned_queen;
   auto side_to_move = position.getSideToMove();
   auto limitedMoves = ctx.check_mask | ctx.checkers;
    while (pinned_queen) {
@@ -237,7 +237,7 @@ void generate_pawn_moves_impl(const Position& position, MoveList& list, const Mo
    short_offset_attacks_bb &= limitedMoves;
    long_offset_attacks_bb &= limitedMoves;
 
-   Bitboard::bitboard push_pinned_bb          = push<type>(position.getOurs<PiecesType::pawn>()) & position.getEmptySpaces() & limitedMoves;
+   Bitboard::bitboard push_pinned_bb          = push<type>(pinned_pawns) & position.getEmptySpaces() & limitedMoves;
    Bitboard::bitboard double_push_pinned_bb   = push<type>(push_pinned_bb & can_be_double_pushed<type>()) & position.getEmptySpaces() & limitedMoves;
    auto [short_offset_pinned_attacks_bb, long_offset_pinned_attacks_bb] = generate_pawn_capture_bb<type>(position, pinned_pawns);
    short_offset_pinned_attacks_bb &= limitedMoves;
@@ -455,21 +455,11 @@ void generate_all_moves(const Position& position, MoveList& list) {
         generate_king_moves(position, list, ctx);
         return;
     }
-    const auto move_limits = ctx.check_mask | ctx.checkers;
-    if (ctx.num_checks == 1) {
-        generate_pawn_moves  (position, list, ctx);
-        generate_knight_moves(position, list, ctx);
-        generate_bishop_moves(position, list, ctx);
-        generate_rook_moves  (position, list, ctx);
-        generate_queen_moves (position, list, ctx);
-        generate_king_moves  (position, list, ctx);
-        return;
-    }
-
-    generate_pawn_moves  (position, list);
-    generate_knight_moves(position, list);
-    generate_bishop_moves(position, list);
-    generate_rook_moves  (position, list);
-    generate_queen_moves (position, list);
+    
+    generate_pawn_moves  (position, list, ctx);
+    generate_knight_moves(position, list, ctx);
+    generate_bishop_moves(position, list, ctx);
+    generate_rook_moves  (position, list, ctx);
+    generate_queen_moves (position, list, ctx);
     generate_king_moves  (position, list, ctx);
 }
