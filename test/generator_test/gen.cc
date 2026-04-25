@@ -720,3 +720,19 @@ TEST(generate_king_moves, cannotContactOtherKing) {
     
     EXPECT_EQ(list.size(), 5);
 };
+TEST(generate_king_moves, bothCastlingsAvailable) {
+    const std::string pos = "4k2r/8/8/8/8/8/8/R3K2R w KQ - 0 1";
+    const Position position{pos};
+    MoveList list;
+    generate_all_moves(position, list);    
+
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list)
+            if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_TRUE(has_move(Bitboard::e1, Bitboard::h1, MoveType::castle));
+    EXPECT_TRUE(has_move(Bitboard::e1, Bitboard::a1, MoveType::castle)); 
+
+};

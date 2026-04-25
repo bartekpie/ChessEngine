@@ -243,7 +243,9 @@ void generate_pawn_moves_impl(const Position& position, MoveList& list, const Mo
    short_offset_pinned_attacks_bb &= limitedMoves;
    long_offset_pinned_attacks_bb &= limitedMoves;
 
-
+   if (ctx.num_checks == 0) 
+      generate_castling_moves<type>(position, list, ctx);
+   
    auto double_pushed_move = position.getMoreInfo().doublePushedMove_;
 
    if (double_pushed_move != Bitboard::a1) {
@@ -278,46 +280,46 @@ void generate_king_moves(const Position& position, MoveList& list, const MoveGen
    list.bitboardToMoves(our_king, quiet);
    list.bitboardToMoves(our_king, captures, capture);
 }
-/*template<verticalType dir>
-void generate_castling_moves(const Position& position, MoveList& list) {
+template<verticalType dir>
+void generate_castling_moves(const Position& position, MoveList& list, const MoveGenContext& ctx) {
+   auto castling_rights = position.getMoreInfo().castlingRights_;
+   auto not_attacked = ~ctx.opponent_attacks;
    if constexpr (dir == up) {
       bool whiteCanShortCastle = 
-         whiteShortCastleRight &&
-         Bitboard::count_bits(position.getEmptySpaces() & 0x60) == 2 &&
-         enemy_attacking_king ;
+         (castling_rights & white_king_side) &&
+         Bitboard::count_bits(position.getEmptySpaces() & 0x60) == 2;
+         Bitboard::get_bit(not_attacked, Bitboard::f1) && 
+         Bitboard::get_bit(not_attacked, Bitboard::g1);
       if (whiteCanShortCastle)
-         list += Move::makeMove(Bitboard::e1, Bitboard::h1, MoveType::castle)
+         list += Move::makeMove(Bitboard::e1, Bitboard::h1, MoveType::castle);
+
       bool whiteCanLongCastle = 
-         whiteShortCastleRight && 
-         Bitboard::count_bits(position.getEmptySpaces() & 0xE ) == 3 &&
-         enemy_not_attacking_king ;
+         (castling_rights & white_queen_side) && 
+         Bitboard::count_bits(position.getEmptySpaces() & 0xE) == 3 &&
+         Bitboard::get_bit(not_attacked, Bitboard::c1) && 
+         Bitboard::get_bit(not_attacked, Bitboard::d1);
       if (whiteCanLongCastle)
-        list += Move::makeMove(Bitboard::e1, Bitboard::a1, MoveType::castle)
+        list += Move::makeMove(Bitboard::e1, Bitboard::a1, MoveType::castle);
    }
    else {
-      bool blackCanShortCastle = blackShortCastleRight &&
-      Bitboard::count_bits(position.getEmptySpaces() & 0x6000000000000000 ) == 2 &&
-      enemy_attacking_king ;
+      bool blackCanShortCastle = 
+         (castling_rights & black_king_side) &&
+         Bitboard::count_bits(position.getEmptySpaces() & 0x6000000000000000 ) == 2 &&
+         Bitboard::get_bit(not_attacked, Bitboard::f8) && 
+         Bitboard::get_bit(not_attacked, Bitboard::g8);
       if (blackCanShortCastle)
-        list += Move::makeMove(Bitboard::e8, Bitboard::h8, MoveType::castle)
-      bool whiteCanLongCastle = 
-      blackShortCastleRight && 
-      Bitboard::count_bits(position.getEmptySpaces() & 0xE00000000000000 ) == 3 &&
-      enemy_not_attacking_king ;
-      if (blackCanShortCastle)
-        list += Move::makeMove(Bitboard::e8, Bitboard::a8, MoveType::castle)
+        list += Move::makeMove(Bitboard::e8, Bitboard::h8, MoveType::castle);
+
+      bool blackCanLongCastle = 
+         (castling_rights & black_queen_side) && 
+         Bitboard::count_bits(position.getEmptySpaces() & 0xE00000000000000 ) == 3 &&
+         Bitboard::get_bit(not_attacked, Bitboard::c8) &&
+         Bitboard::get_bit(not_attacked, Bitboard::d8);
+      if (blackCanLongCastle)
+        list += Move::makeMove(Bitboard::e8, Bitboard::a8, MoveType::castle);
    }
   
-
-}*/
-/*void generate_all_moves(const Position& position, MoveList& list) {
-   generate_pawn_moves  (position, list);
-   generate_knight_moves(position, list);
-   generate_bishop_moves(position, list);
-   generate_rook_moves  (position, list);
-   generate_queen_moves (position, list);
-   generate_king_moves  (position, list);
-}*/
+}
 
 void find_pinned_and_attacking_pieces(const Position& position, MoveGenContext& ctx)
 {
@@ -464,4 +466,5 @@ void generate_all_moves(const Position& position, MoveList& list) {
     generate_rook_moves  (position, list, ctx);
     generate_queen_moves (position, list, ctx);
     generate_king_moves  (position, list, ctx);
+    
 }

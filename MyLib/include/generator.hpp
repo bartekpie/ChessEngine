@@ -324,7 +324,7 @@ template<verticalType dir> Bitboard::bitboard left_en_passant(const Position& po
 template<verticalType dir> Bitboard::bitboard right_en_passant(const Position& position, Bitboard::Square double_pushed);
 template<verticalType dir> void left_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list);
 template<verticalType dir> void right_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list);
-//template<verticalType dir> void generate_castling_moves(const Position& position, MoveList& list);
+template<verticalType dir> void generate_castling_moves(const Position& position, MoveList& list, const MoveGenContext& ctx = {});
 template<verticalType type> std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_pawn_capture_bb(const Position& position, const Bitboard::bitboard& current = ~0ULL);
 template<verticalType type> void generate_pawn_moves_impl(const Position& position, MoveList& list);
  
