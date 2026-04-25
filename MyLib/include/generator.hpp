@@ -272,6 +272,7 @@ struct MoveGenContext {
     Bitboard::bitboard opponent_attacks{};
     Bitboard::bitboard check_mask{}; 
     Bitboard::bitboard pinMask[64]{};
+    Bitboard::bitboard limitedMoves{noLimitation};
     int num_checks{0};
 };
 template<verticalType type, int offset, MoveType mtype = standard> 

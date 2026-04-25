@@ -6,7 +6,7 @@ void generate_knight_moves(const Position& position, MoveList& list, const MoveG
     auto pinned_knights = position.getOurs<PiecesType::knight>() & ctx.pinned;
     auto free_knights = position.getOurs<PiecesType::knight>() & ~pinned_knights;
     auto side_to_move = position.getSideToMove();
-    auto limitedMoves = ctx.check_mask | ctx.checkers;
+    auto limitedMoves = ctx.limitedMoves;
     while(pinned_knights) {
       auto current = Bitboard::lsb(pinned_knights);
       list.bitboardToMoves(current, limitedMoves & ctx.pinMask[current] & knight_precompiled[current] & ~ position.getOurs() & ~ position.getOpponents());
@@ -62,7 +62,7 @@ void generate_bishop_moves(const Position& position, MoveList& list, const MoveG
   auto pinned_bishops = position.getOurs<PiecesType::bishop>() & ctx.pinned;
   auto free_bishops = position.getOurs<PiecesType::bishop>() & ~pinned_bishops;
   auto side_to_move = position.getSideToMove();
-  auto limitedMoves = ctx.check_mask | ctx.checkers;
+  auto limitedMoves = ctx.limitedMoves;
   while (pinned_bishops) {
      Bitboard::Square square = Bitboard::lsb(pinned_bishops);
      Bitboard::reset_bit(pinned_bishops, square); 
@@ -84,7 +84,7 @@ void generate_rook_moves(const Position& position, MoveList& list, const MoveGen
   auto pinned_rooks = position.getOurs<PiecesType::rook>() & ctx.pinned;
   auto free_rooks = position.getOurs<PiecesType::rook>() & ~pinned_rooks;
   auto side_to_move = position.getSideToMove();
-  auto limitedMoves = ctx.check_mask | ctx.checkers;
+  auto limitedMoves = ctx.limitedMoves;
    while (pinned_rooks) {
      Bitboard::Square square = Bitboard::lsb(pinned_rooks);
      Bitboard::reset_bit(pinned_rooks, square); 
@@ -106,7 +106,7 @@ void generate_queen_moves(const Position& position, MoveList& list, const MoveGe
   auto pinned_queen = position.getOurs<PiecesType::queen>() & ctx.pinned;
   auto free_queen = position.getOurs<PiecesType::queen>() & ~pinned_queen;
   auto side_to_move = position.getSideToMove();
-  auto limitedMoves = ctx.check_mask | ctx.checkers;
+  auto limitedMoves = ctx.limitedMoves;
    while (pinned_queen) {
      Bitboard::Square square = Bitboard::lsb(pinned_queen);
      Bitboard::reset_bit(pinned_queen, square); 
@@ -226,7 +226,7 @@ std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_pawn_capture_bb(const
 }
 template<verticalType type>
 void generate_pawn_moves_impl(const Position& position, MoveList& list, const MoveGenContext& ctx) {
-   auto limitedMoves = ctx.check_mask | ctx.checkers;
+   auto limitedMoves = ctx.limitedMoves;
 
    auto pinned_pawns = position.getOurs<PiecesType::pawn>() & ctx.pinned;
    auto free_pawns = position.getOurs<PiecesType::pawn>() & ~pinned_pawns;
@@ -455,7 +455,9 @@ void generate_all_moves(const Position& position, MoveList& list) {
         generate_king_moves(position, list, ctx);
         return;
     }
-    
+    if (ctx.num_checks == 1) {
+        ctx.limitedMoves = ctx.check_mask | ctx.checkers;
+    }
     generate_pawn_moves  (position, list, ctx);
     generate_knight_moves(position, list, ctx);
     generate_bishop_moves(position, list, ctx);
