@@ -460,21 +460,20 @@ MoveGenContext build_context(const Position& position) {
     return ctx;
 }
 GameStatus generate_all_moves(const Position& position, MoveList& list) {
-    auto ctx = build_context(position);
-    if (ctx.num_checks == 2) {
-        generate_king_moves(position, list, ctx);
-        return;
+   auto ctx = build_context(position);
+   if (ctx.num_checks == 2) {
+       generate_king_moves(position, list, ctx);
+   }
+   else {
+         if (ctx.num_checks == 1) 
+            ctx.limitedMoves = ctx.check_mask | ctx.checkers;
+         generate_pawn_moves  (position, list, ctx);
+         generate_knight_moves(position, list, ctx);
+         generate_bishop_moves(position, list, ctx);
+         generate_rook_moves  (position, list, ctx);
+         generate_queen_moves (position, list, ctx);
+         generate_king_moves  (position, list, ctx);
     }
-    if (ctx.num_checks == 1) {
-        ctx.limitedMoves = ctx.check_mask | ctx.checkers;
-    }
-    generate_pawn_moves  (position, list, ctx);
-    generate_knight_moves(position, list, ctx);
-    generate_bishop_moves(position, list, ctx);
-    generate_rook_moves  (position, list, ctx);
-    generate_queen_moves (position, list, ctx);
-    generate_king_moves  (position, list, ctx);
-
     if (list.size() == 0) {
        if (ctx.num_checks > 0) {
           return GameStatus::checkmate;
