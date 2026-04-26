@@ -1,22 +1,25 @@
 #pragma once
+#include "position.hpp"
+#include "generator.hpp"
+#include "move.hpp"
+#include <atomic>
+#include <limits>
+#include <chrono>
 
-#include "chesstate.hpp"
-#include "bitboard.hpp"
-#include "const.hpp"
 
 namespace Engine {
-
+    enum playerType { min, max };
 	class engine
 	{
 	public:
-		engine(Chess::ChessState& startingstate) : state(startingstate) {}
-		Chess::MoveList movelist[max_depth];
-		Chess::MoveList checkhelper;
 		int evalulate();
-		int search(int depth, int alfa, int beta);
-		Chess::Move bestMove(int depth, int alfa, int beta);
+		template <playerType player> int search(int depth, int alfa, int beta);
+		Move bestMove(int depth, int alfa, int beta);
 	private:
-		Chess::ChessState& state;
+		Position position_;
+		MoveList moveList_;
+		std::atomic<bool> stopFlag_{false};
+		std::int64_t nodesSearched_{0};
 	};
 
 }

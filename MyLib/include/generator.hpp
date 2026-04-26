@@ -265,6 +265,7 @@ alignas(64) static constexpr auto king_precompiled = []() constexpr {
    return moves;
 }();
 enum verticalType {up =0, down};
+enum class GameStatus {normal = 0, checkmate, pat};
 enum slideType : bool {includeOurPieces = 0, legal = 1};
 struct MoveGenContext {
     Bitboard::bitboard checkers{~0ULL};     
@@ -334,5 +335,5 @@ void generate_bishop_moves(const Position& position, MoveList& list, const MoveG
 void generate_rook_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx = {});
 void generate_queen_moves (const Position& position, MoveList& list, const MoveGenContext& ctx = {});
 void generate_king_moves  (const Position& position, MoveList& list, const MoveGenContext& ctx = {});
-void generate_all_moves   (const Position& position, MoveList& list);
+GameStatus generate_all_moves   (const Position& position, MoveList& list);
 

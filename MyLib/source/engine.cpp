@@ -14,19 +14,25 @@ namespace Engine
     template <playerType player>
     int engine::search(int depth, int alfa, int beta)
     {
-        nodesSearched_++;
         if (stopFlag_) return 0;
+        nodesSearched_++;
+        MoveList move_list {};
+        GameStatus status = generate_all_moves(position_, move_list);
+        if (status == GameStatus::checkmate) {
+            return (player == max) ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+        }
+        if (status == GameStatus::pat) {
+            return 0;
+        }
         if (depth == 0)
             return evalulate();
-        MoveList move_list {};
-        generate_all_moves(position_, move_list); 
         if constexpr (player == max)
         {
             int max = std::numeric_limits<int>::max();
-            for (auto move : move_list_) {
-                position_.makeMove(move);
+            for (auto move : move_list) {
+                position_.simulate_move(move);
                 int actual = search<min>(depth - 1, alfa, beta);
-                position_.undoMove(move);
+                position_.undo_move();
                 if (actual > max)
                     max = actual;
                 if (actual > alfa)
@@ -39,10 +45,10 @@ namespace Engine
         else
         {
             int min = std::numeric_limits<int>::min();
-            for (auto move : moveList_) {
-                position_.simulateMove(move);
+            for (auto move : move_list) {
+                position_.simulate_move(move);
                 int actual = search<max>(depth - 1, alfa, beta);
-                position_.undoMove(move);
+                position_.undo_move();
                 if (actual < min)
                     min = actual;
                 if (actual < beta)

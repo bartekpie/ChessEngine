@@ -1,10 +1,11 @@
 
-#include "game.hpp"
+#include "engine.hpp"
 #include <iostream>
 
 int main() {
-    Game::Game game;
-    game.mainloop(); 
+    Engine::engine engine;
+    int max_depth = 7;
+    engine.bestMove(max_depth, -1000000, 10000000);
    
     
     //console version//
