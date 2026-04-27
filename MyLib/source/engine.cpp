@@ -14,7 +14,6 @@ namespace Engine
     template <playerType player>
     int engine::search(int depth, int alfa, int beta)
     {
-        if (stopFlag_) return 0;
         nodesSearched_++;
         MoveList move_list {};
         GameStatus status = generate_all_moves(position_, move_list);
@@ -63,6 +62,7 @@ namespace Engine
 
     Move engine::bestMove(int depth, int alfa, int beta)
     {
+       isSearching_.store(true);
        nodesSearched_ = 0;
        auto start = std::chrono::high_resolution_clock::now();
 
@@ -83,7 +83,7 @@ namespace Engine
                 if (alfa >= beta)
                     break;
             }
-            return bestMove;
+            
         }
         else
         {
@@ -105,7 +105,30 @@ namespace Engine
         std::chrono::duration<double> elapsed = end - start;
         double seconds = elapsed.count();
         std::cout <<"Nodes searched: " << nodesSearched_ << " in " << seconds << " seconds. NPS: " << nodesSearched_ / seconds << std::endl;
+        isSearching_.store(false);
         return bestMove;
 
     }
-}
+    void engine::printStatistics() const
+    {
+        uint64_t lastNodes = 0;
+        auto lastTime = std::chrono::steady_clock::now();
+
+        while (isSearching_.load()) {
+            std::this_thread::sleep_for(std::chrono::seconds(10));
+
+            uint64_t currentNodes = nodesSearched_.load();
+            auto now = std::chrono::steady_clock::now();
+
+            double elapsed = std::chrono::duration<double>(now - lastTime).count();
+            uint64_t diff = currentNodes - lastNodes;
+
+            uint64_t nps = diff / elapsed;
+
+            std::cout << "info nodes " << currentNodes << " nps " << nps << std::endl;
+
+            lastNodes = currentNodes;
+            lastTime = now;
+        }
+    }
+};
