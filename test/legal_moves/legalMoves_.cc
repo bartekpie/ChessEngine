@@ -163,11 +163,10 @@ TEST(LegalMoves, singleCheck) {
         return false;
     };
 
-    EXPECT_EQ(list.size(), 6);
+    EXPECT_EQ(list.size(), 5);
     EXPECT_TRUE(has_move(Bitboard::d1, Bitboard::d2, standard));
     EXPECT_TRUE(has_move(Bitboard::c1, Bitboard::d2, standard));
     EXPECT_TRUE(has_move(Bitboard::c2, Bitboard::c3, standard));
-    EXPECT_TRUE(has_move(Bitboard::b2, Bitboard::b4, standard));
     EXPECT_TRUE(has_move(Bitboard::b1, Bitboard::d2, standard));
     EXPECT_TRUE(has_move(Bitboard::b1, Bitboard::c3, standard));
     
@@ -194,3 +193,19 @@ TEST(LegalMoves, kingCannotGoInAttackUnderCheck) {
     EXPECT_TRUE(has_move(Bitboard::d2, Bitboard::d3, standard));
     
 };
+TEST(LegalMoves, queenMovesHaveToStop) {
+    const std::string pos = "k1b4Q/8/8/8/8/8/3K4/8 w KQkq - 0 4";
+    
+    MoveList list;
+    Position position(pos);
+    generate_all_moves(position, list);
+    
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list)
+            if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_TRUE(has_move(Bitboard::h8, Bitboard::c8, capture));
+    EXPECT_FALSE(has_move(Bitboard::h8, Bitboard::a8, capture));
+}
