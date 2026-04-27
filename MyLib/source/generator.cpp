@@ -107,11 +107,13 @@ void generate_queen_moves(const Position& position, MoveList& list, const MoveGe
   auto free_queen = position.getOurs<PiecesType::queen>() & ~pinned_queen;
   auto side_to_move = position.getSideToMove();
   auto limitedMoves = ctx.limitedMoves;
+  auto k_square = Bitboard::lsb(position.getOpponents<PiecesType::king>());
    while (pinned_queen) {
      Bitboard::Square square = Bitboard::lsb(pinned_queen);
      Bitboard::reset_bit(pinned_queen, square); 
      auto [quiets, captures] = generate_sliders_bb<PiecesType::queen>(position, square, side_to_move);
      assert(ctx.pinMask[square]);
+     assert(Bitboard::get_bit(ctx.pinMask[square] & limitedMoves & captures, k_square) == false);
      list.bitboardToMoves(square, captures & limitedMoves & ctx.pinMask[square], capture);
      list.bitboardToMoves(square, quiets & limitedMoves & ctx.pinMask[square]);
   } 
@@ -119,6 +121,7 @@ void generate_queen_moves(const Position& position, MoveList& list, const MoveGe
      Bitboard::Square square = Bitboard::lsb(free_queen);
      Bitboard::reset_bit(free_queen, square); 
      auto [quiets, captures] = generate_sliders_bb<PiecesType::queen>(position, square, side_to_move);
+     assert(Bitboard::get_bit(limitedMoves & captures, k_square) == false);
      list.bitboardToMoves(square, captures & limitedMoves, capture);
      list.bitboardToMoves(square, quiets & limitedMoves);
   } 
@@ -211,7 +214,7 @@ constexpr uint8_t attacks_long_offset = 9;
 constexpr Bitboard::bitboard noPinns = ~0ULL;
 template<verticalType type>
 std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_pawn_capture_bb(const Position& position, const Bitboard::bitboard& current) {
-   Bitboard::bitboard ours, opponents {};
+   Bitboard::bitboard ours {}, opponents {};
    if constexpr (type == up){
       ours = position.getPiecesByColor<Color::white>(PiecesType::pawn) & current;
       opponents = position.getPiecesByColor(Color::black);
@@ -237,12 +240,18 @@ void generate_pawn_moves_impl(const Position& position, MoveList& list, const Mo
    short_offset_attacks_bb &= limitedMoves;
    long_offset_attacks_bb &= limitedMoves;
 
-   Bitboard::bitboard push_pinned_bb          = push<type>(pinned_pawns) & position.getEmptySpaces() & limitedMoves;
-   Bitboard::bitboard double_push_pinned_bb   = push<type>(push_pinned_bb & can_be_double_pushed<type>()) & position.getEmptySpaces() & limitedMoves;
-   auto [short_offset_pinned_attacks_bb, long_offset_pinned_attacks_bb] = generate_pawn_capture_bb<type>(position, pinned_pawns);
-   short_offset_pinned_attacks_bb &= limitedMoves;
-   long_offset_pinned_attacks_bb &= limitedMoves;
-
+   Bitboard::bitboard push_pinned_bb {}, double_push_pinned_bb {}, short_offset_pinned_attacks_bb {}, long_offset_pinned_attacks_bb {};
+   while (pinned_pawns) {
+      auto from = Bitboard::lsb(pinned_pawns);
+      Bitboard::reset_bit(pinned_pawns, from);
+      auto curr_push = push<type>(1ULL << from) & position.getEmptySpaces() & limitedMoves & ctx.pinMask[from];
+      auto double_push = push<type>(curr_push & can_be_double_pushed<type>()) & position.getEmptySpaces() & limitedMoves & ctx.pinMask[from];
+      auto [curr_short, curr_long] = generate_pawn_capture_bb<type>(position, 1ULL << from);
+      push_pinned_bb |= curr_push;
+      double_push_pinned_bb |= double_push;
+      short_offset_pinned_attacks_bb |= (curr_short & limitedMoves & ctx.pinMask[from]);
+      long_offset_pinned_attacks_bb |= (curr_long & limitedMoves & ctx.pinMask[from]);
+   }
    if (ctx.num_checks == 0) 
       generate_castling_moves<type>(position, list, ctx);
    
@@ -260,7 +269,7 @@ void generate_pawn_moves_impl(const Position& position, MoveList& list, const Mo
    from_push_to_moves<type, attacks_long_offset, capture> (long_offset_attacks_bb, list); 
 
    from_push_to_moves<type, push_offset> (push_pinned_bb, list); 
-   from_push_to_moves<type, double_push_offset> (double_push_bb, list); 
+   from_push_to_moves<type, double_push_offset> (double_push_pinned_bb, list); 
    from_push_to_moves<type, attacks_short_offset, capture> (short_offset_pinned_attacks_bb, list); 
    from_push_to_moves<type, attacks_long_offset, capture> (long_offset_pinned_attacks_bb, list);
    
