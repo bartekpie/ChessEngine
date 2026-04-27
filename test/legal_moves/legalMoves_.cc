@@ -150,3 +150,47 @@ TEST(LegalMoves, checkPinnedPawnsBlack) {
     EXPECT_FALSE(has_move(Bitboard::d2, Bitboard::d3, standard));
     
 };
+TEST(LegalMoves, singleCheck) {
+    const std::string pos = "rnb1kbnr/1p1ppppp/p1p5/q7/8/3P4/PPP1PPPP/RNBQKBNR w KQkq - 0 4";
+    
+    MoveList list;
+    Position position(pos);
+    generate_all_moves(position, list);
+    
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list)
+            if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_EQ(list.size(), 6);
+    EXPECT_TRUE(has_move(Bitboard::d1, Bitboard::d2, standard));
+    EXPECT_TRUE(has_move(Bitboard::c1, Bitboard::d2, standard));
+    EXPECT_TRUE(has_move(Bitboard::c2, Bitboard::c3, standard));
+    EXPECT_TRUE(has_move(Bitboard::b2, Bitboard::b4, standard));
+    EXPECT_TRUE(has_move(Bitboard::b1, Bitboard::d2, standard));
+    EXPECT_TRUE(has_move(Bitboard::b1, Bitboard::c3, standard));
+    
+};
+TEST(LegalMoves, kingCannotGoInAttackUnderCheck) {
+    const std::string pos = "k7/8/8/q7/8/8/3K4/8 w KQkq - 0 4";
+    
+    MoveList list;
+    Position position(pos);
+    generate_all_moves(position, list);
+    
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list)
+            if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_EQ(list.size(), 6);
+    EXPECT_TRUE(has_move(Bitboard::d2, Bitboard::c2, standard));
+    EXPECT_TRUE(has_move(Bitboard::d2, Bitboard::c1, standard));
+    EXPECT_TRUE(has_move(Bitboard::d2, Bitboard::d1, standard));
+    EXPECT_TRUE(has_move(Bitboard::d2, Bitboard::e2, standard));
+    EXPECT_TRUE(has_move(Bitboard::d2, Bitboard::e3, standard));
+    EXPECT_TRUE(has_move(Bitboard::d2, Bitboard::d3, standard));
+    
+};
