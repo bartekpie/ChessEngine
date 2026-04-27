@@ -3,9 +3,19 @@
 #include <iostream>
 
 int main() {
-    Engine::engine engine;
-    int max_depth = 7;
-    engine.bestMove(max_depth, -1000000, 10000000);
+    Engine::engine eng;
+
+    int depth = 6;
+    int alpha = -100000;
+    int beta = 100000;
+    std::thread searchThread(&Engine::engine::bestMove, &eng, depth, alpha, beta);
+    std::thread statisticsThread(&Engine::engine::printStatistics, &eng);
+
+    searchThread.join();
+    statisticsThread.join();
+
+    return 0;
+
    
     
     //console version//

@@ -22,8 +22,7 @@ void generate_knight_moves(const Position& position, MoveList& list, const MoveG
 }
 
 Bitboard::Square get_blocking_square(int dir, Bitboard::bitboard b) {
-   auto num_of_dir = int(dir);
-   if ( (dir == north) || (dir == west) || (dir == north_east) || (dir == north_west)) {
+   if ( (dir == north) || (dir == east) || (dir == north_east) || (dir == north_west)) {
       return Bitboard::lsb(b);
    } else {
       return Bitboard::msb(b);
@@ -47,7 +46,7 @@ std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Posi
           auto is_opponent_blocking = Bitboard::get_bit(position.getPiecesByColor(their_color), blocking_square);
           if (!is_legal) is_opponent_blocking = true;
           assert(Bitboard::get_bit(position.getPiecesByColor(our_color),blocking_square) != is_opponent_blocking);
-          auto moves = reduced | Bitboard::bitboard(is_opponent_blocking) << blocking_square ;
+          auto moves = reduced | (is_opponent_blocking ? 1ULL : 0ULL) << blocking_square ;
           
           captures |= moves & position.getOpponents();
           quiets   |= moves & position.getEmptySpaces();
@@ -107,7 +106,6 @@ void generate_queen_moves(const Position& position, MoveList& list, const MoveGe
   auto free_queen = position.getOurs<PiecesType::queen>() & ~pinned_queen;
   auto side_to_move = position.getSideToMove();
   auto limitedMoves = ctx.limitedMoves;
-  auto k_square = Bitboard::lsb(position.getOpponents<PiecesType::king>());
    while (pinned_queen) {
      Bitboard::Square square = Bitboard::lsb(pinned_queen);
      Bitboard::reset_bit(pinned_queen, square); 
@@ -411,7 +409,7 @@ void find_pinned_and_attacking_pieces(const Position& position, MoveGenContext& 
         }
     }
 
-    precompiled_directions[king_sq][knight];
+    
     auto knights = position.getOpponents<PiecesType::knight>() & precompiled_directions[king_sq][knight];
     ctx.checkers |= knights;
 
