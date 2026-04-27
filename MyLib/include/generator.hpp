@@ -274,6 +274,7 @@ struct MoveGenContext {
     Bitboard::bitboard check_mask{}; 
     Bitboard::bitboard pinMask[64]{};
     Bitboard::bitboard limitedMoves{noLimitation};
+    Bitboard::bitboard kingLimitsInCheck{0ULL};
     int num_checks{0};
 };
 template<verticalType type, int offset, MoveType mtype = standard> 
@@ -314,6 +315,7 @@ void from_push_to_moves(Bitboard::bitboard& push, MoveList& list, const MoveGenC
       }
     }
 }
+precompiledType oppositeDirection(precompiledType dir);
 
 template <PiecesType piece, Color color> std::pair<Bitboard::bitboard, Bitboard::bitboard> generate_sliders_bb(const Position& position, Bitboard::Square square, bool is_legal = legal);
 template<verticalType dir> Bitboard::bitboard push(Bitboard::bitboard b);

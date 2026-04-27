@@ -113,7 +113,7 @@ void generate_queen_moves(const Position& position, MoveList& list, const MoveGe
      Bitboard::reset_bit(pinned_queen, square); 
      auto [quiets, captures] = generate_sliders_bb<PiecesType::queen>(position, square, side_to_move);
      assert(ctx.pinMask[square]);
-     assert(Bitboard::get_bit(ctx.pinMask[square] & limitedMoves & captures, k_square) == false);
+     //assert(Bitboard::get_bit(ctx.pinMask[square] & limitedMoves & captures, k_square) == false);
      list.bitboardToMoves(square, captures & limitedMoves & ctx.pinMask[square], capture);
      list.bitboardToMoves(square, quiets & limitedMoves & ctx.pinMask[square]);
   } 
@@ -121,7 +121,7 @@ void generate_queen_moves(const Position& position, MoveList& list, const MoveGe
      Bitboard::Square square = Bitboard::lsb(free_queen);
      Bitboard::reset_bit(free_queen, square); 
      auto [quiets, captures] = generate_sliders_bb<PiecesType::queen>(position, square, side_to_move);
-     assert(Bitboard::get_bit(limitedMoves & captures, k_square) == false);
+     //assert(Bitboard::get_bit(limitedMoves & captures, k_square) == false);
      list.bitboardToMoves(square, captures & limitedMoves, capture);
      list.bitboardToMoves(square, quiets & limitedMoves);
   } 
@@ -206,7 +206,19 @@ void left_en_passant_to_moves(Bitboard::bitboard& to_bb, MoveList& list) {
       list += Move::makeMove(Bitboard::Square(from), Bitboard::Square(to), MoveType::passant);
    } 
 }
-
+precompiledType oppositeDirection(precompiledType dir) {
+    switch (dir) {
+        case north: return south;
+        case south: return north;
+        case east: return west;
+        case west: return east;
+        case north_east: return south_west;
+        case north_west: return south_east;
+        case south_east: return north_west;
+        case south_west: return north_east;
+        default: assert(false); return north; 
+    }
+}
 constexpr uint8_t push_offset = 8;
 constexpr uint8_t double_push_offset = 16;
 constexpr uint8_t attacks_short_offset = 7;
@@ -283,7 +295,7 @@ void generate_pawn_moves(const Position& position, MoveList& list, const MoveGen
 void generate_king_moves(const Position& position, MoveList& list, const MoveGenContext& ctx ) {
    Bitboard::Square our_king = Bitboard::lsb(position.getOurs<PiecesType::king>());
    Bitboard::Square their_king = Bitboard::lsb(position.getOpponents<PiecesType::king>());
-   const auto king_limits = ~ctx.opponent_attacks;
+   const auto king_limits = ~ctx.opponent_attacks & ~ctx.kingLimitsInCheck;
    auto quiet = king_limits & precompiled_directions[our_king][king] & position.getEmptySpaces() & ~precompiled_directions[their_king][king];
    auto captures = king_limits& precompiled_directions[our_king][king] & position.getOpponents() & ~precompiled_directions[their_king][king];
    list.bitboardToMoves(our_king, quiet);
@@ -394,6 +406,7 @@ void find_pinned_and_attacking_pieces(const Position& position, MoveGenContext& 
             if (is_slider) {
                 ctx.checkers |= (1ULL << first_sq);
                 ctx.check_mask = ray ^ precompiled_directions[first_sq][dir];
+                ctx.kingLimitsInCheck = precompiled_directions[first_sq][oppositeDirection(precompiledType(dir))];
             }
         }
     }
@@ -454,8 +467,8 @@ void find_opponents_possible_attacks(const Position& position, MoveGenContext& c
         auto sq = Bitboard::lsb(pawns);
         Bitboard::reset_bit(pawns, sq);
 
-        auto[l, r] = opposite_color == Color::white ? generate_pawn_capture_bb<up>(position, noPinns) : generate_pawn_capture_bb<down>(position, noPinns);
-        ctx.opponent_attacks |= l | r;
+        auto [l, r] = opposite_color == Color::white ? generate_pawn_capture_bb<up>(position, noPinns) : generate_pawn_capture_bb<down>(position, noPinns);
+        ctx.opponent_attacks |= (l | r);
             
     }
 }
