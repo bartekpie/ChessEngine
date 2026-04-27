@@ -118,3 +118,35 @@ TEST(LegalMoves, scholarsMateIsCheckmate) {
     EXPECT_EQ(list.size(), 0);
     
 };
+TEST(LegalMoves, checkPinnedPawns) {
+    const std::string pos = "rnbqkbnr/pppppppp/8/8/Q7/8/PP1PPPPP/RNB1KBNR b KQkq - 0 4";
+    
+    MoveList list;
+    Position position(pos);
+    generate_all_moves(position, list);
+    
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list)
+            if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_FALSE(has_move(Bitboard::d7, Bitboard::d6, standard));
+    
+};
+TEST(LegalMoves, checkPinnedPawnsBlack) {
+    const std::string pos = "rnb1kbnr/1p1ppppp/p1p5/q7/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 4";
+    
+    MoveList list;
+    Position position(pos);
+    generate_all_moves(position, list);
+    
+    auto has_move = [&](Bitboard::Square from, Bitboard::Square to, MoveType type) {
+        for (const auto& m : list)
+            if (m.from() == from && m.to() == to && m.type() == type) return true;
+        return false;
+    };
+
+    EXPECT_FALSE(has_move(Bitboard::d2, Bitboard::d3, standard));
+    
+};
