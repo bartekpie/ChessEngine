@@ -463,14 +463,13 @@ void find_opponents_possible_attacks(const Position& position, MoveGenContext& c
         ctx.opponent_attacks |= precompiled_directions[sq][knight];
     }
     
-    while (pawns) {
-        auto sq = Bitboard::lsb(pawns);
-        Bitboard::reset_bit(pawns, sq);
+    
 
-        auto [l, r] = opposite_color == Color::white ? generate_pawn_capture_bb<up>(position, noPinns) : generate_pawn_capture_bb<down>(position, noPinns);
-        ctx.opponent_attacks |= (l | r);
+    auto short_offset = opposite_color == Color::white ? short_offset_attacks<up>(pawns) : short_offset_attacks<down>(pawns);
+    auto long_offset = opposite_color == Color::white ? long_offset_attacks<up>(pawns) : long_offset_attacks<down>(pawns);
+    ctx.opponent_attacks |= (short_offset | long_offset);
             
-    }
+    
 }
 MoveGenContext build_context(const Position& position) {
     MoveGenContext ctx{};
