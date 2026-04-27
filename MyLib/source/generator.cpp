@@ -415,10 +415,10 @@ void find_pinned_and_attacking_pieces(const Position& position, MoveGenContext& 
     auto knights = position.getOpponents<PiecesType::knight>() & precompiled_directions[king_sq][knight];
     ctx.checkers |= knights;
 
-    auto pawns = position.getOpponents<PiecesType::pawn>();
+    
     auto vertical_type = position.getSideToMove() == Color::white ? up : down;
-    auto pawn_attacks = (vertical_type == up) ? short_offset_attacks<up>(pawns) | long_offset_attacks<up>(pawns) : short_offset_attacks<down>(pawns) | long_offset_attacks<down>(pawns);
-    ctx.checkers |= pawn_attacks & precompiled_directions[king_sq][king];
+    auto potential_pawn_attacks = (vertical_type == up) ? short_offset_attacks<up>(1ULL<<king_sq) | long_offset_attacks<up>(1ULL<<king_sq) : short_offset_attacks<down>(1ULL<<king_sq) | long_offset_attacks<down>(1ULL<<king_sq);
+    ctx.checkers |= potential_pawn_attacks & position.getOpponents<PiecesType::pawn>();
 }
 void find_opponents_possible_attacks(const Position& position, MoveGenContext& ctx)
 {
