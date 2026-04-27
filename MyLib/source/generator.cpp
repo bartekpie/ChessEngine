@@ -410,6 +410,15 @@ void find_pinned_and_attacking_pieces(const Position& position, MoveGenContext& 
             }
         }
     }
+
+    precompiled_directions[king_sq][knight];
+    auto knights = position.getOpponents<PiecesType::knight>() & precompiled_directions[king_sq][knight];
+    ctx.checkers |= knights;
+
+    auto pawns = position.getOpponents<PiecesType::pawn>();
+    auto vertical_type = position.getSideToMove() == Color::white ? up : down;
+    auto pawn_attacks = (vertical_type == up) ? short_offset_attacks<up>(pawns) | long_offset_attacks<up>(pawns) : short_offset_attacks<down>(pawns) | long_offset_attacks<down>(pawns);
+    ctx.checkers |= pawn_attacks & precompiled_directions[king_sq][king];
 }
 void find_opponents_possible_attacks(const Position& position, MoveGenContext& ctx)
 {
@@ -459,12 +468,9 @@ void find_opponents_possible_attacks(const Position& position, MoveGenContext& c
     while (knights) {
         auto sq = Bitboard::lsb(knights);
         Bitboard::reset_bit(knights, sq);
-
         ctx.opponent_attacks |= precompiled_directions[sq][knight];
     }
     
-    
-
     auto short_offset = opposite_color == Color::white ? short_offset_attacks<up>(pawns) : short_offset_attacks<down>(pawns);
     auto long_offset = opposite_color == Color::white ? long_offset_attacks<up>(pawns) : long_offset_attacks<down>(pawns);
     ctx.opponent_attacks |= (short_offset | long_offset);
