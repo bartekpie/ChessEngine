@@ -158,8 +158,9 @@ namespace Engine
             uint64_t diff = currentNodes - lastNodes;
 
             uint64_t nps = diff / elapsed;
-
-            std::cout << "info nodes " << currentNodes << " nps " << nps << std::endl;
+            std::cout <<"Currently on depth: " << currDepth_.load() << std::endl;
+            std::cout << "Current best move: " << currBestMove_.load().from() << currBestMove_.load().to() <<" " <<currBestMove_.load().type() <<std::endl;
+            std::cout << "Info nodes " << currentNodes << " current pace : " << nps << "nodes/second" <<std::endl;
 
             lastNodes = currentNodes;
             lastTime = now;
