@@ -7,8 +7,34 @@ namespace Engine
 
     int engine::evalulate()
     {
-        
-         return 0;
+        int score = 0;
+
+        for (int pt = 0; pt < 6; pt++) {
+            {
+                Bitboard::bitboard curr_bb = position_.getPiecesByColor<Color::white>(static_cast<PiecesType>(pt)); 
+                if (curr_bb)
+                    score += Bitboard::count_bits(curr_bb); 
+                while (curr_bb) {
+                    int sq = Bitboard::lsb(curr_bb);                          
+                    score += PieceEval[pt];                
+                    score += LocationEval[pt][sq];             
+                } 
+            }
+
+
+            {
+                Bitboard::bitboard curr_bb = position_.getPiecesByColor<Color::black>(static_cast<PiecesType>(pt)); 
+                if (curr_bb)
+                    score -= Bitboard::count_bits(curr_bb); 
+                while (curr_bb) {
+                    int sq = Bitboard::lsb(curr_bb);   
+
+                    score -= PieceEval[pt];                
+                    score -= LocationEval[pt][mirrorSquare(sq)];             
+                } 
+            }
+        }
+        return score;
     }
     
     template <playerType player>
@@ -131,4 +157,5 @@ namespace Engine
             lastTime = now;
         }
     }
+    
 };
