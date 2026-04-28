@@ -32,6 +32,7 @@ class Move {
       constexpr Bitboard::Square from() const;
       constexpr Bitboard::Square to() const;
       constexpr uint16_t data() const;
+      std::string toString() const;
       static constexpr Move makeMove(Bitboard::Square from, Bitboard::Square to, MoveType type = standard);
       
 };
@@ -57,7 +58,38 @@ constexpr MoveType Move::type() const
 constexpr uint16_t Move::data() const {
     return data_;
 }
-constexpr Bitboard::Square Move::from() const{
+inline std::string Move::toString() const
+{
+    std::string move_str;
+    auto from_square = this->from();
+    auto to_square = this->to();
+    move_str += char('a' + from_square % 8);
+    move_str += char('1' + from_square / 8);
+    move_str += char('a' + to_square % 8);  
+    move_str += char('1' + to_square / 8);
+    switch (this->type()) {
+        case MoveType::standard:
+        case MoveType::capture:
+        case MoveType::passant:
+        case MoveType::castle:
+            break;
+        case MoveType::promotionKnight:
+            move_str += 'n';
+            break;
+        case MoveType::promotionBishop:
+            move_str += 'b';
+            break;
+        case MoveType::promotionRook:
+            move_str += 'r';
+            break;
+        case MoveType::promotionQueen:
+            move_str += 'q';
+            break;
+    }
+    return move_str;
+}
+constexpr Bitboard::Square Move::from() const
+{
     return Bitboard::Square(data_ & 0x3f);
 }
 constexpr Bitboard::Square Move::to() const{
