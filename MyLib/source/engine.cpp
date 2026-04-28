@@ -135,6 +135,14 @@ namespace Engine
         return bestMove;
 
     }
+    Move engine::iterativeDeepening(int maxDepth, int alfa, int beta)
+    {
+        
+        for ( currDepth_ =1 ; currDepth_ <= maxDepth; currDepth_++) {
+            currBestMove_ = this->bestMove(currDepth_, alfa, beta);
+        }
+        return currBestMove_;
+    }
     void engine::printStatistics() const
     {
         uint64_t lastNodes = 0;

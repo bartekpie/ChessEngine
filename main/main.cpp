@@ -5,7 +5,7 @@
 int main() {
     Engine::engine eng;
 
-    int depth = 6;
+    int depth = 7;
     int alpha = -100000;
     int beta = 100000;
     std::thread searchThread(&Engine::engine::bestMove, &eng, depth, alpha, beta);
