@@ -11,18 +11,17 @@
 
 namespace Engine {
 
-    enum playerType { min, max };
+    
 	class engine {
 	private:
 		Position position_{};
-		MoveList moveList_{};
 		std::atomic<Move> currBestMove_{};
 		std::atomic<int> currDepth_{0};
 		std::atomic<bool> isSearching_{false};
 		std::atomic<std::int64_t> nodesSearched_{0};
 
 		int evalulate();
-		template <playerType player> int search(int depth, int alfa = std::numeric_limits<int>::min(), int beta = std::numeric_limits<int>::max());
+		int search(int depth, int alfa = std::numeric_limits<int>::min(), int beta = std::numeric_limits<int>::max());
 	public:
 		engine() = default;
 		engine(Position position) : position_(position) {};

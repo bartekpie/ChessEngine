@@ -36,52 +36,33 @@ namespace Engine
         return (this->position_.getSideToMove() == Color::white ? score : -score);
     }
     
-    template <playerType player>
+    
     int engine::search(int depth, int alfa, int beta)
     {
         nodesSearched_++;
         MoveList move_list {};
         GameStatus status = generate_all_moves(position_, move_list);
         if (status == GameStatus::checkmate) {
-            return (player == max) ? std::numeric_limits<int>::min() : std::numeric_limits<int>::max();
+            return -10000 + depth; 
         }
         if (status == GameStatus::pat) {
             return 0;
         }
         if (depth == 0)
             return evalulate();
-        if constexpr (player == max)
-        {
-            int max = std::numeric_limits<int>::min();
-            for (auto move : move_list) {
-                position_.simulate_move(move);
-                int actual = search<min>(depth - 1, alfa, beta);
-                position_.undo_move();
-                if (actual > max)
-                    max = actual;
-                if (actual > alfa)
-                    alfa = actual;
-                if (alfa >= beta)
-                    break;
-            }
-            return max;
+        int best = std::numeric_limits<int>::min();
+        for (auto move : move_list) {
+            position_.simulate_move(move);
+            int score = - search(depth-1, -beta, -alfa);
+            position_.undo_move();
+            if (score > best)
+                best = score;
+            if (score > alfa)
+                alfa = score;
+            if (alfa >= beta)
+                break;
         }
-        else
-        {
-            int min = std::numeric_limits<int>::max();
-            for (auto move : move_list) {
-                position_.simulate_move(move);
-                int actual = search<max>(depth - 1, alfa, beta);
-                position_.undo_move();
-                if (actual < min)
-                    min = actual;
-                if (actual < beta)
-                    beta = actual;
-                if (alfa >= beta)
-                    break;
-            }
-            return min;
-        }
+        return best;
 
     }
 
@@ -91,44 +72,17 @@ namespace Engine
        MoveList move_list {};
        generate_all_moves(position_, move_list);
 
-        Move bestMove {};
-        if (position_.getSideToMove() == Color::white)
-        {
-            int max = std::numeric_limits<int>::min();
-            for (auto move : move_list) {
-                position_.simulate_move(move);
-                int actual = search<min>(depth - 1, alfa, beta);
-                position_.undo_move();
-                if (actual > max){
-                    max = actual;
-                    bestMove = move;
-                }
-                if (actual > alfa)
-                    alfa = actual;
-                if (alfa >= beta)
-                    break;
-            }
-            
-        }
-        else
-        {
-            int min = std::numeric_limits<int>::max();
-            for (auto move : moveList_) {
-                position_.simulate_move(move);
-                int actual = search<max>(depth - 1, alfa, beta);
-                position_.undo_move();
-                if (actual < min){
-                    min = actual;
-                    bestMove = move;
-                }
-                if (actual < beta)
-                    beta = actual;
-                if (alfa >= beta)
-                    break;
-            }
-            
-        }
-        return bestMove;
+       Move bestMove {};
+       for (auto move : move_list) {
+           position_.simulate_move(move);
+           int score = search(depth -1, alfa, beta);
+           position_.undo_move();
+           if (score > alfa) {
+              alfa = score;
+              bestMove = move;
+           }
+       }
+       return bestMove;
 
     }
     Move engine::iterativeDeepening(int maxDepth, int alfa, int beta)
