@@ -12,29 +12,28 @@ namespace Engine
         for (int pt = 0; pt < 6; pt++) {
             {
                 Bitboard::bitboard curr_bb = position_.getPiecesByColor<Color::white>(static_cast<PiecesType>(pt)); 
-                if (curr_bb)
-                    score += Bitboard::count_bits(curr_bb); 
                 while (curr_bb) {
-                    int sq = Bitboard::lsb(curr_bb);                          
+                    auto sq = Bitboard::lsb(curr_bb);
+                    Bitboard::reset_bit(curr_bb, sq);                          
                     score += PieceEval[pt];                
-                    score += LocationEval[pt][sq];             
+                    score += LocationEval[pt][int(sq)];             
                 } 
             }
 
 
             {
                 Bitboard::bitboard curr_bb = position_.getPiecesByColor<Color::black>(static_cast<PiecesType>(pt)); 
-                if (curr_bb)
-                    score -= Bitboard::count_bits(curr_bb); 
                 while (curr_bb) {
-                    int sq = Bitboard::lsb(curr_bb);   
+                    auto sq = Bitboard::lsb(curr_bb); 
+                    Bitboard::reset_bit(curr_bb, sq);  
 
                     score -= PieceEval[pt];                
                     score -= LocationEval[pt][mirrorSquare(sq)];             
                 } 
             }
         }
-        return score;
+
+        return (this->position_.getSideToMove() == Color::white ? score : -score);
     }
     
     template <playerType player>
@@ -53,7 +52,7 @@ namespace Engine
             return evalulate();
         if constexpr (player == max)
         {
-            int max = std::numeric_limits<int>::max();
+            int max = std::numeric_limits<int>::min();
             for (auto move : move_list) {
                 position_.simulate_move(move);
                 int actual = search<min>(depth - 1, alfa, beta);
@@ -69,7 +68,7 @@ namespace Engine
         }
         else
         {
-            int min = std::numeric_limits<int>::min();
+            int min = std::numeric_limits<int>::max();
             for (auto move : move_list) {
                 position_.simulate_move(move);
                 int actual = search<max>(depth - 1, alfa, beta);
@@ -77,7 +76,7 @@ namespace Engine
                 if (actual < min)
                     min = actual;
                 if (actual < beta)
-                    alfa = actual;
+                    beta = actual;
                 if (alfa >= beta)
                     break;
             }
@@ -88,22 +87,22 @@ namespace Engine
 
     Move engine::bestMove(int depth, int alfa, int beta)
     {
-       isSearching_.store(true);
        nodesSearched_ = 0;
-       auto start = std::chrono::high_resolution_clock::now();
-
-       generate_all_moves(position_, moveList_);
+       MoveList move_list {};
+       generate_all_moves(position_, move_list);
 
         Move bestMove {};
         if (position_.getSideToMove() == Color::white)
         {
             int max = std::numeric_limits<int>::min();
-            for (auto move : moveList_) {
+            for (auto move : move_list) {
                 position_.simulate_move(move);
                 int actual = search<min>(depth - 1, alfa, beta);
                 position_.undo_move();
-                if (actual > max)
+                if (actual > max){
                     max = actual;
+                    bestMove = move;
+                }
                 if (actual > alfa)
                     alfa = actual;
                 if (alfa >= beta)
@@ -118,29 +117,29 @@ namespace Engine
                 position_.simulate_move(move);
                 int actual = search<max>(depth - 1, alfa, beta);
                 position_.undo_move();
-                if (actual < min)
+                if (actual < min){
                     min = actual;
+                    bestMove = move;
+                }
                 if (actual < beta)
-                    alfa = actual;
+                    beta = actual;
                 if (alfa >= beta)
                     break;
             }
             
         }
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = end - start;
-        double seconds = elapsed.count();
-        std::cout <<"Nodes searched: " << nodesSearched_ << " in " << seconds << " seconds. NPS: " << nodesSearched_ / seconds << std::endl;
-        isSearching_.store(false);
         return bestMove;
 
     }
     Move engine::iterativeDeepening(int maxDepth, int alfa, int beta)
     {
-        
-        for ( currDepth_ =1 ; currDepth_ <= maxDepth; currDepth_++) {
-            currBestMove_ = this->bestMove(currDepth_, alfa, beta);
+        isSearching_.store(true);
+        for ( int curr_depth = 1 ; curr_depth <= maxDepth; curr_depth++) {
+            currDepth_.store(curr_depth);
+            currBestMove_ = this->bestMove(curr_depth, -1000, 1000);
+            std::cout<<"Best move found at dept" << currDepth_ <<": " << currBestMove_.load().toString() <<std::endl;
         }
+        isSearching_.store(false);
         return currBestMove_;
     }
     void engine::printStatistics() const
@@ -159,7 +158,7 @@ namespace Engine
 
             uint64_t nps = diff / elapsed;
             std::cout <<"Currently on depth: " << currDepth_.load() << std::endl;
-            std::cout << "Current best move: " << currBestMove_.load().from() << currBestMove_.load().to() <<" " <<currBestMove_.load().type() <<std::endl;
+            std::cout << "Current best move: " << currBestMove_.load().toString() << std::endl;
             std::cout << "Info nodes " << currentNodes << " current pace : " << nps << "nodes/second" <<std::endl;
 
             lastNodes = currentNodes;

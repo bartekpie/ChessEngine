@@ -16,12 +16,19 @@ namespace Engine {
 	private:
 		Position position_{};
 		MoveList moveList_{};
+		std::atomic<Move> currBestMove_{};
+		std::atomic<int> currDepth_{0};
 		std::atomic<bool> isSearching_{false};
 		std::atomic<std::int64_t> nodesSearched_{0};
-	public:
+
 		int evalulate();
-		template <playerType player> int search(int depth, int alfa = std::numeric_limits<int>(min), int beta = std::numeric_limits<int>(max));
+		template <playerType player> int search(int depth, int alfa = std::numeric_limits<int>::min(), int beta = std::numeric_limits<int>::max());
+	public:
+		engine() = default;
+		engine(Position position) : position_(position) {};
+		engine(std::string fen_position) : position_(fen_position) {};
 		Move bestMove(int depth, int alfa, int beta);
+		Move iterativeDeepening(int maxDepth, int alfa, int beta);
 		void printStatistics() const ;
 	
 	};

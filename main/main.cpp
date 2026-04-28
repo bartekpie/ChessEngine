@@ -5,10 +5,10 @@
 int main() {
     Engine::engine eng;
 
-    int depth = 7;
+    int depth = 10;
     int alpha = -100000;
     int beta = 100000;
-    std::thread searchThread(&Engine::engine::bestMove, &eng, depth, alpha, beta);
+    std::thread searchThread(&Engine::engine::iterativeDeepening, &eng, depth, alpha, beta);
     std::thread statisticsThread(&Engine::engine::printStatistics, &eng);
 
     searchThread.join();
