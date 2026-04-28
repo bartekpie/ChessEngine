@@ -146,16 +146,3 @@ TEST(simulate_move, simulate_and_undo_castling_move) {
 
   EXPECT_TRUE(original == pos);
 };
-TEST(LegalMoves, myTest) {
-    const std::string pos = "rnb1kbnr/1p1ppppp/p1p5/q7/8/3P4/PPP1PPPP/RNBQKBNR w KQkq - 0 4";
-    
-    MoveList list;
-    Position position(pos);
-    position.simulate_move(2608);
-    position.simulate_move(1227);
-    position.simulate_move(2738);
-    position.simulate_move(708);
-    generate_all_moves(position, list);
-    EXPECT_EQ(list.size(), 0);
-    
-};

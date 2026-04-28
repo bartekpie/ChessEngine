@@ -68,7 +68,7 @@ namespace Engine
 
     Move engine::bestMove(int depth, int alfa, int beta)
     {
-       nodesSearched_ = 0;
+       
        MoveList move_list {};
        generate_all_moves(position_, move_list);
 
@@ -82,11 +82,13 @@ namespace Engine
               bestMove = move;
            }
        }
+       
        return bestMove;
 
     }
     Move engine::iterativeDeepening(int maxDepth, int alfa, int beta)
     {
+        nodesSearched_.store(0);
         isSearching_.store(true);
         for ( int curr_depth = 1 ; curr_depth <= maxDepth; curr_depth++) {
             currDepth_.store(curr_depth);
@@ -100,9 +102,9 @@ namespace Engine
     {
         uint64_t lastNodes = 0;
         auto lastTime = std::chrono::steady_clock::now();
-
         while (isSearching_.load()) {
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+           
+            std::this_thread::sleep_for(std::chrono::seconds(5));
 
             uint64_t currentNodes = nodesSearched_.load();
             auto now = std::chrono::steady_clock::now();
@@ -113,11 +115,14 @@ namespace Engine
             uint64_t nps = diff / elapsed;
             std::cout <<"Currently on depth: " << currDepth_.load() << std::endl;
             std::cout << "Current best move: " << currBestMove_.load().toString() << std::endl;
-            std::cout << "Info nodes " << currentNodes << " current pace : " << nps << "nodes/second" <<std::endl;
+            std::cout << "Info nodes " << currentNodes << " current pace : " << nps << " nodes/second" <<std::endl;
+            std::cout << std::endl;
 
             lastNodes = currentNodes;
             lastTime = now;
+            
         }
+        
     }
     
 };
