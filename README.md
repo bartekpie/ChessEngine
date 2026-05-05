@@ -72,16 +72,16 @@ Then we can get bitboard B as precompiled_directions[north_east][blocking_square
 
 By performing xor operation  A ^ B we get Bitboard C, which is result where we cannot go through figures.
 
-             A :                                    B :                                     C:                                         
-             8 | X X X X X X X X                    8 | X X X X X X X X                      8 | X X X X X X X X  
-             7 | X X X X X X X X                    7 | X X X X X X X X                      7 | X X X X X X X X  
-             6 | X X X X X X X X                    6 | X X X X X X X X                      6 | X X X X X X X X  
-             5 | X X X X X X X X                    5 | X X X X X X X X                      5 | X X X X X X X X  
-             4 | X X X . X X X X                    4 | X X X X X X X X                      4 | X X X . X X X X  
-             3 | X X X X . X X X                    3 | X X X X X X X X                      3 | X X X X . X X X  
-             2 | X X X X X . X X                    2 | X X X X X . X X                      2 | X X X X X X X X  
-             1 | X X X X X X . X                    1 | X X X X X X . X                      1 | X X X X X X X X  
-                 A B C D E F G H                        A B C D E F G H                          A B C D E F G H 
+        A :                                    B :                                     C:                                         
+        8 | X X X X X X X X                    8 | X X X X X X X X                      8 | X X X X X X X X  
+        7 | X X X X X X X X                    7 | X X X X X X X X                      7 | X X X X X X X X  
+        6 | X X X X X X X X                    6 | X X X X X X X X                      6 | X X X X X X X X  
+        5 | X X X X X X X X                    5 | X X X X X X X X                      5 | X X X X X X X X  
+        4 | X X X . X X X X                    4 | X X X X X X X X                      4 | X X X . X X X X  
+        3 | X X X X . X X X                    3 | X X X X X X X X                      3 | X X X X . X X X  
+        2 | X X X X X . X X                    2 | X X X X X . X X                      2 | X X X X X X X X  
+        1 | X X X X X X . X                    1 | X X X X X X . X                      1 | X X X X X X X X  
+            A B C D E F G H                        A B C D E F G H                          A B C D E F G H 
    
 Pawn implementation is harder, because pawns have a lot of rules. Single push for white pawns we use bit shift operation by doing pawns << 8, and double push pawns on starting row << 16. We use bit shift operation fot calculating pawn captures through funcions get long and short offset attacks, where we shift by 7 and by 9. To implement right directrions I used templates with if contexpr to adjust right shift operators (<<, >>);
 
